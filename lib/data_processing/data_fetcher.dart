@@ -1,9 +1,8 @@
 import 'package:html/dom.dart';
-import 'package:http/http.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:http/http.dart' as http;
-import 'package:xchedule/data_processing/schedule.dart';
-import 'package:xchedule/global_variables.dart';
+import 'package:http/http.dart';
+import 'package:xchedule/global_variables/global_variables.dart';
 
 class DataFetcher {
   static Document? calDoc;
@@ -18,7 +17,7 @@ class DataFetcher {
         '$baseUrl?cal_date=${date.year}-${GlobalVariables.stringDate(date.month)}-${GlobalVariables.stringDate(date.day)}';
 
     //Loads the calendar webpage in hidden browser; extracts html code after init
-    Response response = await http.get(Uri.parse(paramsUrl));
+    Response response = await http.get(Uri.parse(baseUrl));
     //Parses html code into an Element Object
     calDoc = parse(response.body);
   }
@@ -40,7 +39,6 @@ class DataFetcher {
         break;
       }
     }
-
 
     if (calIndex != null) {
       //Gets the parent of the fsCalendarDate (the box itself)

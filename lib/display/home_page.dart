@@ -1,9 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:xchedule/display/schedule_display.dart';
-
-import '../data_processing/data_fetcher.dart';
-import '../data_processing/schedule.dart';
+import 'package:xchedule/global_variables/global_widgets.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,11 +15,11 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text('Xchedule', style: TextStyle(color: Colors.white),),
+        title: GlobalWidgets.xchedule(),
         backgroundColor: Colors.blueAccent,
       ),
       backgroundColor: Colors.blueGrey,
-      body: ScheduleDisplay(),
+      body: const ScheduleDisplay(),
     );
   }
 }

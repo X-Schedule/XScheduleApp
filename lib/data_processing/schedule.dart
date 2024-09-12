@@ -4,6 +4,7 @@ class Schedule {
   static Map buildSchedule(String day) {
     List<String> letterOrder = [];
     Map result = {};
+    Map schedule = {};
 
     //Deconstructing Schedule String
     bool extendedFlex = day.contains('Extended Flex');
@@ -43,7 +44,8 @@ class Schedule {
     bool homeroom = true;
 
     //Calculating length of each bell; Clock is a custom class for this project
-    Clock flexLength = Clock(hours: extendedFlex ? 1 : 0, minutes: extendedFlex ? 20 : 55);
+    Clock flexLength =
+        Clock(hours: extendedFlex ? 1 : 0, minutes: extendedFlex ? 20 : 55);
     flexLength.factorMinutes();
 
     Clock homeroomLength = Clock(minutes: extendedFlex ? 15 : 10);
@@ -54,8 +56,11 @@ class Schedule {
 
     Clock bellLength = Clock(
         minutes:
-            ((dayLength.minutes - flexLength.minutes - homeroomLength.minutes) / bells -
-                5 + (dayLength.hours - flexLength.hours) / bells * 60).round());
+            ((dayLength.minutes - flexLength.minutes - homeroomLength.minutes) /
+                        bells -
+                    5 +
+                    (dayLength.hours - flexLength.hours) / bells * 60)
+                .round());
     bellLength.factorMinutes();
 
     //Clock used to keep track of accumulated time in schedule building AND the starting time of the day
@@ -65,45 +70,52 @@ class Schedule {
     for (int i = 0; i < letterOrder.length; i++) {
       if (i == flexIndex) {
         if (homeroom) {
-          result['Homeroom'] =
-              '${totalTime.display()} - ${totalTime.displayAdd(deltaMinutes: homeroomLength.minutes)}';
+          schedule['Homeroom'] = {
+            'start': totalTime.instance(),
+            'end': totalTime.displayAdd(deltaMinutes: homeroomLength.minutes),
+            'margin': Clock(minutes: 5)
+          };
           totalTime.add(deltaMinutes: homeroomLength.minutes);
         }
-        result['Flex'] =
-            '${totalTime.display()} - ${totalTime.displayAdd(deltaMinutes: flexLength.minutes, deltaHours: flexLength.hours)}';
+        schedule['Flex'] = {
+          'start': totalTime.instance(),
+          'end': totalTime.displayAdd(
+              deltaMinutes: flexLength.minutes, deltaHours: flexLength.hours),
+          'margin': Clock()
+        };
         totalTime.add(
-            deltaHours: flexLength.hours, deltaMinutes: flexLength.minutes+5);
+            deltaHours: flexLength.hours, deltaMinutes: flexLength.minutes + 5);
       }
-      result[letterOrder[i]] =
-          '${totalTime.display()} - ${totalTime.displayAdd(deltaMinutes: bellLength.minutes, deltaHours: bellLength.hours)}';
+      schedule[letterOrder[i]] = {
+        'start': totalTime.instance(),
+        'end': totalTime.displayAdd(
+            deltaMinutes: bellLength.minutes, deltaHours: bellLength.hours),
+        'margin': Clock(minutes: 5)
+      };
       totalTime.add(
           deltaHours: bellLength.hours, deltaMinutes: bellLength.minutes + 5);
     }
+    result['schedule'] = schedule;
+    result['dayLength'] = dayLength;
     return result;
   }
 }
 
 class Clock {
-  Clock({this.hours = 0, this.minutes = 0, this.pm = false});
+  Clock({this.hours = 0, this.minutes = 0});
 
   int hours;
   int minutes;
-  bool pm = false;
 
   void add({int deltaHours = 0, int deltaMinutes = 0}) {
     minutes += deltaMinutes;
-    if (minutes >= 60) {
-      int count = (minutes / 60).floor();
-      hours += count;
-      minutes -= 60 * count;
+    while(minutes >= 60) {
+      hours++;
+      minutes -= 60;
     }
     hours += deltaHours;
-    if (hours > 12) {
-      int count = (hours / 12).floor();
-      if (count % 2 != 0) {
-        pm = !pm;
-      }
-      hours -= count * 12;
+    while(hours >= 24){
+      hours -= 24;
     }
   }
 
@@ -114,32 +126,31 @@ class Clock {
     return '$hours:$minutes';
   }
 
-  String displayAdd({int deltaHours = 0, int deltaMinutes = 0}) {
+  Clock displayAdd({int deltaHours = 0, int deltaMinutes = 0}) {
     int minuteDisplay = minutes + deltaMinutes;
     int hourDisplay = hours + deltaHours;
-    if (minuteDisplay >= 60) {
-      int count = (minuteDisplay / 60).floor();
-      hourDisplay += count;
-      minuteDisplay -= 60 * count;
+    while(minuteDisplay >= 60) {
+      hourDisplay++;
+      minuteDisplay -= 60;
     }
-    bool pmDisplay = pm;
-    if (hourDisplay > 12) {
-      int count = (hourDisplay / 12).floor();
-      if (count % 2 != 0) {
-        pmDisplay = !pmDisplay;
-      }
-      hourDisplay -= count * 12;
+    while(hours >= 24){
+      hours -= 24;
     }
-    if (minuteDisplay.toString().length == 1) {
-      return '$hourDisplay:0$minuteDisplay';
-    }
-    return '$hourDisplay:$minuteDisplay';
+    return Clock(hours: hourDisplay, minutes: minuteDisplay);
   }
 
-  void factorMinutes(){
-    while(minutes >= 60){
+  void factorMinutes() {
+    while (minutes >= 60) {
       hours++;
-      minutes-=60;
+      minutes -= 60;
     }
+  }
+
+  int findLength(Clock otherClock) {
+    return (otherClock.minutes - minutes + (otherClock.hours - hours) * 60).abs();
+  }
+
+  Clock instance(){
+    return Clock(hours: hours, minutes: minutes);
   }
 }
