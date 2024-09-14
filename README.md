@@ -1,16 +1,8 @@
-# xchedule
+** Installing Flutter **
 
-A new Flutter project.
+Recommended Process: Install via VS Code
+1) Launch VS Code 2) Install Flutter extension for VS Code via Extensions (Ctrl+Shift+X) 3) Open command prompt (Ctrl+Shift+P) and type ">flutter: new project" 4)As VS Code prompts to locate flutter sdk, click "Download SDK" (ignore template prompt). Consider installing under "C:\[INSERT USER\dev" 5)Once output panel displays that flutter is done initializing, type ">flutter: run doctor" in the command prompt to ensure everything was successful.
+NOTE: Once installed, you don't have to use VS Code if you don't want to (I recommend Android Studio), it just makes it easier to install. Make sure to add SDK when installing.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Flutter Installation Documentation
+https://docs.flutter.dev/get-started/install/windows/mobile
