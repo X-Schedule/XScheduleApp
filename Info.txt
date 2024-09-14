@@ -1,0 +1,41 @@
+PowerSchool API
+
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+void main() async {
+  // Replace with your PowerSchool API URL and access token
+  final String baseUrl = 'https://your-powerschool-instance-url/api/v1';
+  final String accessToken = 'your-access-token'; // Usually a Bearer Token
+  
+  // Fetch calendar data
+  await fetchCalendarData(baseUrl, accessToken);
+}
+
+Future<void> fetchCalendarData(String baseUrl, String accessToken) async {
+  final String calendarEndpoint = '$baseUrl/calendars';
+
+  try {
+    // Send GET request to PowerSchool API
+    final response = await http.get(
+      Uri.parse(calendarEndpoint),
+      headers: {
+        'Authorization': 'Bearer $accessToken',
+        'Accept': 'application/json',
+      },
+    );
+
+    // Check if the response is successful
+    if (response.statusCode == 200) {
+      // Parse the response body
+      final Map<String, dynamic> calendarData = json.decode(response.body);
+      
+      // Handle the calendar data
+      print('Calendar Data: $calendarData');
+    } else {
+      print('Failed to load calendar data: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error occurred: $e');
+  }
+}
