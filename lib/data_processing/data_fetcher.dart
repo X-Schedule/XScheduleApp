@@ -4,15 +4,24 @@ import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:xchedule/global_variables/global_variables.dart';
 
+/*
+Data Fetcher:
+Class for getting data from the internet
+
+As of right now, the only existing method is scraping calendar data from the st x website html
+ */
+
 class DataFetcher {
+  //HTML Doc variable; temporarily defined when working with website
   static Document? calDoc;
 
-  static Map<String, String> todayInfo = {};
+  //Map(Dictionary) which stores the basic schedule text with its corresponding date
+  static Map<DateTime, String> scheduleCalendar = {};
 
   static Future<void> getCalDoc(DateTime date) async {
     //Base http url
     String baseUrl = 'https://www.stxavier.org/about/calendar';
-    //Adds the cal_date parameter and value to end of the url
+    //Adds the cal_date parameter and value to end of the url; currently unused
     String paramsUrl =
         '$baseUrl?cal_date=${date.year}-${GlobalVariables.stringDate(date.month)}-${GlobalVariables.stringDate(date.day)}';
 
@@ -23,6 +32,7 @@ class DataFetcher {
   }
 
   static Future<void> getLetterDay(DateTime date) async {
+    //Fetched the initialized HTML from St. X's Calendar Website
     await getCalDoc(date);
 
     //Int in top right of calendar box representing date
@@ -67,7 +77,9 @@ class DataFetcher {
           }
         }
       }
-      todayInfo['schedule'] = schedule ?? 'No Data';
+
+      //Stores the gathered string in correspondence with it's date; if null, then stores 'No Data'
+      scheduleCalendar[date] = schedule ?? 'No Data';
     }
   }
 }

@@ -1,9 +1,31 @@
+import '../global_variables/clock.dart';
+
+/*
+Schedule:
+Class created to organize methods used in calculating schedules
+
+buildSchedule: When provided with Schedule String, will break it down and output a schedule
+ */
+
 class Schedule {
+  //Global Map containing all schedules; organized by dates
+  static Map<DateTime, Map> calendar = {};
+
+  //All possible bells
   static List<String> letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
+  //When provided with Schedule String, will break it down and output a schedule
   static Map buildSchedule(String day) {
+    //If not a schedule day, will return empty
+    if (!day.contains(' Day') || day.contains('No Classes')) {
+      return {};
+    }
+
+    //The order in which bells appear
     List<String> letterOrder = [];
+    //The result Map returned
     Map result = {};
+    //Organized LetterOrder
     Map schedule = {};
 
     //Deconstructing Schedule String
@@ -52,25 +74,36 @@ class Schedule {
 
     int flexIndex = xyDay ? 2 : 3;
 
+    //Length of regular school day
     Clock dayLength = Clock(hours: 7, minutes: 5);
 
+    //Interval of time after 8 which school starts
+    Clock delay = Clock(hours: lateStart ? 1 : 0);
+
+    //Length of each letter bell
     Clock bellLength = Clock(
-        minutes:
-            ((dayLength.minutes - flexLength.minutes - homeroomLength.minutes) /
-                        bells -
-                    5 +
-                    (dayLength.hours - flexLength.hours) / bells * 60)
-                .round());
+      //Gets the minute length of each bell by dividing the time of the school day (excluding flex, homeroom, and possible delay) by the number of bells
+        minutes: ((dayLength.minutes -
+                        flexLength.minutes -
+                        homeroomLength.minutes -
+                        delay.minutes) /
+                    bells -
+                5 +
+            //... and adds it to the hour(factored as minutes) length of each bell by dividing the time of the school day (excluding flex, homeroom, and possible delay) by the number of bells
+                (dayLength.hours - flexLength.hours - delay.hours) / bells * 60)
+            .round());
+    //Refactors minutes into hours
     bellLength.factorMinutes();
 
     //Clock used to keep track of accumulated time in schedule building AND the starting time of the day
     Clock totalTime = Clock(hours: lateStart ? 9 : 8);
 
-    //Builds each bell and inserts into result map
+    //Builds each bell and inserts into schedule map
     for (int i = 0; i < letterOrder.length; i++) {
       if (i == flexIndex) {
         if (homeroom) {
           schedule['Homeroom'] = {
+            'name': 'Homeroom',
             'start': totalTime.instance(),
             'end': totalTime.displayAdd(deltaMinutes: homeroomLength.minutes),
             'margin': Clock(minutes: 5)
@@ -78,6 +111,7 @@ class Schedule {
           totalTime.add(deltaMinutes: homeroomLength.minutes);
         }
         schedule['Flex'] = {
+          'name': 'Flex',
           'start': totalTime.instance(),
           'end': totalTime.displayAdd(
               deltaMinutes: flexLength.minutes, deltaHours: flexLength.hours),
@@ -87,6 +121,7 @@ class Schedule {
             deltaHours: flexLength.hours, deltaMinutes: flexLength.minutes + 5);
       }
       schedule[letterOrder[i]] = {
+        'name': letterOrder[i],
         'start': totalTime.instance(),
         'end': totalTime.displayAdd(
             deltaMinutes: bellLength.minutes, deltaHours: bellLength.hours),
@@ -95,62 +130,9 @@ class Schedule {
       totalTime.add(
           deltaHours: bellLength.hours, deltaMinutes: bellLength.minutes + 5);
     }
-    result['schedule'] = schedule;
-    result['dayLength'] = dayLength;
+    //Combines all data into result; returns result
+    result.addAll(
+        {'schedule': schedule, 'dayLength': dayLength, 'lateStart': lateStart});
     return result;
-  }
-}
-
-class Clock {
-  Clock({this.hours = 0, this.minutes = 0});
-
-  int hours;
-  int minutes;
-
-  void add({int deltaHours = 0, int deltaMinutes = 0}) {
-    minutes += deltaMinutes;
-    while(minutes >= 60) {
-      hours++;
-      minutes -= 60;
-    }
-    hours += deltaHours;
-    while(hours >= 24){
-      hours -= 24;
-    }
-  }
-
-  String display() {
-    if (minutes.toString().length == 1) {
-      return '$hours:0$minutes';
-    }
-    return '$hours:$minutes';
-  }
-
-  Clock displayAdd({int deltaHours = 0, int deltaMinutes = 0}) {
-    int minuteDisplay = minutes + deltaMinutes;
-    int hourDisplay = hours + deltaHours;
-    while(minuteDisplay >= 60) {
-      hourDisplay++;
-      minuteDisplay -= 60;
-    }
-    while(hours >= 24){
-      hours -= 24;
-    }
-    return Clock(hours: hourDisplay, minutes: minuteDisplay);
-  }
-
-  void factorMinutes() {
-    while (minutes >= 60) {
-      hours++;
-      minutes -= 60;
-    }
-  }
-
-  int findLength(Clock otherClock) {
-    return (otherClock.minutes - minutes + (otherClock.hours - hours) * 60).abs();
-  }
-
-  Clock instance(){
-    return Clock(hours: hours, minutes: minutes);
   }
 }
