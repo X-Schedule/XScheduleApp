@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:xchedule/global_variables/clock.dart';
 import 'package:xchedule/global_variables/global_variables.dart';
+import 'package:xchedule/schedule/schedule.dart';
+import 'package:xchedule/schedule/schedule_data.dart';
 import 'package:xchedule/schedule/schedule_settings.dart';
-
-import '../data_processing/data_fetcher.dart';
-import 'schedule.dart';
 
 /*
 ScheduleDisplay:
@@ -27,7 +27,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
   //Creates the controller of PageView and sets the max # of pages; controller starts in the middle
   int maxPages = 30;
   final PageController _controller =
-      PageController(initialPage: (30 / 2).round());
+      PageController(initialPage: (30 / 2).round()+ScheduleDisplay.pageIndex);
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +75,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
   }
 
   //Pseudo-PageView which displays all schedule cards
-  Widget _buildPageView() {
+  Widget _buildPageView(){
     return PageView.builder(
         controller: _controller,
         //Removes default scrolling functionality
@@ -109,10 +109,10 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                       const EdgeInsets.only(left: 20, right: 20, bottom: 120),
                   color: Theme.of(context).colorScheme.surface,
                   //If schedule data has been gathered, displays as usual; if not, used future builder to get it
-                  child: Schedule.calendar[date] == null
+                  child: ScheduleData.schedule.isEmpty
                   //FutureBuilder: will run async methods while displaying loading/placeholder widget; then replaces with widget once data fully fetched
                       ? FutureBuilder(
-                          future: DataFetcher.getLetterDay(date),
+                          future: ScheduleData.getDailyOrder(),
                           //Runs once progress updates in the async method
                           builder: (context, snapshot) {
                             //Checks to see if method is still loading/an error occurred (if error occurred, eternal hell of loading wheel)
@@ -121,14 +121,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                                 snapshot.hasError) {
                               return _buildLoading(context);
                             }
-                            //If undetectable error occurs, sentences to eternal damnation (loading wheel)
-                            if (DataFetcher.scheduleCalendar[date] == null) {
-                              return _buildLoading(context);
-                            }
 
-                            //Stores the method response in the global calendar Map
-                            Schedule.calendar[date] = Schedule.buildSchedule(
-                                DataFetcher.scheduleCalendar[date] ?? '');
+                            ScheduleData.schedule.addAll(snapshot.data ?? {});
                             //Returns full schedule card
                             return _buildSchedule(date, context);
                           })
@@ -138,9 +132,9 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
 
   //Builds the schedule card based on given date
   Widget _buildSchedule(DateTime date, BuildContext context) {
-    Map dayInfo = Schedule.calendar[date] ?? {};
+    Schedule dayInfo = ScheduleData.schedule[date] ?? Schedule.empty();
     double cardHeight = MediaQuery.of(context).size.height - 200.5;
-    if (dayInfo.isEmpty) {
+    if (dayInfo.schedule.isEmpty || dayInfo.schedule.containsKey('-')) {
       //i.e. no schedule/classes
       return Container(
         height: cardHeight,
@@ -153,10 +147,9 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
       );
     }
     //Schedule data
-    Map schedule = dayInfo['schedule'];
+    Map schedule = dayInfo.schedule;
     //The height (in pxs) that each minute will be on the screen, based on the devices screen size etc.
-    double minuteHeight = cardHeight /
-        (dayInfo['dayLength'].minutes + dayInfo['dayLength'].hours * 60);
+    double minuteHeight = cardHeight / 420;
     return Container(
       margin: const EdgeInsets.only(left: 5, right: 10, top: 10, bottom: 10),
       child: Row(
@@ -174,19 +167,13 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
           ),
           //Column of bells, appropriately spaced
           Expanded(
-              child: Column(
-            children: List<Widget>.generate(schedule.values.length, (i) {
-              //Adds 1hr gap if late start day
-              if (i == 0 && dayInfo['lateStart']) {
-                return Padding(
-                  padding: EdgeInsets.only(top: minuteHeight * 60),
-                  child: _buildTile(
-                      context, schedule.values.toList()[i], minuteHeight),
-                );
-              }
+              child: Stack(
+                alignment: Alignment.topCenter,
+            children: List<Widget>.generate(schedule.keys.length, (i) {
               //Returns Schedule 'Tile' based on schedule info
+              String key = schedule.keys.toList()[i];
               return _buildTile(
-                  context, schedule.values.toList()[i], minuteHeight);
+                  context, dayInfo, key, minuteHeight);
             }),
           )),
         ],
@@ -195,24 +182,28 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
   }
 
   //Builds the 'Schedule Tile's displayed on the schedule card
-  Widget _buildTile(BuildContext context, Map schedule, double minuteHeight) {
+  Widget _buildTile(BuildContext context, Schedule schedule, String bell, double minuteHeight) {
     //Gets Map from schedule_settings.dart
-    Map settings = ScheduleSettings.bellInfo[schedule['name']] ?? {};
+    Map settings = ScheduleSettings.bellInfo[bell] ?? {};
 
+    Map times = schedule.clockMap(bell) ?? {};
     //Gets the height (in pxs) of the tile, based on minuteHeight (see _buildSchedule)
     double height =
-        minuteHeight * schedule['start'].findLength(schedule['end']);
+        minuteHeight * times['start']?.difference(times['end']);
+
+    double margin =
+        Clock(hours: 8).difference(times['start']) * minuteHeight;
     //Returns Tile Wrapped in GestureDetector
     return GestureDetector(
       //When Tile is tapped, will display popup with more info
         onTap: () {
-          _showBellInfo(context, schedule);
+          _showBellInfo(context, schedule, bell);
         },
         //Tile
         child: Container(
           height: height,
+          margin: EdgeInsets.only(top: margin),
           color: Theme.of(context).colorScheme.shadow,
-          margin: EdgeInsets.only(top: schedule['margin'].minutes ?? 0),
           child: Row(
             children: [
               //Left color nib; if no setting set, displays as grey
@@ -246,7 +237,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                 fit: BoxFit.contain,
                 //Displays the class name (if null, then bell name), line skip, then time range
                 child: Text(
-                    '${(settings['name'] ?? schedule['name']) ?? ''}${height > 50 ? '\n' : ':     '}${schedule['start'].display()} - ${schedule['end'].display()}'),
+                    '${(settings['name'] ?? bell) ?? ''}${height > 50 ? '\n' : ':     '}${times['start'].display()} - ${times['end'].display()}'),
               )
             ],
           ),
@@ -254,9 +245,10 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
   }
 
   //Builds the bell info popup
-  Widget _buildBellInfo(BuildContext context, Map schedule) {
+  Widget _buildBellInfo(BuildContext context, Schedule schedule, String bell) {
     //Gets settings from schedule_settings.dart
-    Map settings = ScheduleSettings.bellInfo[schedule['name']] ?? {};
+    Map settings = ScheduleSettings.bellInfo[bell] ?? {};
+    Map times = schedule.clockMap(bell) ?? {};
     //Aligns on center of screen
     return Align(
       alignment: Alignment.center,
@@ -322,10 +314,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     //Displays class name, bell name, or nothing (if null)
-                                    if (settings['name'] != null ||
-                                        schedule['name'] != null)
                                       Text(
-                                        settings['name'] ?? '${schedule['name']}${schedule['name'].length <= 1 ? ' Bell' : ''}',
+                                        settings['name'] ?? '$bell${bell.length <= 1 ? ' Bell' : ''}',
                                         style: const TextStyle(
                                             height: 0.9,
                                             fontSize: 25,
@@ -363,9 +353,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 //Displays bell name or nothing (if null)
-                                if (schedule['name'] != null)
                                   Text(
-                                    '${schedule['name']}${schedule['name'].length <= 1 ? ' Bell' : ''}:   ',
+                                    '$bell${bell.length <= 1 ? ' Bell' : ''}:   ',
                                     style: const TextStyle(
                                         height: 0.9,
                                         fontSize: 25,
@@ -373,7 +362,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                                   ),
                                 //Displays the time length (time length cannot be null)
                                 Text(
-                                  '${schedule['start'].display()} - ${schedule['end'].display()}',
+                                  '${times['start'].display()} - ${times['end'].display()}',
                                   style: const TextStyle(
                                       height: 0.9,
                                       fontSize: 25,
@@ -392,14 +381,14 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
   }
 
   //Method which mounts the bell info popup to the 'Navigation' (Stack of widgets; pseudo-3D)
-  void _showBellInfo(BuildContext context, Map schedule) {
+  void _showBellInfo(BuildContext context, Schedule schedule, String bell) {
     //Pushes the popup to the app navigator
     Navigator.of(context).push(PageRouteBuilder(
       //See-through 'page'
       opaque: false,
       //Builds the popup
       pageBuilder: (context, _, __) {
-        return _buildBellInfo(context, schedule);
+        return _buildBellInfo(context, schedule, bell);
       },
       //Manages animation
       transitionsBuilder: (context, a1, a2, child) {

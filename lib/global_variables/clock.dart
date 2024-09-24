@@ -60,7 +60,7 @@ class Clock {
   }
 
   //Finds the time interval between one clock and another
-  int findLength(Clock otherClock) {
+  int difference(Clock otherClock) {
     return (otherClock.minutes - minutes + (otherClock.hours - hours) * 60)
         .abs();
   }
@@ -68,5 +68,22 @@ class Clock {
   //Provides a copy of the clock
   Clock instance() {
     return Clock(hours: hours, minutes: minutes);
+  }
+  int totalMinutes(){
+    return minutes + hours*60;
+  }
+
+  //Returns a Clock from a given String
+  static Clock? parse(String clockText){
+    List<String> parts = clockText.split(':');
+    //If improperly formated, returns null
+    if(parts.length == 2) {
+      int? tryHours = int.tryParse(parts[0]);
+      int? tryMinutes = int.tryParse(parts[1]);
+      if(tryHours != null && tryMinutes != null){
+        return Clock(hours: tryHours, minutes: tryMinutes);
+      }
+    }
+    return null;
   }
 }

@@ -2,137 +2,84 @@ import '../global_variables/clock.dart';
 
 /*
 Schedule:
-Class created to organize methods used in calculating schedules
+Custom Class created to manage schedule data
 
-buildSchedule: When provided with Schedule String, will break it down and output a schedule
+Centralized class for various static(public) methods as well as object specific
  */
 
 class Schedule {
-  //Global Map containing all schedules; organized by dates
-  static Map<DateTime, Map> calendar = {};
+  Schedule({required this.schedule, this.start, this.end});
 
-  //All possible bells
-  static List<String> letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+  final Map schedule;
 
-  //When provided with Schedule String, will break it down and output a schedule
-  static Map buildSchedule(String day) {
-    //If not a schedule day, will return empty
-    if (!day.contains(' Day') || day.contains('No Classes')) {
-      return {};
-    }
+  final DateTime? start;
+  final DateTime? end;
 
-    //The order in which bells appear
-    List<String> letterOrder = [];
-    //The result Map returned
-    Map result = {};
-    //Organized LetterOrder
-    Map schedule = {};
+  //Empty schedule class; used for null safety
+  static Schedule empty() {
+    return Schedule(schedule: {});
+  }
 
-    //Deconstructing Schedule String
-    bool extendedFlex = day.contains('Extended Flex');
-    bool lateStart = day.contains('Late Start');
-    bool allMeet = day.contains('All Meet');
-
-    String letter = allMeet ? 'A' : day[day.indexOf(' Day') - 1];
-
-    bool xyDay = false;
-
-    switch (letter) {
-      case 'X':
-        xyDay = true;
-        letter = 'A';
-        break;
-      case 'Y':
-        xyDay = true;
-        letter = 'E';
-    }
-
-    int bells = allMeet
-        ? 8
-        : xyDay
-            ? 4
-            : 6;
-
-    //Gets the order of letters in the day
-    int letterIndex = letters.indexOf(letter);
-    for (int i = letterIndex; i < bells + letterIndex; i++) {
-      if (i > letters.length - 1) {
-        letterOrder.add(letters[i - letters.length]);
-      } else {
-        letterOrder.add(letters[i]);
+  //Gets the absolute value of the difference of teh start and end times, then returns day length
+  Clock? dayLength() {
+    //If start or end times are undefined, returns null
+    if (start != null && end != null) {
+      int? minutes = start?.difference(end!).inMinutes;
+      if (minutes != null) {
+        Clock clock = Clock(minutes: minutes.abs());
+        clock.factorMinutes();
+        return clock;
       }
     }
+    return null;
+  }
 
-    bool homeroom = true;
-
-    //Calculating length of each bell; Clock is a custom class for this project
-    Clock flexLength =
-        Clock(hours: extendedFlex ? 1 : 0, minutes: extendedFlex ? 20 : 55);
-    flexLength.factorMinutes();
-
-    Clock homeroomLength = Clock(minutes: extendedFlex ? 15 : 10);
-
-    int flexIndex = xyDay ? 2 : 3;
-
-    //Length of regular school day
-    Clock dayLength = Clock(hours: 7, minutes: 5);
-
-    //Interval of time after 8 which school starts
-    Clock delay = Clock(hours: lateStart ? 1 : 0);
-
-    //Length of each letter bell
-    Clock bellLength = Clock(
-      //Gets the minute length of each bell by dividing the time of the school day (excluding flex, homeroom, and possible delay) by the number of bells
-        minutes: ((dayLength.minutes -
-                        flexLength.minutes -
-                        homeroomLength.minutes -
-                        delay.minutes) /
-                    bells -
-                5 +
-            //... and adds it to the hour(factored as minutes) length of each bell by dividing the time of the school day (excluding flex, homeroom, and possible delay) by the number of bells
-                (dayLength.hours - flexLength.hours - delay.hours) / bells * 60)
-            .round());
-    //Refactors minutes into hours
-    bellLength.factorMinutes();
-
-    //Clock used to keep track of accumulated time in schedule building AND the starting time of the day
-    Clock totalTime = Clock(hours: lateStart ? 9 : 8);
-
-    //Builds each bell and inserts into schedule map
-    for (int i = 0; i < letterOrder.length; i++) {
-      if (i == flexIndex) {
-        if (homeroom) {
-          schedule['Homeroom'] = {
-            'name': 'Homeroom',
-            'start': totalTime.instance(),
-            'end': totalTime.displayAdd(deltaMinutes: homeroomLength.minutes),
-            'margin': Clock(minutes: 5)
-          };
-          totalTime.add(deltaMinutes: homeroomLength.minutes);
+  //Returns the start and end times of the inputted bell
+  Map? clockMap(String bell) {
+    //If bell doesn't exist, return null
+    if (schedule[bell] != null) {
+      //Splits bell into start and end
+      List<String> times = schedule[bell].split('-');
+      //If bell improperly formatted, return null
+      if (times.length == 2) {
+        Clock? startClock = Clock.parse(times[0]);
+        //Converts early-PM hours into military time
+        if(startClock!.hours <= 3){
+          startClock.add(deltaHours: 12);
         }
-        schedule['Flex'] = {
-          'name': 'Flex',
-          'start': totalTime.instance(),
-          'end': totalTime.displayAdd(
-              deltaMinutes: flexLength.minutes, deltaHours: flexLength.hours),
-          'margin': Clock()
-        };
-        totalTime.add(
-            deltaHours: flexLength.hours, deltaMinutes: flexLength.minutes + 5);
+        Clock? endClock = Clock.parse(times[1]);
+        //Converts early-PM hours into military time
+        if(endClock!.hours <= 3){
+          endClock.add(deltaHours: 12);
+        }
+        return {'start': startClock, 'end': endClock};
       }
-      schedule[letterOrder[i]] = {
-        'name': letterOrder[i],
-        'start': totalTime.instance(),
-        'end': totalTime.displayAdd(
-            deltaMinutes: bellLength.minutes, deltaHours: bellLength.hours),
-        'margin': Clock(minutes: 5)
-      };
-      totalTime.add(
-          deltaHours: bellLength.hours, deltaMinutes: bellLength.minutes + 5);
     }
-    //Combines all data into result; returns result
-    result.addAll(
-        {'schedule': schedule, 'dayLength': dayLength, 'lateStart': lateStart});
-    return result;
+    return null;
+  }
+
+  //Converts the start DateTime into a Clock
+  Clock? startClock(){
+    //If start undefined, returns null
+    if(start != null){
+      Clock startClock = Clock(hours: start!.hour, minutes: start!.minute);
+      if(startClock.hours <= 3){
+        startClock.add(deltaHours: 12);
+      }
+      return startClock;
+    }
+    return null;
+  }
+  //Converts the end DateTime into a Clock
+  Clock? endClock(){
+    //If end undefined, returns null
+    if(end != null){
+      Clock endClock = Clock(hours: end!.hour, minutes: end!.minute);
+      if(endClock.hours <= 3){
+        endClock.add(deltaHours: 12);
+      }
+      return endClock;
+    }
+    return null;
   }
 }
