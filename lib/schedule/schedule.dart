@@ -8,9 +8,11 @@ Centralized class for various static(public) methods as well as object specific
  */
 
 class Schedule {
-  Schedule({required this.schedule, this.start, this.end});
+  Schedule({required this.schedule, this.start, this.end, this.name = ''});
 
-  final Map schedule;
+  final Map<String, String> schedule;
+
+  final String name;
 
   final DateTime? start;
   final DateTime? end;
@@ -39,7 +41,7 @@ class Schedule {
     //If bell doesn't exist, return null
     if (schedule[bell] != null) {
       //Splits bell into start and end
-      List<String> times = schedule[bell].split('-');
+      List<String> times = schedule[bell]?.split('-') ?? [];
       //If bell improperly formatted, return null
       if (times.length == 2) {
         Clock? startClock = Clock.parse(times[0]);

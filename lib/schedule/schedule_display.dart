@@ -25,9 +25,10 @@ class ScheduleDisplay extends StatefulWidget {
 
 class _ScheduleDisplayState extends State<ScheduleDisplay> {
   //Creates the controller of PageView and sets the max # of pages; controller starts in the middle
-  int maxPages = 30;
+  //Set to 365*3 to allow to allow viewing of 3 years of schedules
+  int maxPages = 365*3;
   final PageController _controller =
-      PageController(initialPage: (30 / 2).round()+ScheduleDisplay.pageIndex);
+      PageController(initialPage: (365*3/2).round()+ScheduleDisplay.pageIndex);
 
   @override
   Widget build(BuildContext context) {
@@ -133,52 +134,64 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
   //Builds the schedule card based on given date
   Widget _buildSchedule(DateTime date, BuildContext context) {
     Schedule dayInfo = ScheduleData.schedule[date] ?? Schedule.empty();
-    double cardHeight = MediaQuery.of(context).size.height - 200.5;
-    if (dayInfo.schedule.isEmpty || dayInfo.schedule.containsKey('-')) {
+    double cardHeight = MediaQuery.of(context).size.height - 197;
+    if (!_schedule(date)) {
       //i.e. no schedule/classes
-      return Container(
-        height: cardHeight,
-        alignment: Alignment.center,
-        margin: const EdgeInsets.only(left: 5, right: 10, top: 10, bottom: 10),
-        child: const Text(
-          'No Classes',
-          style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500),
-        ),
-      );
+      return _buildEmpty(cardHeight);
     }
     //Schedule data
     Map schedule = dayInfo.schedule;
     //The height (in pxs) that each minute will be on the screen, based on the devices screen size etc.
-    double minuteHeight = cardHeight / 420;
+    double minuteHeight = cardHeight / 430;
     return Container(
-      margin: const EdgeInsets.only(left: 5, right: 10, top: 10, bottom: 10),
+      margin: const EdgeInsets.only(left: 5, right: 10),
+      height: cardHeight-20,
       child: Row(
         children: [
           //Column of time references to the left
-          Container(
-            height: cardHeight,
-            padding: const EdgeInsets.only(bottom: 5),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: List<Widget>.generate(8, (i) {
-                return Text('${i + 8 < 10 ? '0${i + 8}' : i + 8} - ');
-              }),
-            ),
-          ),
-          //Column of bells, appropriately spaced
-          Expanded(
-              child: Stack(
-                alignment: Alignment.topCenter,
-            children: List<Widget>.generate(schedule.keys.length, (i) {
-              //Returns Schedule 'Tile' based on schedule info
-              String key = schedule.keys.toList()[i];
-              return _buildTile(
-                  context, dayInfo, key, minuteHeight);
+          Stack(
+            children: List<Widget>.generate(8, (i){
+              return Padding(
+                  padding: EdgeInsets.only(top: minuteHeight*i*60),
+                  child: Text('${i + 8 < 10 ? '0${i + 8}' : i + 8} - ',
+                    style: const TextStyle(fontSize: 15, height: 0.9), //Text px height = 18
+                  )
+              );
             }),
-          )),
+          ),
+          //Expanded Box (as much width as possible) wrapping sized box (set height of card) wrapping stack of bell tiles
+          Expanded(
+              child: Container(
+                padding: const EdgeInsets.only(top: 6.5),
+                height: cardHeight,
+                child: Stack(
+                  alignment: Alignment.topCenter,
+                  children: List<Widget>.generate(schedule.keys.length, (i) {
+                    //Returns Schedule 'Tile' based on schedule info
+                    String key = schedule.keys.toList()[i];
+                    return _buildTile(
+                        context, dayInfo, key, minuteHeight);
+                  }),
+                ),
+              )),
         ],
       ),
     );
+  }
+
+  //Checks that all info of the schedule of a given date is proper
+  bool _schedule(DateTime date){
+    Schedule dayInfo = ScheduleData.schedule[date] ?? Schedule.empty();
+    if(dayInfo.schedule.isEmpty || dayInfo.schedule.containsKey('-')){
+      return false;
+    }
+    List<String> keys = dayInfo.schedule.keys.toList();
+    for(int i = 0; i < keys.length; i++){
+      if(dayInfo.clockMap(keys[i]) == null){
+        return false;
+      }
+    }
+    return true;
   }
 
   //Builds the 'Schedule Tile's displayed on the schedule card
@@ -194,6 +207,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     double margin =
         Clock(hours: 8).difference(times['start']) * minuteHeight;
     //Returns Tile Wrapped in GestureDetector
+    print(bell+height.toString());
     return GestureDetector(
       //When Tile is tapped, will display popup with more info
         onTap: () {
@@ -242,6 +256,19 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
             ],
           ),
         ));
+  }
+
+  //Builds the display for a day with no classes
+  Widget _buildEmpty(double cardHeight){
+    return Container(
+      height: cardHeight,
+      alignment: Alignment.center,
+      margin: const EdgeInsets.only(left: 5, right: 10, top: 10, bottom: 10),
+      child: const Text(
+        'No Classes',
+        style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500),
+      ),
+    );
   }
 
   //Builds the bell info popup

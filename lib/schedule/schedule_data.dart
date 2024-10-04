@@ -43,13 +43,13 @@ class ScheduleData {
       List<String> scheduleParts = (splitSchedule[splitSchedule.length-1]).split(r'\n');
 
       //The return schedule of this for loop
-      Map forSchedule = {};
+      Map<String, String> forSchedule = {};
       for(int e = 0; e < scheduleParts.length; e++){
         String part = scheduleParts[e];
         //Ensures no junk strings make it into the list
-        if(part.replaceAll(' ', '').isNotEmpty){
+        if(part.replaceAll(' -', '').replaceAll(' ', '').isNotEmpty){
           //Gets the 2nd last two values separated by ' '
-          List<String> partParts = part.split(' ');
+          List<String> partParts = part.replaceAll(' -', '').split(' ');
           forSchedule[partParts[partParts.length-2]] = partParts[partParts.length-1];
         }
       }
@@ -59,6 +59,7 @@ class ScheduleData {
       if(forSchedule.isNotEmpty) {
         result[DateTime(date.year, date.month, date.day)] = Schedule(
             schedule: forSchedule,
+            name: instance['summary'],
             start: date,
             end: instance['dtend'].toDateTime()
         );
