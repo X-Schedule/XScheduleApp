@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:icon_decoration/icon_decoration.dart';
 import 'package:xchedule/chat/chat.dart';
 import 'package:xchedule/personal/personal.dart';
-import 'package:xchedule/schedule/schedule_display.dart';
+import 'package:xchedule/schedule/schedule_display/schedule_display.dart';
 
 /*
 HomePage:

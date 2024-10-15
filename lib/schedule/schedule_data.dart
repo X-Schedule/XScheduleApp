@@ -50,7 +50,7 @@ class ScheduleData {
         if(part.replaceAll(' -', '').replaceAll(' ', '').isNotEmpty){
           //Gets the 2nd last two values separated by ' '
           List<String> partParts = part.replaceAll(' -', '').split(' ');
-          forSchedule[partParts[partParts.length-2]] = partParts[partParts.length-1];
+          forSchedule[partParts[partParts.length-2].replaceAll('HR', 'Homeroom')] = partParts[partParts.length-1];
         }
       }
       //Date of the data

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:xchedule/global_variables/clock.dart';
+import 'package:xchedule/global_variables/gloabl_methods.dart';
 import 'package:xchedule/global_variables/global_variables.dart';
+import 'package:xchedule/global_variables/global_widgets.dart';
 import 'package:xchedule/schedule/schedule.dart';
 import 'package:xchedule/schedule/schedule_data.dart';
+import 'package:xchedule/schedule/schedule_display/schedule_info_display.dart';
 import 'package:xchedule/schedule/schedule_settings.dart';
 
 /*
@@ -40,18 +43,51 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
           height: 50,
           alignment: Alignment.center,
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              //Empty containers so that spaceBetween accounts for edges
-              Container(),
-              _buildNavButton(false),
-              Text(
-                '${GlobalVariables.weekdayText[ScheduleDisplay.initialDate.add(Duration(days: ScheduleDisplay.pageIndex)).weekday]}, ${ScheduleDisplay.initialDate.add(Duration(days: ScheduleDisplay.pageIndex)).month}/${ScheduleDisplay.initialDate.add(Duration(days: ScheduleDisplay.pageIndex)).day}',
-                style:
-                    const TextStyle(fontWeight: FontWeight.w500, fontSize: 35),
+              Padding(
+                padding: const EdgeInsets.only(left: 20),
+                child: GlobalWidgets.iconCircle(
+                  icon: Icons.calendar_month,
+                  color: Colors.blueGrey.withOpacity(0.4),
+                  radius: 20,
+                  padding: 10
+                ),
               ),
-              _buildNavButton(true),
-              Container(),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildNavButton(false),
+                  SizedBox(
+                    width: 250,
+                    child: FittedBox(
+                      fit: BoxFit.contain,
+                      child: Text(
+                        '${GlobalVariables.weekdayText[ScheduleDisplay.initialDate.add(Duration(days: ScheduleDisplay.pageIndex)).weekday]}, ${ScheduleDisplay.initialDate.add(Duration(days: ScheduleDisplay.pageIndex)).month}/${ScheduleDisplay.initialDate.add(Duration(days: ScheduleDisplay.pageIndex)).day}',
+                        style:
+                        const TextStyle(fontWeight: FontWeight.w500, fontSize: 32.5),
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                      ),
+                    ),
+                  ),
+                  _buildNavButton(true),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 20),
+                child: GlobalWidgets.iconCircle(
+                    icon: Icons.info_outline,
+                    color: Colors.blueGrey.withOpacity(0.4),
+                    radius: 20,
+                    padding: 5, 
+                    onTap: (){
+                      GlobalMethods.showPopup(context, ScheduleInfoDisplay.buildScheduleInfo(context, ScheduleDisplay.initialDate.add(Duration(days: ScheduleDisplay.pageIndex))));
+                  }
+                ),
+              ),
             ],
           ),
         ),
@@ -207,11 +243,10 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     double margin =
         Clock(hours: 8).difference(times['start']) * minuteHeight;
     //Returns Tile Wrapped in GestureDetector
-    print(bell+height.toString());
     return GestureDetector(
       //When Tile is tapped, will display popup with more info
         onTap: () {
-          _showBellInfo(context, schedule, bell);
+          GlobalMethods.showPopup(context, _buildBellInfo(context, schedule, bell));
         },
         //Tile
         child: Container(
@@ -405,53 +440,6 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
         ),
       ),
     );
-  }
-
-  //Method which mounts the bell info popup to the 'Navigation' (Stack of widgets; pseudo-3D)
-  void _showBellInfo(BuildContext context, Schedule schedule, String bell) {
-    //Pushes the popup to the app navigator
-    Navigator.of(context).push(PageRouteBuilder(
-      //See-through 'page'
-      opaque: false,
-      //Builds the popup
-      pageBuilder: (context, _, __) {
-        return _buildBellInfo(context, schedule, bell);
-      },
-      //Manages animation
-      transitionsBuilder: (context, a1, a2, child) {
-        //Page begins 1 page to the left of the visible screen; slides onto screen
-        const begin = Offset(-1.0, 0.0);
-        const end = Offset.zero;
-        const curve = Curves.easeInOut;
-
-        //Animation 'Tween' which manages popup movement
-        var slideTween =
-        Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-        //Tween which handles the background fading to 50% opacity black
-        var fadeTween = Tween(begin: 0.0, end: 1.0);
-
-        //Stacks the sliding animation on top of the fading animation
-        return Stack(
-          children: [
-            //Container (50% opacity black) follows fade in animation
-            FadeTransition(
-              opacity: a1.drive(fadeTween),
-              child: GestureDetector(
-                onTap: () => Navigator.of(context).pop(),
-                child: Container(
-                  color: Colors.black.withOpacity(0.5),
-                ),
-              ),
-            ),
-            //Popup follows sliding animation
-            SlideTransition(
-              position: a1.drive(slideTween),
-              child: child,
-            ),
-          ],
-        );
-      },
-    ));
   }
 
   //Builds the arrow buttons for swapping between pages

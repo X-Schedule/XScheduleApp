@@ -6,6 +6,33 @@ Class created to organize widgets used globally across the app
  */
 
 class GlobalWidgets {
+  //Icon Button with Circle
+  static Widget iconCircle(
+      {required IconData icon,
+        void Function()? onTap,
+      double radius = 15,
+        double padding = 5,
+      Color? color,
+      Color? iconColor}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          CircleAvatar(
+            radius: radius,
+            backgroundColor: color,
+          ),
+          Icon(
+            icon,
+            size: (radius ?? 0)*2-padding,
+            color: iconColor,
+          )
+        ],
+      ),
+    );
+  }
+
   //Xchedule logo
   static Widget xchedule({double height = 50}) {
     return Stack(
@@ -26,15 +53,9 @@ class GlobalWidgets {
             Text(
               'chedule',
               style: TextStyle(
-                fontSize: height/2,
-                color: Colors.white,
-                shadows: const [
-                  Shadow(
-                    color: Colors.black,
-                    blurRadius: 10
-                  )
-                ]
-              ),
+                  fontSize: height / 2,
+                  color: Colors.white,
+                  shadows: const [Shadow(color: Colors.black, blurRadius: 10)]),
             )
           ],
         )
