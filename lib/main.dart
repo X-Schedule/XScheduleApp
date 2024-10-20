@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:xchedule/display/themes.dart';
+import 'package:xchedule/global_variables/supabase_db.dart';
+import 'package:xchedule/schedule/schedule_data.dart';
 
 import 'display/home_page.dart';
 
@@ -10,6 +12,16 @@ What the app runs on startup
 
 void main() {
   //Once app opened, builds the app itself
+  SupaBaseDB.initialize();
+
+
+  //Fetches data from supabase asynchronously on startup
+  DateTime now = DateTime.now();
+  ScheduleData.addDailyData(
+      DateTime(now.year, now.month, now.day)
+          .subtract(const Duration(days: 50)),
+      DateTime(now.year, now.month, now.day).add(const Duration(days: 50)));
+
   runApp(const MyApp());
 }
 

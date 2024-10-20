@@ -2,6 +2,7 @@ import 'package:html/dom.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:icalendar_parser/icalendar_parser.dart';
+import 'package:xchedule/global_variables/supabase_db.dart';
 import 'package:xchedule/schedule/schedule.dart';
 
 /*
@@ -16,6 +17,10 @@ class ScheduleData {
   static Document? calDoc;
 
   static Map<DateTime, Schedule> schedule = {};
+  static Map<DateTime, Map<String, dynamic>> dailyData = {};
+
+  //List of ranges of prior supabase requests to remove overlap
+  static List<Map<String, DateTime>> dailyDataRequests = [];
 
   static Future<Map<DateTime, Schedule>> getDailyOrder() async {
     Map<DateTime, Schedule> result = {};
@@ -32,39 +37,70 @@ class ScheduleData {
     List<Map> schedules = iCalendar.data;
 
     //For each date data, inserts the schedule data Map into out schedule Map under the key of the date
-    for(int i = 0; i < schedules.length; i++){
-      Map instance = schedules[i];
-
+    for (Map instance in schedules) {
       //Gets the base String describing the day layout
       String rawSchedule = instance['description'];
       //Splits the schedule by the raw string '\n\n\n' so that we can access the 2nd half of it, where the data is.
       List<String> splitSchedule = rawSchedule.split(r'\n\n\n');
       //Splits the 2nd half of rawSchedule into String for each bell
-      List<String> scheduleParts = (splitSchedule[splitSchedule.length-1]).split(r'\n');
+      List<String> scheduleParts =
+          (splitSchedule[splitSchedule.length - 1]).split(r'\n');
 
       //The return schedule of this for loop
       Map<String, String> forSchedule = {};
-      for(int e = 0; e < scheduleParts.length; e++){
-        String part = scheduleParts[e];
+      for (String part in scheduleParts) {
         //Ensures no junk strings make it into the list
-        if(part.replaceAll(' -', '').replaceAll(' ', '').isNotEmpty){
+        if (part.replaceAll(' -', '').replaceAll(' ', '').isNotEmpty) {
           //Gets the 2nd last two values separated by ' '
           List<String> partParts = part.replaceAll(' -', '').split(' ');
-          forSchedule[partParts[partParts.length-2].replaceAll('HR', 'Homeroom')] = partParts[partParts.length-1];
+          forSchedule[partParts[partParts.length - 2]
+              .replaceAll('HR', 'Homeroom')] = partParts[partParts.length - 1];
         }
       }
       //Date of the data
       DateTime date = instance['dtstart'].toDateTime();
       //Adds the forSchedule to our schedule data Map, under the DateTime (ignoring time)
-      if(forSchedule.isNotEmpty) {
+      if (forSchedule.isNotEmpty) {
         result[DateTime(date.year, date.month, date.day)] = Schedule(
             schedule: forSchedule,
             name: instance['summary'],
             start: date,
-            end: instance['dtend'].toDateTime()
-        );
+            end: instance['dtend'].toDateTime());
       }
     }
     return result;
+  }
+
+  //Runs SupaBaseDB.getDailyData, but adds it to dailyData
+  static Future<void> addDailyData(DateTime start, DateTime end) async {
+    //Checks prior supabase requests, and removes overlap in times
+    for (Map<String, DateTime> day in dailyDataRequests) {
+      if (start.isAfter(day["start"]!) && start.isBefore(day["end"]!)) {
+        start = day["end"]!;
+      }
+      if (end.isBefore(day["end"]!) && end.isAfter(day["start"]!)) {
+        end = day["start"]!;
+      }
+    }
+    //If range is impossible (AKA after for loop, completely inside another range), ends the method
+    if (start.isAfter(end)) {
+      return;
+    }
+    //Adds current request to map
+    dailyDataRequests.add({"start": start, "end": end});
+
+    //Runs getDailyData
+    List<Map<String, dynamic>> dailyDataResult =
+        await SupaBaseDB.getDailyData(start, end);
+    //Adds all fetched data to dailyData
+    for (Map<String, dynamic> data in dailyDataResult) {
+      dailyData[DateTime.parse(data["day"])] = data;
+    }
+  }
+
+  static Future<void> awaitCondition(bool Function() condition) async {
+    while(!condition()){
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
   }
 }

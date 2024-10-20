@@ -1,7 +1,12 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'global_variables.dart';
+
 class GlobalMethods {
+  static String dateText(DateTime date) {
+    return '${GlobalVariables.weekdayText[date.weekday]}, ${date.month}/${date.day}';
+  }
+
   static void showPopup(BuildContext context, Widget widget) {
     //Pushes the popup to the app navigator
     Navigator.of(context).push(PageRouteBuilder(
@@ -20,7 +25,7 @@ class GlobalMethods {
 
         //Animation 'Tween' which manages popup movement
         var slideTween =
-        Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
         //Tween which handles the background fading to 50% opacity black
         var fadeTween = Tween(begin: 0.0, end: 1.0);
 

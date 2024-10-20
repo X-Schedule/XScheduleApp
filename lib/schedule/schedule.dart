@@ -8,7 +8,7 @@ Centralized class for various static(public) methods as well as object specific
  */
 
 class Schedule {
-  Schedule({required this.schedule, this.start, this.end, this.name = ''});
+  Schedule({required this.schedule, this.start, this.end, this.name = 'No Classes'});
 
   final Map<String, String> schedule;
 

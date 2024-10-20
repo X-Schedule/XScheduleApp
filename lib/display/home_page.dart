@@ -29,6 +29,7 @@ class _HomePageState extends State<HomePage> {
 
   //Controller of the PageView; allows access to variables and methods
   final PageController controller = PageController(initialPage: 1);
+
   //int value representing which page the pageView is on
   int pageIndex = 1;
 
@@ -43,7 +44,7 @@ class _HomePageState extends State<HomePage> {
       body: PageView(
         controller: controller,
         //Once page changes, sets pageIndex to the new index
-        onPageChanged: (i){
+        onPageChanged: (i) {
           setState(() {
             pageIndex = i;
           });
@@ -58,7 +59,7 @@ class _HomePageState extends State<HomePage> {
     return Container(
       height: 100,
       decoration: BoxDecoration(
-        //Gradient from blue to transparent; stops from 60% to 75% to give further opacity
+          //Gradient from blue to transparent; stops from 60% to 75% to give further opacity
           gradient: LinearGradient(
               stops: const [0.6, 0.75],
               colors: [Colors.blueAccent, Colors.blueAccent.withOpacity(0)],
@@ -67,17 +68,11 @@ class _HomePageState extends State<HomePage> {
       padding: const EdgeInsets.only(bottom: 15),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
-        //Aligns the children such that they have the highest possible space between eac other
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          //Empty Containers to force spaceBetween to account for edges
-          Container(),
           _buildPageIcon(Icons.person, 0),
-          Container(),
           _buildPageIcon(Icons.calendar_month, 1),
-          Container(),
           _buildPageIcon(Icons.chat, 2),
-          Container()
         ],
       ),
     );
@@ -86,7 +81,7 @@ class _HomePageState extends State<HomePage> {
   //Builds the icons in the bottom NavBar
   Widget _buildPageIcon(IconData icon, int index) {
     return TextButton(
-      //When pressed, animated PageView to the selected page
+        //When pressed, animated PageView to the selected page
         onPressed: () {
           controller.animateToPage(index,
               duration: const Duration(milliseconds: 200),

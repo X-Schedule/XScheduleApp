@@ -19,6 +19,7 @@ class ScheduleDisplay extends StatefulWidget {
   //Gets the current date (ignoring time)
   static DateTime initialDate =
       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+
   //pageIndex of Schedule PageView
   static int pageIndex = 0;
 
@@ -29,12 +30,18 @@ class ScheduleDisplay extends StatefulWidget {
 class _ScheduleDisplayState extends State<ScheduleDisplay> {
   //Creates the controller of PageView and sets the max # of pages; controller starts in the middle
   //Set to 365*3 to allow to allow viewing of 3 years of schedules
-  int maxPages = 365*3;
-  final PageController _controller =
-      PageController(initialPage: (365*3/2).round()+ScheduleDisplay.pageIndex);
+  int maxPages = 365 * 3;
+  final PageController _controller = PageController(
+      initialPage: (365 * 3 / 2).round() + ScheduleDisplay.pageIndex);
 
   @override
   Widget build(BuildContext context) {
+    //Runs addDailyData asynchronously on page moved; may do nothing at all if ranges overlap
+    ScheduleData.addDailyData(
+        ScheduleDisplay.initialDate
+            .add(Duration(days: ScheduleDisplay.pageIndex - 25)),
+        ScheduleDisplay.initialDate
+            .add(Duration(days: ScheduleDisplay.pageIndex + 25)));
     return Column(
       children: [
         //The top day text display
@@ -49,11 +56,10 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
               Padding(
                 padding: const EdgeInsets.only(left: 20),
                 child: GlobalWidgets.iconCircle(
-                  icon: Icons.calendar_month,
-                  color: Colors.blueGrey.withOpacity(0.4),
-                  radius: 20,
-                  padding: 10
-                ),
+                    icon: Icons.calendar_month,
+                    color: Colors.blueGrey.withOpacity(0.4),
+                    radius: 20,
+                    padding: 10),
               ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -65,9 +71,10 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                     child: FittedBox(
                       fit: BoxFit.contain,
                       child: Text(
-                        '${GlobalVariables.weekdayText[ScheduleDisplay.initialDate.add(Duration(days: ScheduleDisplay.pageIndex)).weekday]}, ${ScheduleDisplay.initialDate.add(Duration(days: ScheduleDisplay.pageIndex)).month}/${ScheduleDisplay.initialDate.add(Duration(days: ScheduleDisplay.pageIndex)).day}',
-                        style:
-                        const TextStyle(fontWeight: FontWeight.w500, fontSize: 32.5),
+                        GlobalMethods.dateText(ScheduleDisplay.initialDate
+                            .add(Duration(days: ScheduleDisplay.pageIndex))),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w500, fontSize: 32.5),
                         textAlign: TextAlign.center,
                         maxLines: 1,
                       ),
@@ -78,15 +85,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
               ),
               Padding(
                 padding: const EdgeInsets.only(right: 20),
-                child: GlobalWidgets.iconCircle(
-                    icon: Icons.info_outline,
-                    color: Colors.blueGrey.withOpacity(0.4),
-                    radius: 20,
-                    padding: 5, 
-                    onTap: (){
-                      GlobalMethods.showPopup(context, ScheduleInfoDisplay.buildScheduleInfo(context, ScheduleDisplay.initialDate.add(Duration(days: ScheduleDisplay.pageIndex))));
-                  }
-                ),
+                child: _buildInfoButton(),
               ),
             ],
           ),
@@ -112,7 +111,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
   }
 
   //Pseudo-PageView which displays all schedule cards
-  Widget _buildPageView(){
+  Widget _buildPageView() {
     return PageView.builder(
         controller: _controller,
         //Removes default scrolling functionality
@@ -120,18 +119,19 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
         //When page index is changes, updates pageIndex variable
         onPageChanged: (i) {
           setState(() {
-            ScheduleDisplay.pageIndex = i-(maxPages/2).round();
+            ScheduleDisplay.pageIndex = i - (maxPages / 2).round();
           });
         },
         itemCount: maxPages,
         //Builds the schedules based on given index(i)
         itemBuilder: (context, i) {
           //The date of the schedule (currentDate+index)
-          DateTime date = ScheduleDisplay.initialDate.add(Duration(days: i-(maxPages/2).round()));
+          DateTime date = ScheduleDisplay.initialDate
+              .add(Duration(days: i - (maxPages / 2).round()));
 
           //Schedule card wrapped in gestureDetector
           return GestureDetector(
-            //When user swiped card, animated to schedule card
+              //When user swiped card, animated to schedule card
               onHorizontalDragEnd: (detail) {
                 //The sign (-1 or +1) of the swipe velocity
                 int direction = (detail.primaryVelocity ?? 0).sign.round();
@@ -147,7 +147,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                   color: Theme.of(context).colorScheme.surface,
                   //If schedule data has been gathered, displays as usual; if not, used future builder to get it
                   child: ScheduleData.schedule.isEmpty
-                  //FutureBuilder: will run async methods while displaying loading/placeholder widget; then replaces with widget once data fully fetched
+                      //FutureBuilder: will run async methods while displaying loading/placeholder widget; then replaces with widget once data fully fetched
                       ? FutureBuilder(
                           future: ScheduleData.getDailyOrder(),
                           //Runs once progress updates in the async method
@@ -181,49 +181,49 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     double minuteHeight = cardHeight / 430;
     return Container(
       margin: const EdgeInsets.only(left: 5, right: 10),
-      height: cardHeight-20,
+      height: cardHeight - 20,
       child: Row(
         children: [
           //Column of time references to the left
           Stack(
-            children: List<Widget>.generate(8, (i){
+            children: List<Widget>.generate(8, (i) {
               return Padding(
-                  padding: EdgeInsets.only(top: minuteHeight*i*60),
-                  child: Text('${i + 8 < 10 ? '0${i + 8}' : i + 8} - ',
-                    style: const TextStyle(fontSize: 15, height: 0.9), //Text px height = 18
-                  )
-              );
+                  padding: EdgeInsets.only(top: minuteHeight * i * 60),
+                  child: Text(
+                    '${i + 8 < 10 ? '0${i + 8}' : i + 8} - ',
+                    style: const TextStyle(
+                        fontSize: 15, height: 0.9), //Text px height = 18
+                  ));
             }),
           ),
           //Expanded Box (as much width as possible) wrapping sized box (set height of card) wrapping stack of bell tiles
           Expanded(
               child: Container(
-                padding: const EdgeInsets.only(top: 6.5),
-                height: cardHeight,
-                child: Stack(
-                  alignment: Alignment.topCenter,
-                  children: List<Widget>.generate(schedule.keys.length, (i) {
-                    //Returns Schedule 'Tile' based on schedule info
-                    String key = schedule.keys.toList()[i];
-                    return _buildTile(
-                        context, dayInfo, key, minuteHeight);
-                  }),
-                ),
-              )),
+            padding: const EdgeInsets.only(top: 6.5),
+            height: cardHeight,
+            child: Stack(
+              alignment: Alignment.topCenter,
+              children: List<Widget>.generate(schedule.keys.length, (i) {
+                //Returns Schedule 'Tile' based on schedule info
+                String key = schedule.keys.toList()[i];
+                return _buildTile(context, dayInfo, key, minuteHeight);
+              }),
+            ),
+          )),
         ],
       ),
     );
   }
 
   //Checks that all info of the schedule of a given date is proper
-  bool _schedule(DateTime date){
+  bool _schedule(DateTime date) {
     Schedule dayInfo = ScheduleData.schedule[date] ?? Schedule.empty();
-    if(dayInfo.schedule.isEmpty || dayInfo.schedule.containsKey('-')){
+    if (dayInfo.schedule.isEmpty || dayInfo.schedule.containsKey('-')) {
       return false;
     }
     List<String> keys = dayInfo.schedule.keys.toList();
-    for(int i = 0; i < keys.length; i++){
-      if(dayInfo.clockMap(keys[i]) == null){
+    for (String key in keys) {
+      if (dayInfo.clockMap(key) == null) {
         return false;
       }
     }
@@ -231,22 +231,22 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
   }
 
   //Builds the 'Schedule Tile's displayed on the schedule card
-  Widget _buildTile(BuildContext context, Schedule schedule, String bell, double minuteHeight) {
+  Widget _buildTile(BuildContext context, Schedule schedule, String bell,
+      double minuteHeight) {
     //Gets Map from schedule_settings.dart
     Map settings = ScheduleSettings.bellInfo[bell] ?? {};
 
     Map times = schedule.clockMap(bell) ?? {};
     //Gets the height (in pxs) of the tile, based on minuteHeight (see _buildSchedule)
-    double height =
-        minuteHeight * times['start']?.difference(times['end']);
+    double height = minuteHeight * times['start']?.difference(times['end']);
 
-    double margin =
-        Clock(hours: 8).difference(times['start']) * minuteHeight;
+    double margin = Clock(hours: 8).difference(times['start']) * minuteHeight;
     //Returns Tile Wrapped in GestureDetector
     return GestureDetector(
-      //When Tile is tapped, will display popup with more info
+        //When Tile is tapped, will display popup with more info
         onTap: () {
-          GlobalMethods.showPopup(context, _buildBellInfo(context, schedule, bell));
+          GlobalMethods.showPopup(
+              context, _buildBellInfo(context, schedule, bell));
         },
         //Tile
         child: Container(
@@ -294,7 +294,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
   }
 
   //Builds the display for a day with no classes
-  Widget _buildEmpty(double cardHeight){
+  Widget _buildEmpty(double cardHeight) {
     return Container(
       height: cardHeight,
       alignment: Alignment.center,
@@ -353,7 +353,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                               children: [
                                 CircleAvatar(
                                   backgroundColor:
-                                  Theme.of(context).colorScheme.shadow,
+                                      Theme.of(context).colorScheme.shadow,
                                   radius: 45,
                                 ),
                                 Text(
@@ -376,14 +376,15 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     //Displays class name, bell name, or nothing (if null)
-                                      Text(
-                                        settings['name'] ?? '$bell${bell.length <= 1 ? ' Bell' : ''}',
-                                        style: const TextStyle(
-                                            height: 0.9,
-                                            fontSize: 25,
-                                            //bold
-                                            fontWeight: FontWeight.w600),
-                                      ),
+                                    Text(
+                                      settings['name'] ??
+                                          '$bell${bell.length <= 1 ? ' Bell' : ''}',
+                                      style: const TextStyle(
+                                          height: 0.9,
+                                          fontSize: 25,
+                                          //bold
+                                          fontWeight: FontWeight.w600),
+                                    ),
                                     //Displays teacher or nothing (if null)
                                     if (settings['teacher'] != null)
                                       Text(
@@ -415,13 +416,13 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 //Displays bell name or nothing (if null)
-                                  Text(
-                                    '$bell${bell.length <= 1 ? ' Bell' : ''}:   ',
-                                    style: const TextStyle(
-                                        height: 0.9,
-                                        fontSize: 25,
-                                        fontWeight: FontWeight.w500),
-                                  ),
+                                Text(
+                                  '$bell${bell.length <= 1 ? ' Bell' : ''}:   ',
+                                  style: const TextStyle(
+                                      height: 0.9,
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.w500),
+                                ),
                                 //Displays the time length (time length cannot be null)
                                 Text(
                                   '${times['start'].display()} - ${times['end'].display()}',
@@ -446,7 +447,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
   Widget _buildNavButton(bool forwards) {
     //Returns Arrow Icon Button
     return IconButton(
-      //When pressed, animates to new page
+        //When pressed, animates to new page
         onPressed: () {
           //If forwards == true, animates to next page, if not, animates backwards
           _controller.animateToPage(
@@ -456,5 +457,44 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
         },
         //If forwards == true, displays forward arrow, if not, backwards arrow
         icon: Icon(forwards ? Icons.arrow_forward_ios : Icons.arrow_back_ios));
+  }
+
+  //Builds the info popup button
+  Widget _buildInfoButton() {
+    return FutureBuilder(future: ScheduleData.awaitCondition(() {
+      return ScheduleData.dailyData[ScheduleDisplay.initialDate
+              .add(Duration(days: ScheduleDisplay.pageIndex))] !=
+          null;
+    }), builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return Opacity(
+          opacity: 0.4,
+          child: GlobalWidgets.iconCircle(
+              icon: Icons.info_outline,
+              color: Colors.blueGrey.withOpacity(0.4),
+              radius: 20,
+              padding: 5,
+              onTap: () {
+                GlobalMethods.showPopup(
+                    context,
+                    ScheduleInfoDisplay(
+                        date: ScheduleDisplay.initialDate
+                            .add(Duration(days: ScheduleDisplay.pageIndex))));
+              }),
+        );
+      }
+      return GlobalWidgets.iconCircle(
+          icon: Icons.info_outline,
+          color: Colors.blueGrey.withOpacity(0.4),
+          radius: 20,
+          padding: 5,
+          onTap: () {
+            GlobalMethods.showPopup(
+                context,
+                ScheduleInfoDisplay(
+                    date: ScheduleDisplay.initialDate
+                        .add(Duration(days: ScheduleDisplay.pageIndex))));
+          });
+    });
   }
 }

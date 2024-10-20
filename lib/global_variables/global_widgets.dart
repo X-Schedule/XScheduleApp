@@ -25,7 +25,7 @@ class GlobalWidgets {
           ),
           Icon(
             icon,
-            size: (radius ?? 0)*2-padding,
+            size: radius*2-padding,
             color: iconColor,
           )
         ],

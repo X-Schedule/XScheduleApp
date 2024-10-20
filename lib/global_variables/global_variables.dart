@@ -4,6 +4,16 @@ Class created to organize objects used globally in the app
  */
 
 class GlobalVariables {
+  //Uniform emoji from given dress code string
+  static String dressEmoji(String dressCode){
+    if(dressCode.toLowerCase().contains("formal")){
+      return '👔';
+    } else if(dressCode.toLowerCase().contains("spirit")){
+      return '🏱';
+    }
+    return '👕';
+  }
+
   //Converts month index into String
   static Map<int, String> monthText = {
     1: 'January',
