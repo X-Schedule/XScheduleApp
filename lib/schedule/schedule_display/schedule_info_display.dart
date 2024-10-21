@@ -44,7 +44,26 @@ class ScheduleInfoDisplay extends StatelessWidget {
                     style: const TextStyle(
                         fontSize: 20, fontWeight: FontWeight.w600),
                   ),
-                  //Row of quarter and schedule summary
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        '⏰ ',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.w500),
+                      ),
+                      Text(
+                        schedule.name,
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            fontStyle: schedule.name.contains("No Classes")
+                                ? FontStyle.italic
+                                : FontStyle.normal),
+                      ),
+                    ],
+                  ),
+                  //Row of quarter and dress code
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -54,34 +73,15 @@ class ScheduleInfoDisplay extends StatelessWidget {
                           style: const TextStyle(
                               fontSize: 20, fontWeight: FontWeight.w500),
                         ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Text(
-                            '⏰ ',
-                            style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.w500),
-                          ),
-                          Text(
-                            schedule.name,
-                            style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w500,
-                                fontStyle: schedule.name.contains("No Classes")
-                                    ? FontStyle.italic
-                                    : FontStyle.normal),
-                          ),
-                        ],
-                      ),
+                      //If variable is null, then replace with empty string, and checks if string is empty; detects both null and empty values
+                      if ((dailyData['dressCode'] ?? '').isNotEmpty)
+                        Text(
+                          '${GlobalVariables.dressEmoji(dailyData['dressCode'])} ${dailyData['dressCode']}',
+                          style: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.w500),
+                        ),
                     ],
                   ),
-                  //If variable is null, then replace with empty string, and checks if string is empty; detects both null and empty values
-                  if ((dailyData['dressCode'] ?? '').isNotEmpty)
-                    Text(
-                      '${GlobalVariables.dressEmoji(dailyData['dressCode'])} ${dailyData['dressCode']}',
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.w500),
-                    ),
                   //Checks to display lunch divider and header
                   if ((dailyData['lunchPasta'] ?? '').isNotEmpty ||
                       (dailyData['lunchBox'] ?? '').isNotEmpty ||

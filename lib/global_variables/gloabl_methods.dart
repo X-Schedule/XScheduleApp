@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'global_variables.dart';
@@ -5,6 +6,19 @@ import 'global_variables.dart';
 class GlobalMethods {
   static String dateText(DateTime date) {
     return '${GlobalVariables.weekdayText[date.weekday]}, ${date.month}/${date.day}';
+  }
+
+  static void pushSwipePage(BuildContext context, Widget page){
+    Navigator.of(context).push(CupertinoPageRoute(builder: (context){
+      return GestureDetector(
+        onHorizontalDragEnd: (details){
+          if(details.primaryVelocity! > 0){
+            Navigator.pop(context);
+          }
+        },
+        child: page,
+      );
+    }));
   }
 
   static void showPopup(BuildContext context, Widget widget) {

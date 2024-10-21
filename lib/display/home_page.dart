@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:icon_decoration/icon_decoration.dart';
+import 'package:localstorage/localstorage.dart';
 import 'package:xchedule/chat/chat.dart';
+import 'package:xchedule/personal/welcome.dart';
 import 'package:xchedule/personal/personal.dart';
 import 'package:xchedule/schedule/schedule_display/schedule_display.dart';
 
@@ -13,7 +15,8 @@ Displays the appbar, navbar, and is parent of the body
 
 //StatefulWidget: Widget capable of updating 'State's or instances
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  static GlobalKey homeKey = GlobalKey();
+  HomePage({Key? key}) : super(key: homeKey);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -36,6 +39,10 @@ class _HomePageState extends State<HomePage> {
   //Builds the HomePage
   @override
   Widget build(BuildContext context) {
+    //Checks the local storage to see if app has gone through login page before
+    if(localStorage.getItem("state") != "logged"){
+      return const Welcome();
+    }
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primaryContainer,
       bottomNavigationBar: _buildNavBar(context),

@@ -1,3 +1,4 @@
+import 'package:color_hex/class/hex_to_color.dart';
 import 'package:flutter/material.dart';
 import 'package:xchedule/global_variables/clock.dart';
 import 'package:xchedule/global_variables/gloabl_methods.dart';
@@ -91,7 +92,27 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
           ),
         ),
         //The schedule card viewer
-        Expanded(child: _buildPageView())
+        Expanded(child: _buildPageView()),
+        //Button which leads to ScheduleSettings
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * .3),
+          height: 25,
+          child: ElevatedButton(
+              onPressed: () {
+                GlobalMethods.pushSwipePage(context, const ScheduleSettings(backArrow: true,));
+              },
+              style:
+              ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.secondary),
+              child: Container(
+                alignment: Alignment.center,
+                width: MediaQuery.of(context).size.width * 3 / 5,
+                child: Icon(
+                  Icons.settings,
+                  color: Theme.of(context).colorScheme.onSecondary,
+                ),
+              )),
+        ),
+        const SizedBox(height: 80)
       ],
     );
   }
@@ -143,7 +164,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
               //Schedule card
               child: Card(
                   margin:
-                      const EdgeInsets.only(left: 20, right: 20, bottom: 120),
+                      const EdgeInsets.only(left: 20, right: 20, bottom: 10),
                   color: Theme.of(context).colorScheme.surface,
                   //If schedule data has been gathered, displays as usual; if not, used future builder to get it
                   child: ScheduleData.schedule.isEmpty
@@ -258,7 +279,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
               //Left color nib; if no setting set, displays as grey
               Container(
                 width: 10,
-                color: settings['color'] ?? Colors.grey,
+                color: hexToColor(settings['color'] ?? '#999999'),
               ),
               //spacer
               const SizedBox(width: 7.5),
@@ -334,7 +355,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                     //rounds the left edges to match the Card
                     borderRadius: const BorderRadius.horizontal(
                         left: Radius.circular(10)),
-                    color: settings['color'] ?? Colors.grey,
+                    //Converts hex color string to flutter color object
+                    color: hexToColor(settings['color'] ?? '#999999'),
                   ),
                   width: 10,
                 ),

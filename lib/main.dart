@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:localstorage/localstorage.dart';
 import 'package:xchedule/display/themes.dart';
 import 'package:xchedule/global_variables/supabase_db.dart';
 import 'package:xchedule/schedule/schedule_data.dart';
@@ -10,10 +11,12 @@ Main:
 What the app runs on startup
  */
 
-void main() {
+Future<void> main() async {
   //Once app opened, builds the app itself
   SupaBaseDB.initialize();
 
+  //Initializes localstorage
+  await initLocalStorage();
 
   //Fetches data from supabase asynchronously on startup
   DateTime now = DateTime.now();
@@ -37,8 +40,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Xchedule',
       //HomePage Wrapped in DefaultTextStyle so that we don't need to specify EVERY TIME we display text
-      home: const DefaultTextStyle(
-        style: TextStyle(color: Colors.black, fontSize: 25, decoration: null),
+      home: DefaultTextStyle(
+        style: const TextStyle(color: Colors.black, fontSize: 25, decoration: null),
         child: HomePage(),
       ),
     );

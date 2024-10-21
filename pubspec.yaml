@@ -40,6 +40,11 @@ dependencies:
   icon_decoration: ^2.0.2
   icalendar_parser: ^2.0.0
   supabase_flutter: ^2.8.0
+  flutter_native_splash: ^2.4.1
+  localstorage: ^5.0.0
+  google_fonts: ^6.2.1
+  color_hex: ^0.0.1
+  flutter_hsvcolor_picker: ^1.5.1
 
 dev_dependencies:
   flutter_test:
@@ -66,6 +71,9 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/x.png
+    - assets/images/xchedule.png
+    - assets/images/xchedule_transparent.png
+    - assets/images/x_building.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
@@ -78,7 +86,36 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
+  fonts:
+    - family: SansitaSwashed
+      fonts:
+        - asset: assets/fonts/SansitaSwashed/SansitaSwashed-Regular.ttf
+        - asset: assets/fonts/SansitaSwashed/SansitaSwashed-Light.ttf
+          weight: 100
+        - asset: assets/fonts/SansitaSwashed/SansitaSwashed-Medium.ttf
+          weight: 200
+        - asset: assets/fonts/SansitaSwashed/SansitaSwashed-SemiBold.ttf
+          weight: 300
+        - asset: assets/fonts/SansitaSwashed/SansitaSwashed-Bold.ttf
+          weight: 400
+        - asset: assets/fonts/SansitaSwashed/SansitaSwashed-ExtraBold.ttf
+          weight: 500
+        - asset: assets/fonts/SansitaSwashed/SansitaSwashed-Black.ttf
+          weight: 600
+    - family: Georama
+      fonts:
+        - asset: assets/fonts/Georama/Georama-Regular.ttf
+        - asset: assets/fonts/Georama/Georama-Thin.ttf
+          weight: 400
+        - asset: assets/fonts/Georama/Georama-Medium.ttf
+          weight: 600
+        - asset: assets/fonts/Georama/Georama-SemiBold.ttf
+          weight: 700
+        - asset: assets/fonts/Georama/Georama-Bold.ttf
+          weight: 800
+        - asset: assets/fonts/Georama/Georama-ExtraBold.ttf
+          weight: 900
+
   #   - family: Schyler
   #     fonts:
   #       - asset: fonts/Schyler-Regular.ttf
