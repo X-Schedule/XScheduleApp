@@ -21,9 +21,13 @@ Future<void> main() async {
   //Fetches data from supabase asynchronously on startup
   DateTime now = DateTime.now();
   ScheduleData.addDailyData(
-      DateTime(now.year, now.month, now.day)
-          .subtract(const Duration(days: 50)),
+      DateTime(now.year, now.month, now.day).subtract(const Duration(days: 50)),
       DateTime(now.year, now.month, now.day).add(const Duration(days: 50)));
+  //Also fetches asynchrously, and only fetched here; fetches all available data at once
+  ScheduleData.getCoCurriculars().then((result) {
+    //Assigns result to value on completion
+    ScheduleData.coCurriculars = result;
+  });
 
   runApp(const MyApp());
 }
@@ -41,7 +45,8 @@ class MyApp extends StatelessWidget {
       title: 'Xchedule',
       //HomePage Wrapped in DefaultTextStyle so that we don't need to specify EVERY TIME we display text
       home: DefaultTextStyle(
-        style: const TextStyle(color: Colors.black, fontSize: 25, decoration: null),
+        style: const TextStyle(
+            color: Colors.black, fontSize: 25, decoration: null),
         child: HomePage(),
       ),
     );

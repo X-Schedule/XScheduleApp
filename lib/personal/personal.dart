@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:xchedule/global_variables/gloabl_methods.dart';
 import 'package:xchedule/schedule/schedule_settings.dart';

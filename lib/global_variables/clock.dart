@@ -86,4 +86,9 @@ class Clock {
     }
     return null;
   }
+
+  //Creates a datetime, with given year, month, and day, with the current time values
+  DateTime toDateTime(DateTime reference){
+    return DateTime(reference.year, reference.month, reference.day, hours, minutes);
+  }
 }

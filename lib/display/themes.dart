@@ -19,6 +19,7 @@ class Themes {
     surface: Color(0xFFDCDCDC),
     shadow: Color(0xFFCBCBCB),
     onSurface: Colors.black,
+    surfaceContainer: Color(0xFFC9C9C9),
     error: Colors.transparent,
     onError: Colors.transparent,
   ));

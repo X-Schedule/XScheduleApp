@@ -2,10 +2,10 @@ import 'package:color_hex/class/hex_to_color.dart';
 import 'package:flutter/material.dart';
 import 'package:xchedule/global_variables/clock.dart';
 import 'package:xchedule/global_variables/gloabl_methods.dart';
-import 'package:xchedule/global_variables/global_variables.dart';
 import 'package:xchedule/global_variables/global_widgets.dart';
 import 'package:xchedule/schedule/schedule.dart';
 import 'package:xchedule/schedule/schedule_data.dart';
+import 'package:xchedule/schedule/schedule_display/club_schedule_display.dart';
 import 'package:xchedule/schedule/schedule_display/schedule_info_display.dart';
 import 'package:xchedule/schedule/schedule_settings.dart';
 
@@ -60,7 +60,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                     icon: Icons.calendar_month,
                     color: Colors.blueGrey.withOpacity(0.4),
                     radius: 20,
-                    padding: 10),
+                    padding: 10,
+                    onTap: () {}),
               ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -95,14 +96,19 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
         Expanded(child: _buildPageView()),
         //Button which leads to ScheduleSettings
         Container(
-          margin: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * .3),
+          margin: EdgeInsets.symmetric(
+              horizontal: MediaQuery.of(context).size.width * .3),
           height: 25,
           child: ElevatedButton(
               onPressed: () {
-                GlobalMethods.pushSwipePage(context, const ScheduleSettings(backArrow: true,));
+                GlobalMethods.pushSwipePage(
+                    context,
+                    const ScheduleSettings(
+                      backArrow: true,
+                    ));
               },
-              style:
-              ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.secondary),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.secondary),
               child: Container(
                 alignment: Alignment.center,
                 width: MediaQuery.of(context).size.width * 3 / 5,
@@ -207,7 +213,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
         children: [
           //Column of time references to the left
           Stack(
-            children: List<Widget>.generate(8, (i) {
+            children: List<Widget>.generate((dayInfo.end!.difference(dayInfo.start!).inHours)+1, (i) {
               return Padding(
                   padding: EdgeInsets.only(top: minuteHeight * i * 60),
                   child: Text(
@@ -257,6 +263,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     //Gets Map from schedule_settings.dart
     Map settings = ScheduleSettings.bellInfo[bell] ?? {};
 
+    bool activities = bell.toLowerCase().contains("flex");
+
     Map times = schedule.clockMap(bell) ?? {};
     //Gets the height (in pxs) of the tile, based on minuteHeight (see _buildSchedule)
     double height = minuteHeight * times['start']?.difference(times['end']);
@@ -273,7 +281,9 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
         child: Container(
           height: height,
           margin: EdgeInsets.only(top: margin),
-          color: Theme.of(context).colorScheme.shadow,
+          color: activities
+              ? Theme.of(context).colorScheme.surfaceContainer
+              : Theme.of(context).colorScheme.shadow,
           child: Row(
             children: [
               //Left color nib; if no setting set, displays as grey
@@ -299,16 +309,38 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                     )
                   ],
                 ),
-              //spacer
-              const SizedBox(width: 7.5),
               //Text (with line skips) wrapped in FittedBox
-              FittedBox(
-                //If text overflows the tile, will shrink to fully include it
-                fit: BoxFit.contain,
-                //Displays the class name (if null, then bell name), line skip, then time range
-                child: Text(
-                    '${(settings['name'] ?? bell) ?? ''}${height > 50 ? '\n' : ':     '}${times['start'].display()} - ${times['end'].display()}'),
-              )
+              Container(
+                margin: const EdgeInsets.only(left: 7.5),
+                alignment: Alignment.centerLeft,
+                width: MediaQuery.of(context).size.width -
+                    110 -
+                    (activities ? 70 : 0) -
+                    (height * 6 / 7 - 10),
+                child: FittedBox(
+                  //If text overflows the tile, will shrink to fully include it
+                  fit: BoxFit.contain,
+                  //Displays the class name (if null, then bell name), line skip, then time range
+                  child: Text(
+                      '${(settings['name'] ?? bell) ?? ''}${height > 50 ? '\n' : ':     '}${times['start'].display()} - ${times['end'].display()}'),
+                ),
+              ),
+              if (activities)
+                Align(
+                  alignment: Alignment.center,
+                  child: IconButton(
+                    iconSize: 35,
+                    onPressed: () {
+                      GlobalMethods.showPopup(
+                          context,
+                          ClubScheduelDsiplay(
+                              date: ScheduleDisplay.initialDate.add(
+                                  Duration(days: ScheduleDisplay.pageIndex)),
+                              schedule: schedule));
+                    },
+                    icon: const Icon(Icons.sports_soccer),
+                  ),
+                )
             ],
           ),
         ));

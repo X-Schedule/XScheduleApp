@@ -18,6 +18,7 @@ class ScheduleData {
 
   static Map<DateTime, Schedule> schedule = {};
   static Map<DateTime, Map<String, dynamic>> dailyData = {};
+  static Map<DateTime, List<Map<String, dynamic>>> coCurriculars = {};
 
   //List of ranges of prior supabase requests to remove overlap
   static List<Map<String, DateTime>> dailyDataRequests = [];
@@ -67,6 +68,47 @@ class ScheduleData {
             start: date,
             end: instance['dtend'].toDateTime());
       }
+    }
+    return result;
+  }
+
+  static Future<Map<DateTime, List<Map<String, dynamic>>>> getCoCurriculars() async {
+    Map<DateTime, List<Map<String, dynamic>>> result = {};
+    //The Base URL for the RSS request. When updating, see St. X Calendar RSS icon or ST X IT Department.
+    String baseUrl = 'https://www.stxavier.org/calendar/calendar_242.ics';
+
+    //Gets calendarData via RSS
+    Response response = await http.get(Uri.parse(baseUrl));
+
+    //Formats the response type (ICS) into an object we can work with
+    final ICalendar iCalendar = ICalendar.fromString(response.body);
+
+    //Gets the calendar data as a list from the iCalendar
+    List<Map> clubs = iCalendar.data;
+
+    //For each date data, inserts the schedule data Map into out schedule Map under the key of the date
+    for (Map instance in clubs) {
+      DateTime date = instance['dtstart'].toDateTime();
+      DateTime calDate = DateTime(date.year, date.month, date.day);
+      result[calDate] ??= [];
+      result[calDate]!.add({
+        'summary': instance['summary'],
+        'dtStart': instance['dtstart'].toDateTime(),
+        'dtEnd': instance['dtend'].toDateTime(),
+        'location': instance['location']
+      });
+      result[calDate]!.add({
+        'summary': 'RobotX',
+        'dtStart': instance['dtstart'].toDateTime().add(const Duration(minutes: 10)),
+        'dtEnd': instance['dtend'].toDateTime(),
+        'location': 'The Robolab'
+      });
+      result[calDate]!.add({
+        'summary': 'More RobotX',
+        'dtStart': instance['dtstart'].toDateTime().add(const Duration(minutes: 20)),
+        'dtEnd': instance['dtend'].toDateTime().subtract(const Duration(minutes: 10)),
+        'location': 'The Robolab'
+      });
     }
     return result;
   }
