@@ -69,7 +69,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                 children: [
                   _buildNavButton(false),
                   SizedBox(
-                    width: 250,
+                    width: MediaQuery.of(context).size.width-220,
                     child: FittedBox(
                       fit: BoxFit.contain,
                       child: Text(
@@ -98,7 +98,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
         Container(
           margin: EdgeInsets.symmetric(
               horizontal: MediaQuery.of(context).size.width * .3),
-          height: 25,
+          height: 30,
           child: ElevatedButton(
               onPressed: () {
                 GlobalMethods.pushSwipePage(
@@ -314,7 +314,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                 margin: const EdgeInsets.only(left: 7.5),
                 alignment: Alignment.centerLeft,
                 width: MediaQuery.of(context).size.width -
-                    110 -
+                    135 -
                     (activities ? 70 : 0) -
                     (height * 6 / 7 - 10),
                 child: FittedBox(

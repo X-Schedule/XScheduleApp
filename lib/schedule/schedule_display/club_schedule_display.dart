@@ -30,9 +30,8 @@ class _ClubScheduleDisplayState extends State<ClubScheduelDsiplay> {
     Clock startTime = widget.schedule.clockMap(flexKeys[0])!['start']!;
     Clock endTime = widget.schedule.clockMap(flexKeys[0])!['end']!;
 
-    double minutes = startTime.difference(
-            widget.schedule.clockMap(flexKeys[flexKeys.length - 1])!['end'])
-        as double;
+    double minutes = (startTime.difference(
+            widget.schedule.clockMap(flexKeys[flexKeys.length - 1])!['end'])).toDouble();
 
     List<Map<String, dynamic>> clubs =
         ScheduleData.coCurriculars[widget.date] ?? [];
@@ -109,16 +108,16 @@ class _ClubScheduleDisplayState extends State<ClubScheduelDsiplay> {
                                       margin: EdgeInsets.only(
                                           left: 5,
                                           right: 5,
-                                          top: club['dtStart']
+                                          top: (club['dtStart']
                                                   .difference(
                                                       startTime.toDateTime(
                                                           club['dtStart']))
                                                   .inMinutes *
-                                              4),
-                                      height: club['dtEnd']
+                                              4).toDouble()),
+                                      height: (club['dtEnd']
                                               .difference(club['dtStart'])
                                               .inMinutes *
-                                          4,
+                                          4).toDouble(),
                                       color: Colors.black.withOpacity(0.1),
                                       child: FittedBox(
                                         fit: BoxFit.scaleDown,

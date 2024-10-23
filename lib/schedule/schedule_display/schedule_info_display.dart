@@ -44,24 +44,26 @@ class ScheduleInfoDisplay extends StatelessWidget {
                     style: const TextStyle(
                         fontSize: 20, fontWeight: FontWeight.w600),
                   ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text(
-                        '⏰ ',
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.w500),
-                      ),
-                      Text(
-                        schedule.name,
-                        style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
-                            fontStyle: schedule.name.contains("No Classes")
-                                ? FontStyle.italic
-                                : FontStyle.normal),
-                      ),
-                    ],
+                  FittedBox(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          '⏰ ',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.w500),
+                        ),
+                        Text(
+                          schedule.name,
+                          style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w500,
+                              fontStyle: schedule.name.contains("No Classes")
+                                  ? FontStyle.italic
+                                  : FontStyle.normal),
+                        ),
+                      ],
+                    ),
                   ),
                   //Row of quarter and dress code
                   Row(
