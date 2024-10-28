@@ -39,10 +39,10 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
   Widget build(BuildContext context) {
     //Runs addDailyData asynchronously on page moved; may do nothing at all if ranges overlap
     ScheduleData.addDailyData(
-        ScheduleDisplay.initialDate
-            .add(Duration(days: ScheduleDisplay.pageIndex - 25)),
-        ScheduleDisplay.initialDate
-            .add(Duration(days: ScheduleDisplay.pageIndex + 25)));
+        GlobalMethods.addDay(
+            ScheduleDisplay.initialDate, ScheduleDisplay.pageIndex - 25),
+        GlobalMethods.addDay(
+            ScheduleDisplay.initialDate, ScheduleDisplay.pageIndex + 25));
     return Column(
       children: [
         //The top day text display
@@ -69,12 +69,13 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                 children: [
                   _buildNavButton(false),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width-220,
+                    width: MediaQuery.of(context).size.width - 220,
                     child: FittedBox(
                       fit: BoxFit.contain,
                       child: Text(
-                        GlobalMethods.dateText(ScheduleDisplay.initialDate
-                            .add(Duration(days: ScheduleDisplay.pageIndex))),
+                        GlobalMethods.dateText(GlobalMethods.addDay(
+                            ScheduleDisplay.initialDate,
+                            ScheduleDisplay.pageIndex)),
                         style: const TextStyle(
                             fontWeight: FontWeight.w500, fontSize: 32.5),
                         textAlign: TextAlign.center,
@@ -153,8 +154,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
         //Builds the schedules based on given index(i)
         itemBuilder: (context, i) {
           //The date of the schedule (currentDate+index)
-          DateTime date = ScheduleDisplay.initialDate
-              .add(Duration(days: i - (maxPages / 2).round()));
+          DateTime date = GlobalMethods.addDay(
+              ScheduleDisplay.initialDate, i - (maxPages / 2).round());
 
           //Schedule card wrapped in gestureDetector
           return GestureDetector(
@@ -213,7 +214,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
         children: [
           //Column of time references to the left
           Stack(
-            children: List<Widget>.generate((dayInfo.end!.difference(dayInfo.start!).inHours)+1, (i) {
+            children: List<Widget>.generate(
+                (dayInfo.end!.difference(dayInfo.start!).inHours) + 1, (i) {
               return Padding(
                   padding: EdgeInsets.only(top: minuteHeight * i * 60),
                   child: Text(
@@ -334,8 +336,9 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                       GlobalMethods.showPopup(
                           context,
                           ClubScheduelDsiplay(
-                              date: ScheduleDisplay.initialDate.add(
-                                  Duration(days: ScheduleDisplay.pageIndex)),
+                              date: GlobalMethods.addDay(
+                                  ScheduleDisplay.initialDate,
+                                  ScheduleDisplay.pageIndex),
                               schedule: schedule));
                     },
                     icon: const Icon(Icons.sports_soccer),
@@ -516,8 +519,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
   //Builds the info popup button
   Widget _buildInfoButton() {
     return FutureBuilder(future: ScheduleData.awaitCondition(() {
-      return ScheduleData.dailyData[ScheduleDisplay.initialDate
-              .add(Duration(days: ScheduleDisplay.pageIndex))] !=
+      return ScheduleData.dailyData[GlobalMethods.addDay(
+              ScheduleDisplay.initialDate, ScheduleDisplay.pageIndex)] !=
           null;
     }), builder: (context, snapshot) {
       if (snapshot.connectionState == ConnectionState.waiting) {
@@ -532,8 +535,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                 GlobalMethods.showPopup(
                     context,
                     ScheduleInfoDisplay(
-                        date: ScheduleDisplay.initialDate
-                            .add(Duration(days: ScheduleDisplay.pageIndex))));
+                        date: GlobalMethods.addDay(ScheduleDisplay.initialDate,
+                            ScheduleDisplay.pageIndex)));
               }),
         );
       }
@@ -546,8 +549,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
             GlobalMethods.showPopup(
                 context,
                 ScheduleInfoDisplay(
-                    date: ScheduleDisplay.initialDate
-                        .add(Duration(days: ScheduleDisplay.pageIndex))));
+                    date: GlobalMethods.addDay(ScheduleDisplay.initialDate,
+                        ScheduleDisplay.pageIndex)));
           });
     });
   }

@@ -97,18 +97,6 @@ class ScheduleData {
         'dtEnd': instance['dtend'].toDateTime(),
         'location': instance['location']
       });
-      result[calDate]!.add({
-        'summary': 'RobotX',
-        'dtStart': instance['dtstart'].toDateTime().add(const Duration(minutes: 10)),
-        'dtEnd': instance['dtend'].toDateTime(),
-        'location': 'The Robolab'
-      });
-      result[calDate]!.add({
-        'summary': 'More RobotX',
-        'dtStart': instance['dtstart'].toDateTime().add(const Duration(minutes: 20)),
-        'dtEnd': instance['dtend'].toDateTime().subtract(const Duration(minutes: 10)),
-        'location': 'The Robolab'
-      });
     }
     return result;
   }

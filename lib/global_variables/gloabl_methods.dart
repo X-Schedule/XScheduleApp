@@ -4,6 +4,21 @@ import 'package:flutter/material.dart';
 import 'global_variables.dart';
 
 class GlobalMethods {
+  static DateTime addDay(DateTime date, int days){
+    DateTime result = date.add(Duration(days: days));
+    //Fuck daylight savings!
+    if (result.hour > 12){
+      while(result.hour != 0){
+        result = result.add(const Duration(hours: 1));
+      }
+    } else {
+      while(result.hour != 0){
+        result = result.subtract(const Duration(hours: 1)); 
+      }
+    }
+    return result;
+  }
+
   static String dateText(DateTime date) {
     return '${GlobalVariables.weekdayText[date.weekday]}, ${date.month}/${date.day}';
   }
