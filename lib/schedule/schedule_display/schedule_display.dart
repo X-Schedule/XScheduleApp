@@ -45,6 +45,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
             ScheduleDisplay.initialDate, ScheduleDisplay.pageIndex + 25));
     return Column(
       children: [
+        SizedBox(height: MediaQuery.of(context).padding.top),
         //The top day text display
         Container(
           margin: const EdgeInsets.symmetric(vertical: 5),
@@ -126,7 +127,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
 
   //Loading wheel which appears while fetching data
   Widget _buildLoading(BuildContext context) {
-    double cardHeight = MediaQuery.of(context).size.height - 200.5;
+    double cardHeight = MediaQuery.of(context).size.height - 200.5 - MediaQuery.of(context).padding.top;
     return Container(
       height: cardHeight,
       alignment: Alignment.center,
@@ -198,7 +199,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
   //Builds the schedule card based on given date
   Widget _buildSchedule(DateTime date, BuildContext context) {
     Schedule dayInfo = ScheduleData.schedule[date] ?? Schedule.empty();
-    double cardHeight = MediaQuery.of(context).size.height - 197;
+    double cardHeight = MediaQuery.of(context).size.height - 197 - MediaQuery.of(context).padding.top;
     if (!_schedule(date)) {
       //i.e. no schedule/classes
       return _buildEmpty(cardHeight);
@@ -253,7 +254,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     List<String> keys = dayInfo.schedule.keys.toList();
     for (String key in keys) {
       if (dayInfo.clockMap(key) == null) {
-        return false;
+        ScheduleData.schedule[date]!.schedule.remove(key);
       }
     }
     return true;

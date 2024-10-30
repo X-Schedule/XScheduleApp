@@ -269,18 +269,22 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                               ScheduleSettings.colors[bell]!.toColor(),
                           radius: radius - 10,
                         ),
-                        //Allows Colorwheel to expand to size radius * 2
-                        SizedBox(
-                          width: radius * 2,
-                          //Colorpicker
-                          child: WheelPicker(
-                            showPalette: false,
-                            color: ScheduleSettings.colors[bell]!,
-                            onChanged: (HSVColor value) {
-                              setLocalState(() {
-                                ScheduleSettings.colors[bell] = value;
-                              });
-                            },
+                        //Transforms the default size to the size needed (radius * 2)
+                        Transform.scale(
+                          scale: radius / 100,
+                          child: SizedBox(
+                            //Colorwheel has default size of 200 for visual reasons
+                            width: 200,
+                            //Colorpicker
+                            child: WheelPicker(
+                              showPalette: false,
+                              color: ScheduleSettings.colors[bell]!,
+                              onChanged: (HSVColor value) {
+                                setLocalState(() {
+                                  ScheduleSettings.colors[bell] = value;
+                                });
+                              },
+                            ),
                           ),
                         ),
                         //Emoji Picker
@@ -376,13 +380,16 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
       height: radius * 2 / 3,
       width: radius * 3,
       child: TextFormField(
+        keyboardType: TextInputType.text,
         controller: controller,
         maxLength: 50,
         maxLines: 1,
         decoration: InputDecoration(
           labelText: display,
           counterText: '',
-          labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+          labelStyle: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+              overflow: TextOverflow.ellipsis),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
             borderSide: const BorderSide(color: Colors.grey, width: 1),
