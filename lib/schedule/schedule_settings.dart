@@ -105,7 +105,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
   void _defineBells(String bell) {
     // ??= means if null, then define as this value
     ScheduleSettings.bellInfo[bell] ??= {};
-    ScheduleSettings.bellInfo[bell]!['color'] ??= "#ffff00";
+    ScheduleSettings.bellInfo[bell]!['color'] ??= "#006aff";
     ScheduleSettings.colors[bell] ??= HSVColor.fromColor(
         hexToColor(ScheduleSettings.bellInfo[bell]!['color']!));
 
@@ -271,22 +271,22 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                         ),
                         //Transforms the default size to the size needed (radius * 2)
                         Transform.scale(
-                          scale: radius / 100,
-                          child: SizedBox(
-                            //Colorwheel has default size of 200 for visual reasons
-                            width: 200,
-                            //Colorpicker
-                            child: WheelPicker(
-                              showPalette: false,
-                              color: ScheduleSettings.colors[bell]!,
-                              onChanged: (HSVColor value) {
-                                setLocalState(() {
-                                  ScheduleSettings.colors[bell] = value;
-                                });
-                              },
+                              scale: radius / 100,
+                              child: SizedBox(
+                                //Colorwheel has default size of 200 for visual reasons
+                                width: 200,
+                                //Colorpicker
+                                child: WheelPicker(
+                                  showPalette: false,
+                                  color: ScheduleSettings.colors[bell]!,
+                                  onChanged: (HSVColor value) {
+                                    setLocalState(() {
+                                      ScheduleSettings.colors[bell] = value;
+                                    });
+                                  },
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
                         //Emoji Picker
                         Container(
                           width: radius - 10,
@@ -296,6 +296,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                             child: TextField(
                               controller: ScheduleSettings.emojis[bell],
                               decoration: const InputDecoration(
+                                isDense: true,
                                 border: InputBorder.none,
                                 // Removes the underline
                                 contentPadding: EdgeInsets.symmetric(
@@ -386,6 +387,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
         maxLines: 1,
         decoration: InputDecoration(
           labelText: display,
+          isDense: true,
           counterText: '',
           labelStyle: TextStyle(
               color: Theme.of(context).colorScheme.onSurface,

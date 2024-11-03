@@ -2,6 +2,7 @@ import 'package:color_hex/class/hex_to_color.dart';
 import 'package:flutter/material.dart';
 import 'package:xchedule/global_variables/clock.dart';
 import 'package:xchedule/global_variables/gloabl_methods.dart';
+import 'package:xchedule/global_variables/global_variables.dart';
 import 'package:xchedule/global_variables/global_widgets.dart';
 import 'package:xchedule/schedule/schedule.dart';
 import 'package:xchedule/schedule/schedule_data.dart';
@@ -62,7 +63,14 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                     color: Colors.blueGrey.withOpacity(0.4),
                     radius: 20,
                     padding: 10,
-                    onTap: () {}),
+                    onTap: () {
+                      GlobalMethods.showPopup(
+                          context,
+                          _buildCalendarNav(
+                              context,
+                              GlobalMethods.addDay(ScheduleDisplay.initialDate,
+                                  ScheduleDisplay.pageIndex)));
+                    }),
               ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -127,7 +135,9 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
 
   //Loading wheel which appears while fetching data
   Widget _buildLoading(BuildContext context) {
-    double cardHeight = MediaQuery.of(context).size.height - 200.5 - MediaQuery.of(context).padding.top;
+    double cardHeight = MediaQuery.of(context).size.height -
+        200.5 -
+        MediaQuery.of(context).padding.top;
     return Container(
       height: cardHeight,
       alignment: Alignment.center,
@@ -199,7 +209,9 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
   //Builds the schedule card based on given date
   Widget _buildSchedule(DateTime date, BuildContext context) {
     Schedule dayInfo = ScheduleData.schedule[date] ?? Schedule.empty();
-    double cardHeight = MediaQuery.of(context).size.height - 197 - MediaQuery.of(context).padding.top;
+    double cardHeight = MediaQuery.of(context).size.height -
+        197 -
+        MediaQuery.of(context).padding.top;
     if (!_schedule(date)) {
       //i.e. no schedule/classes
       return _buildEmpty(cardHeight);
@@ -499,6 +511,186 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
         ),
       ),
     );
+  }
+
+  //Builds the calendar navigation popup
+  Widget _buildCalendarNav(BuildContext context, DateTime date) {
+    int monthIndex = 0;
+    PageController calController = PageController(initialPage: 18);
+    double height = MediaQuery.of(context).size.width * 24 / 35;
+    double width = MediaQuery.of(context).size.width * 4 / 5;
+    //Aligns on center of screen
+    return StatefulBuilder(builder: (context, setState) {
+      DateTime newMonth = DateTime(date.year, date.month + monthIndex);
+
+      return Align(
+        alignment: Alignment.center,
+        child: GestureDetector(
+          //When the popup is swiped, removes (or 'pops') the popup from the page
+          onHorizontalDragEnd: (detail) {
+            if (detail.primaryVelocity! < 0) {
+              Navigator.pop(context);
+            }
+          },
+          child: SizedBox(
+            width: width,
+            height: 69 + height,
+            child: Card(
+              color: Theme.of(context).colorScheme.surface,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton(
+                            iconSize: 25,
+                            onPressed: () {
+                              if (monthIndex.abs() < 18) {
+                                setState(() {
+                                  monthIndex--;
+                                });
+                                calController.animateToPage(
+                                    calController.page!.round() - 1,
+                                    duration: const Duration(milliseconds: 200),
+                                    curve: Curves.easeInOut);
+                              }
+                            },
+                            icon: const Icon(Icons.arrow_back_ios)),
+                        SizedBox(
+                          width: width - 200,
+                          height: 50,
+                          child: FittedBox(
+                            fit: BoxFit.contain,
+                            child: Text(
+                              "${GlobalVariables.monthText[newMonth.month]} ${newMonth.year}",
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w500, fontSize: 20),
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                            iconSize: 25,
+                            onPressed: () {
+                              if (monthIndex.abs() < 18) {
+                                setState(() {
+                                  monthIndex++;
+                                });
+                                calController.animateToPage(
+                                    calController.page!.round() + 1,
+                                    duration: const Duration(milliseconds: 200),
+                                    curve: Curves.easeInOut);
+                              }
+                            },
+                            icon: const Icon(Icons.arrow_forward_ios)),
+                      ],
+                    ),
+                    Container(
+                      color: Theme.of(context).colorScheme.shadow,
+                      height: height,
+                      width: width,
+                      child: PageView(
+                        controller: calController,
+                        physics: const NeverScrollableScrollPhysics(),
+                        children: List<Widget>.generate(37, (i) {
+                          int d = i - (monthIndex + 18);
+                          if (d.abs() > 1) {
+                            return Container();
+                          }
+                          DateTime iMonth =
+                              DateTime(date.year, date.month + monthIndex + d);
+                          double radius = (width - 10) / 28;
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: List<Widget>.generate(6, (e) {
+                              if (DateTime(iMonth.year, iMonth.month,
+                                              e * 7 - iMonth.weekday + 1)
+                                          .month !=
+                                      iMonth.month &&
+                                  DateTime(iMonth.year, iMonth.month,
+                                              (e + 1) * 7 - iMonth.weekday)
+                                          .month !=
+                                      iMonth.month) {
+                                return Container();
+                              }
+                              return Row(
+                                children: List<Widget>.generate(7, (n) {
+                                  DateTime dotDate = DateTime(
+                                      iMonth.year,
+                                      iMonth.month,
+                                      n + e * 7 - iMonth.weekday + 1);
+                                  double opacity = 0;
+                                  if (dotDate.month == iMonth.month) {
+                                    opacity += 0.05;
+                                  }
+                                  if (ScheduleData.schedule[dotDate] != null) {
+                                    if (!ScheduleData.schedule[dotDate]!.name
+                                        .contains("No Classes")) {
+                                      opacity += 0.15;
+                                    }
+                                  }
+                                  Color dotColor =
+                                      Colors.black.withOpacity(0.05 + opacity);
+                                  Color textColor = Colors.black;
+                                  if (dotDate == date) {
+                                    dotColor = Theme.of(context)
+                                        .colorScheme
+                                        .primary
+                                        .withOpacity(0.60 + opacity);
+                                    textColor =
+                                        Theme.of(context).colorScheme.onPrimary;
+                                  }
+                                  return GestureDetector(
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                        int change = GlobalMethods.addDay(
+                                                ScheduleDisplay.initialDate,
+                                                ScheduleDisplay.pageIndex)
+                                            .difference(dotDate)
+                                            .inDays;
+                                        _controller.animateToPage(
+                                            _controller.page!.round() - change,
+                                            duration: Duration(
+                                                milliseconds: change.abs() < 10
+                                                    ? 250
+                                                    : 1000),
+                                            curve: Curves.easeInOut);
+                                      },
+                                      child: Padding(
+                                        padding: EdgeInsets.all(radius),
+                                        child: Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            CircleAvatar(
+                                              backgroundColor: dotColor,
+                                              radius: radius,
+                                            ),
+                                            Text(dotDate.day.toString(),
+                                                style:
+                                                    TextStyle(color: textColor))
+                                          ],
+                                        ),
+                                      ));
+                                }),
+                              );
+                            }),
+                          );
+                        }),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    });
   }
 
   //Builds the arrow buttons for swapping between pages
