@@ -46,13 +46,16 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
       appBar: AppBar(
         leading: widget.backArrow ? null : Container(),
         centerTitle: true,
-        title: const Text(
-          "Customize Bell Appearance",
-          style: TextStyle(
-              //Custom font Goerama
-              fontFamily: "Georama",
-              fontSize: 25,
-              fontWeight: FontWeight.w600),
+        title: const FittedBox(
+          fit: BoxFit.contain,
+          child: Text(
+            "Customize Bell Appearance",
+            style: TextStyle(
+                //Custom font Goerama
+                fontFamily: "Georama",
+                fontSize: 25,
+                fontWeight: FontWeight.w600),
+          ),
         ),
       ),
       //Extends the body behind the bottom bar
@@ -242,7 +245,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
   //Builds the setting popup
   Widget _buildBellSettings(String bell) {
     //Radius of colorWheel; also used in other measurements
-    double radius = MediaQuery.of(context).size.width / 6;
+    double size = MediaQuery.of(context).size.width * 5 / 6;
     //Allows for "setState" to be called, and only effect this popup
     return StatefulBuilder(
         builder: (BuildContext context, StateSetter setLocalState) {
@@ -254,95 +257,80 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
             padding: const EdgeInsets.all(10),
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                        width: 175,
-                        child: FittedBox(
-                            fit: BoxFit.contain,
-                            child:Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                //Solid Color circle
-                                CircleAvatar(
-                                  backgroundColor:
-                                  //Color in variable type "HSVColor"; needs to be converted
-                                  ScheduleSettings.colors[bell]!.toColor(),
-                                  radius: 77.5,
+                SizedBox(
+                    width: 200,
+                    child: FittedBox(
+                      fit: BoxFit.contain,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          //Solid Color circle
+                          CircleAvatar(
+                            backgroundColor:
+                                //Color in variable type "HSVColor"; needs to be converted
+                                ScheduleSettings.colors[bell]!.toColor(),
+                            radius: 100,
+                          ),
+                          WheelPicker(
+                            showPalette: false,
+                            color: ScheduleSettings.colors[bell]!,
+                            onChanged: (HSVColor value) {
+                              setLocalState(() {
+                                ScheduleSettings.colors[bell] = value;
+                              });
+                            },
+                          ),
+                          //Transforms the default size to the size needed (radius * 2)
+                          //Emoji Picker
+                          Container(
+                            width: 150,
+                            height: 150,
+                            margin: const EdgeInsets.only(bottom: 40),
+                            alignment: Alignment.center,
+                            child: IntrinsicWidth(
+                              child: TextField(
+                                controller: ScheduleSettings.emojis[bell],
+                                decoration: const InputDecoration(
+                                  isDense: true,
+                                  border: InputBorder.none,
+                                  // Removes the underline
+                                  contentPadding: EdgeInsets.symmetric(
+                                      vertical:
+                                          10.0), // Optional: adjust padding
                                 ),
-                                Transform.scale(
-                                  scale: 1,
-                                  child: SizedBox(
-                                    //Colorwheel has default size of 175 for visual reasons
-                                    width: 175,
-                                    //Colorpicker
-                                    child: WheelPicker(
-                                      showPalette: false,
-                                      color: ScheduleSettings.colors[bell]!,
-                                      onChanged: (HSVColor value) {
-                                        setLocalState(() {
-                                          ScheduleSettings.colors[bell] = value;
-                                        });
-                                      },
-                                    ),
-                                  ),
+                                style: const TextStyle(
+                                  fontSize: 125, // Large font size
                                 ),
-                                //Transforms the default size to the size needed (radius * 2)
-                                //Emoji Picker
-                                Container(
-                                  width: 77.5,
-                                  height: 77.5,
-                                  alignment: Alignment.center,
-                                  child: IntrinsicWidth(
-                                    child: TextField(
-                                      controller: ScheduleSettings.emojis[bell],
-                                      decoration: const InputDecoration(
-                                        isDense: true,
-                                        border: InputBorder.none,
-                                        // Removes the underline
-                                        contentPadding: EdgeInsets.symmetric(
-                                            vertical: 10.0), // Optional: adjust padding
-                                      ),
-                                      style: TextStyle(
-                                        fontSize: radius - 10, // Large font size
-                                      ),
-                                      onChanged: (String text) {
-                                        //Ensured no empty values
-                                        if (text.isEmpty) {
-                                          text = '_';
-                                        }
-                                        //Ensures no values greater than one character; will use 2nd char so that you can quickly type
-                                        if (text.length > 1) {
-                                          text = text[text.length - 1];
-                                        }
-                                        setLocalState(() {
-                                          ScheduleSettings.emojis[bell]!.text = text;
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                )
-                              ],
+                                onChanged: (String text) {
+                                  //Ensured no empty values
+                                  if (text.isEmpty) {
+                                    text = '_';
+                                  }
+                                  //Ensures no values greater than one character; will use 2nd char so that you can quickly type
+                                  if (text.length > 1) {
+                                    text = text[text.length - 1];
+                                  }
+                                  setLocalState(() {
+                                    ScheduleSettings.emojis[bell]!.text = text;
+                                  });
+                                },
+                              ),
                             ),
-                        )
-                    ),
-                    //Column of text forms
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _buildTextForm(
-                            ScheduleSettings.names[bell]!, "Bell Name", radius),
-                        _buildTextForm(ScheduleSettings.teachers[bell]!,
-                            "Teacher", radius),
-                        _buildTextForm(ScheduleSettings.locations[bell]!,
-                            "Location", radius),
-                      ],
-                    )
-                  ],
-                ),
+                          )
+                        ],
+                      ),
+                    )),
+                const SizedBox(height: 15),
+                //Column of text forms
+                _buildTextForm(
+                    ScheduleSettings.names[bell]!, "Bell Name", size),
+                _buildTextForm(
+                    ScheduleSettings.teachers[bell]!, "Teacher", size),
+                _buildTextForm(
+                    ScheduleSettings.locations[bell]!, "Location", size),
                 //Submits
                 ElevatedButton(
                     onPressed: () {
@@ -381,11 +369,11 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
 
   //The text form displayed in the settings page
   Widget _buildTextForm(
-      TextEditingController controller, String display, double radius) {
+      TextEditingController controller, String display, double size) {
     return Container(
-      margin: const EdgeInsets.only(left: 20),
-      height: radius * 2 / 3,
-      width: radius * 5 - 175,
+      margin: const EdgeInsets.only(top: 5),
+      height: size * 2 / 15,
+      width: size,
       child: TextFormField(
         keyboardType: TextInputType.text,
         controller: controller,
