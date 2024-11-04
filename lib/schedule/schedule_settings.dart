@@ -262,9 +262,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
               children: [
                 SizedBox(
                     width: 200,
-                    child: FittedBox(
-                      fit: BoxFit.contain,
-                      child: Stack(
+                    child: Stack(
                         alignment: Alignment.center,
                         children: [
                           //Solid Color circle
@@ -272,7 +270,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                             backgroundColor:
                                 //Color in variable type "HSVColor"; needs to be converted
                                 ScheduleSettings.colors[bell]!.toColor(),
-                            radius: 100,
+                            radius: 95,
                           ),
                           WheelPicker(
                             showPalette: false,
@@ -286,9 +284,8 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                           //Transforms the default size to the size needed (radius * 2)
                           //Emoji Picker
                           Container(
-                            width: 150,
-                            height: 150,
-                            margin: const EdgeInsets.only(bottom: 40),
+                            width: 115,
+                            height: 110,
                             alignment: Alignment.center,
                             child: IntrinsicWidth(
                               child: TextField(
@@ -322,7 +319,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                           )
                         ],
                       ),
-                    )),
+                    ),
                 const SizedBox(height: 15),
                 //Column of text forms
                 _buildTextForm(
