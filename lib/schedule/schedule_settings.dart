@@ -260,7 +260,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(
-                        width: radius * 2,
+                        width: 175,
                         child: FittedBox(
                             fit: BoxFit.contain,
                             child:Stack(
@@ -271,13 +271,13 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                                   backgroundColor:
                                   //Color in variable type "HSVColor"; needs to be converted
                                   ScheduleSettings.colors[bell]!.toColor(),
-                                  radius: radius - 10,
+                                  radius: 77.5,
                                 ),
                                 Transform.scale(
-                                  scale: radius / 100,
+                                  scale: 1,
                                   child: SizedBox(
-                                    //Colorwheel has default size of 200 for visual reasons
-                                    width: 200,
+                                    //Colorwheel has default size of 175 for visual reasons
+                                    width: 175,
                                     //Colorpicker
                                     child: WheelPicker(
                                       showPalette: false,
@@ -293,8 +293,8 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                                 //Transforms the default size to the size needed (radius * 2)
                                 //Emoji Picker
                                 Container(
-                                  width: radius - 10,
-                                  height: radius - 10,
+                                  width: 77.5,
+                                  height: 77.5,
                                   alignment: Alignment.center,
                                   child: IntrinsicWidth(
                                     child: TextField(
@@ -385,7 +385,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
     return Container(
       margin: const EdgeInsets.only(left: 20),
       height: radius * 2 / 3,
-      width: radius * 3,
+      width: radius * 5 - 175,
       child: TextFormField(
         keyboardType: TextInputType.text,
         controller: controller,
