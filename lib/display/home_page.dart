@@ -64,11 +64,11 @@ class _HomePageState extends State<HomePage> {
   //The bottom nav bar
   Widget _buildNavBar(BuildContext context) {
     return Container(
-      height: 100,
+      height: 80,
       decoration: BoxDecoration(
           //Gradient from blue to transparent; stops from 60% to 75% to give further opacity
           gradient: LinearGradient(
-              stops: const [0.6, 0.75],
+              stops: const [0.65, 0.85],
               colors: [Colors.blueAccent, Colors.blueAccent.withOpacity(0)],
               begin: Alignment.bottomCenter,
               end: Alignment.topCenter)),

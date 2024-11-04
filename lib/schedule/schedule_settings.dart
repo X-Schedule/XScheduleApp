@@ -259,69 +259,75 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        //Solid Color circle
-                        CircleAvatar(
-                          backgroundColor:
-                              //Color in variable type "HSVColor"; needs to be converted
-                              ScheduleSettings.colors[bell]!.toColor(),
-                          radius: radius - 10,
-                        ),
-                        //Transforms the default size to the size needed (radius * 2)
-                        Transform.scale(
-                              scale: radius / 100,
-                              child: SizedBox(
-                                //Colorwheel has default size of 200 for visual reasons
-                                width: 200,
-                                //Colorpicker
-                                child: WheelPicker(
-                                  showPalette: false,
-                                  color: ScheduleSettings.colors[bell]!,
-                                  onChanged: (HSVColor value) {
-                                    setLocalState(() {
-                                      ScheduleSettings.colors[bell] = value;
-                                    });
-                                  },
+                    SizedBox(
+                        width: radius * 2,
+                        child: FittedBox(
+                            fit: BoxFit.contain,
+                            child:Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                //Solid Color circle
+                                CircleAvatar(
+                                  backgroundColor:
+                                  //Color in variable type "HSVColor"; needs to be converted
+                                  ScheduleSettings.colors[bell]!.toColor(),
+                                  radius: radius - 10,
                                 ),
-                              ),
+                                Transform.scale(
+                                  scale: radius / 100,
+                                  child: SizedBox(
+                                    //Colorwheel has default size of 200 for visual reasons
+                                    width: 200,
+                                    //Colorpicker
+                                    child: WheelPicker(
+                                      showPalette: false,
+                                      color: ScheduleSettings.colors[bell]!,
+                                      onChanged: (HSVColor value) {
+                                        setLocalState(() {
+                                          ScheduleSettings.colors[bell] = value;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                //Transforms the default size to the size needed (radius * 2)
+                                //Emoji Picker
+                                Container(
+                                  width: radius - 10,
+                                  height: radius - 10,
+                                  alignment: Alignment.center,
+                                  child: IntrinsicWidth(
+                                    child: TextField(
+                                      controller: ScheduleSettings.emojis[bell],
+                                      decoration: const InputDecoration(
+                                        isDense: true,
+                                        border: InputBorder.none,
+                                        // Removes the underline
+                                        contentPadding: EdgeInsets.symmetric(
+                                            vertical: 10.0), // Optional: adjust padding
+                                      ),
+                                      style: TextStyle(
+                                        fontSize: radius - 10, // Large font size
+                                      ),
+                                      onChanged: (String text) {
+                                        //Ensured no empty values
+                                        if (text.isEmpty) {
+                                          text = '_';
+                                        }
+                                        //Ensures no values greater than one character; will use 2nd char so that you can quickly type
+                                        if (text.length > 1) {
+                                          text = text[text.length - 1];
+                                        }
+                                        setLocalState(() {
+                                          ScheduleSettings.emojis[bell]!.text = text;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                )
+                              ],
                             ),
-                        //Emoji Picker
-                        Container(
-                          width: radius - 10,
-                          height: radius - 10,
-                          alignment: Alignment.center,
-                          child: IntrinsicWidth(
-                            child: TextField(
-                              controller: ScheduleSettings.emojis[bell],
-                              decoration: const InputDecoration(
-                                isDense: true,
-                                border: InputBorder.none,
-                                // Removes the underline
-                                contentPadding: EdgeInsets.symmetric(
-                                    vertical: 10.0), // Optional: adjust padding
-                              ),
-                              style: TextStyle(
-                                fontSize: radius - 10, // Large font size
-                              ),
-                              onChanged: (String text) {
-                                //Ensured no empty values
-                                if (text.isEmpty) {
-                                  text = '_';
-                                }
-                                //Ensures no values greater than one character; will use 2nd char so that you can quickly type
-                                if (text.length > 1) {
-                                  text = text[text.length - 1];
-                                }
-                                setLocalState(() {
-                                  ScheduleSettings.emojis[bell]!.text = text;
-                                });
-                              },
-                            ),
-                          ),
                         )
-                      ],
                     ),
                     //Column of text forms
                     Column(
