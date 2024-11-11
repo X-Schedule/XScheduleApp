@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:localstorage/localstorage.dart';
 import 'package:xchedule/global_variables/gloabl_methods.dart';
 import 'package:xchedule/schedule/schedule_settings.dart';
 
@@ -12,7 +13,7 @@ class Personal extends StatelessWidget {
   const Personal({super.key});
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.center,
       child: Column(
@@ -21,17 +22,53 @@ class Personal extends StatelessWidget {
           //Button that leads to ScheduleSettings
           ElevatedButton(
               onPressed: () {
-                GlobalMethods.pushSwipePage(context, const ScheduleSettings(backArrow: true));
+                GlobalMethods.pushSwipePage(
+                    context, const ScheduleSettings(backArrow: true));
               },
               style:
-              ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary),
+              ElevatedButton.styleFrom(backgroundColor: Theme
+                  .of(context)
+                  .colorScheme
+                  .primary),
               child: Container(
                 alignment: Alignment.center,
-                width: MediaQuery.of(context).size.width * 3 / 5,
+                width: MediaQuery
+                    .of(context)
+                    .size
+                    .width * 3 / 5,
                 child: Text(
                   "Customize Bell Appearances",
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.onPrimary
+                      color: Theme
+                          .of(context)
+                          .colorScheme
+                          .onPrimary
+                  ),
+                ),
+              )),
+          const SizedBox(height: 100),
+          ElevatedButton(
+              onPressed: () {
+                localStorage.clear();
+              },
+              style:
+              ElevatedButton.styleFrom(backgroundColor: Theme
+                  .of(context)
+                  .colorScheme
+                  .primary),
+              child: Container(
+                alignment: Alignment.center,
+                width: MediaQuery
+                    .of(context)
+                    .size
+                    .width * 3 / 5,
+                child: Text(
+                  "Erase Local Data",
+                  style: TextStyle(
+                      color: Theme
+                          .of(context)
+                          .colorScheme
+                          .onPrimary
                   ),
                 ),
               )),
