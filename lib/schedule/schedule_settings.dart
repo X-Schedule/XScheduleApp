@@ -275,12 +275,12 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                           });
                         },
                       ),
-                      //Transforms the default size to the size needed (radius * 2)
                       //Emoji Picker
                       Container(
-                        width: 115,
-                        height: 110,
+                        width: 125,
+                        height: 125,
                         alignment: Alignment.center,
+                        margin: const EdgeInsets.only(bottom: 10),
                         child: IntrinsicWidth(
                           child: TextField(
                             controller: ScheduleSettings.emojis[bell],
@@ -292,7 +292,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                                   vertical: 10.0), // Optional: adjust padding
                             ),
                             style: const TextStyle(
-                              fontSize: 125, // Large font size
+                              fontSize: 120, // Large font size
                             ),
                             onChanged: (String text) {
                               //Ensured no empty values
@@ -310,8 +310,8 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                             },
                           ),
                         ),
-                      )
-                    ],
+                      ),
+                      ],
                   ),
                 ),
                 const SizedBox(height: 15),

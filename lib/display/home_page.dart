@@ -46,15 +46,12 @@ class _HomePageState extends State<HomePage> {
     return StreamBuilder(
         stream: HomePage.homePageStream.stream,
         builder: (context, snapshot){
-          print("hey!");
           if (localStorage.getItem("state") != "logged") {
             return const Welcome();
           }
           return Scaffold(
             backgroundColor: Theme.of(context).colorScheme.primaryContainer,
             bottomNavigationBar: _buildNavBar(context),
-            //Body goes behind the bottom navbar
-            extendBody: true,
             body: PageView(
               controller: controller,
               //Once page changes, sets pageIndex to the new index

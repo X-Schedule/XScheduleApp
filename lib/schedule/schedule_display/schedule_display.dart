@@ -137,7 +137,6 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                       ),
                     )),
               ),
-              const SizedBox(height: 80)
             ],
           );
         }
