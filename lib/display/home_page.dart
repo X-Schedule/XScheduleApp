@@ -1,7 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:icon_decoration/icon_decoration.dart';
 import 'package:localstorage/localstorage.dart';
-import 'package:xchedule/chat/chat.dart';
+import 'package:xchedule/global_variables/stream_signal.dart';
 import 'package:xchedule/personal/welcome.dart';
 import 'package:xchedule/personal/personal.dart';
 import 'package:xchedule/schedule/schedule_display/schedule_display.dart';
@@ -15,8 +17,9 @@ Displays the appbar, navbar, and is parent of the body
 
 //StatefulWidget: Widget capable of updating 'State's or instances
 class HomePage extends StatefulWidget {
-  static GlobalKey homeKey = GlobalKey();
-  HomePage({Key? key}) : super(key: homeKey);
+  const HomePage({super.key});
+
+  static StreamController<StreamSignal> homePageStream = StreamController();
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -25,63 +28,94 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   //Pages available to scroll to using PageView
   List<Widget> pages = [
-    const Personal(),
     const ScheduleDisplay(),
-    const Chat(),
+    const Personal(),
   ];
 
   //Controller of the PageView; allows access to variables and methods
-  final PageController controller = PageController(initialPage: 1);
+  final PageController controller = PageController(initialPage: 0);
 
   //int value representing which page the pageView is on
-  int pageIndex = 1;
+  int pageIndex = 0;
 
   //Builds the HomePage
   @override
   Widget build(BuildContext context) {
     //Checks the local storage to see if app has gone through login page before
-    if(localStorage.getItem("state") != "logged"){
-      return const Welcome();
-    }
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-      bottomNavigationBar: _buildNavBar(context),
-      //Body goes behind the bottom navbar
-      extendBody: true,
-      body: PageView(
-        controller: controller,
-        //Once page changes, sets pageIndex to the new index
-        onPageChanged: (i) {
-          setState(() {
-            pageIndex = i;
-          });
-        },
-        children: pages,
-      ),
+    HomePage.homePageStream = StreamController();
+    return StreamBuilder(
+        stream: HomePage.homePageStream.stream,
+        builder: (context, snapshot){
+          print("hey!");
+          if (localStorage.getItem("state") != "logged") {
+            return const Welcome();
+          }
+          return Scaffold(
+            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+            bottomNavigationBar: _buildNavBar(context),
+            //Body goes behind the bottom navbar
+            extendBody: true,
+            body: PageView(
+              controller: controller,
+              //Once page changes, sets pageIndex to the new index
+              onPageChanged: (i) {
+                setState(() {
+                  pageIndex = i;
+                });
+              },
+              children: pages,
+            ),
+          );
+        }
     );
   }
 
   //The bottom nav bar
   Widget _buildNavBar(BuildContext context) {
-    return Container(
-      height: 80,
-      decoration: BoxDecoration(
-          //Gradient from blue to transparent; stops from 60% to 75% to give further opacity
-          gradient: LinearGradient(
-              stops: const [0.65, 0.85],
-              colors: [Colors.blueAccent, Colors.blueAccent.withOpacity(0)],
-              begin: Alignment.bottomCenter,
-              end: Alignment.topCenter)),
-      padding: const EdgeInsets.only(bottom: 15),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildPageIcon(Icons.person, 0),
-          _buildPageIcon(Icons.calendar_month, 1),
-          _buildPageIcon(Icons.chat, 2),
-        ],
-      ),
+    Color gradient = Theme.of(context).colorScheme.primary;
+    return GestureDetector(
+      onHorizontalDragEnd: (detail) {
+        controller.animateToPage(
+            pageIndex - detail.primaryVelocity!.sign.round(),
+            duration: const Duration(milliseconds: 125),
+            curve: Curves.easeInOut);
+      },
+      child: SizedBox(
+          height: 65 + MediaQuery.of(context).padding.bottom,
+          child: Stack(
+            children: [
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  height: 62.5 + MediaQuery.of(context).padding.bottom,
+                  color: Theme.of(context).colorScheme.tertiaryContainer,
+                  padding: EdgeInsets.only(
+                      bottom: 15 + MediaQuery.of(context).padding.bottom),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildPageIcon(Icons.calendar_month, 0),
+                      _buildPageIcon(Icons.person, 1),
+                    ],
+                  ),
+                ),
+              ),
+              Align(
+                alignment: Alignment.topCenter,
+                child: Container(
+                  height: 10,
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(colors: [
+                    gradient.withOpacity(0),
+                    gradient.withOpacity(0.125),
+                    gradient.withOpacity(0.25),
+                    gradient.withOpacity(0)
+                  ], begin: Alignment.bottomCenter, end: Alignment.topCenter)),
+                ),
+              ),
+            ],
+          )),
     );
   }
 
@@ -100,7 +134,7 @@ class _HomePageState extends State<HomePage> {
             icon: Icon(
               icon,
               //When page selected, icon is fully opaque and white; if not, only at 70% opacity
-              color: pageIndex == index ? Colors.white : Colors.white70,
+              color: pageIndex == index ? Colors.white : Colors.white.withOpacity(0.65),
               size: 30,
             )));
   }

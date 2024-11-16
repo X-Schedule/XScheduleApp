@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hsvcolor_picker/flutter_hsvcolor_picker.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:xchedule/display/home_page.dart';
+import 'package:xchedule/global_variables/stream_signal.dart';
+import 'package:xchedule/schedule/schedule_display/schedule_display.dart';
 
 import '../global_variables/gloabl_methods.dart';
 
@@ -71,7 +73,8 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                   "scheduleSettings", json.encode(ScheduleSettings.bellInfo));
               localStorage.setItem("state", "logged");
               Navigator.pop(context);
-              HomePage.homeKey.currentState!.setState(() {});
+              StreamSignal.updateStream(streamController: HomePage.homePageStream);
+              StreamSignal.updateStream(streamController: ScheduleDisplay.scheduleStream);
             },
             style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.primary),
@@ -140,103 +143,94 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
       margin: const EdgeInsets.all(10),
       width: MediaQuery.of(context).size.width * .95,
       height: 100,
-      child: Card(
-        color: Theme.of(context).colorScheme.surface,
-        child: Row(
-          children: [
-            //Left color nib w/ rounded edges
-            Container(
-              decoration: BoxDecoration(
-                //rounds the left edges to match the Card
-                borderRadius:
-                    const BorderRadius.horizontal(left: Radius.circular(10)),
-                color: hexToColor(settings['color']!),
+      child: GestureDetector(
+        onTap: () {
+          GlobalMethods.showPopup(context, _buildBellSettings(bell));
+        },
+        child: Card(
+          color: Theme.of(context).colorScheme.surface,
+          child: Row(
+            children: [
+              //Left color nib w/ rounded edges
+              Container(
+                decoration: BoxDecoration(
+                  //rounds the left edges to match the Card
+                  borderRadius:
+                      const BorderRadius.horizontal(left: Radius.circular(10)),
+                  color: hexToColor(settings['color']!),
+                ),
+                width: 10,
               ),
-              width: 10,
-            ),
-            Padding(
+              Padding(
                 padding: const EdgeInsets.all(10),
                 //Column w/ two rows
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    //Uppermost row; emoji and title
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                    //Stacks the emoji on top of a shadowed circle
+                    Stack(
+                      alignment: Alignment.center,
                       children: [
-                        //Stacks the emoji on top of a shadowed circle
-                        Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            CircleAvatar(
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.shadow,
-                              radius: 35,
-                            ),
-                            Text(
-                              settings['emoji'],
-                              style: const TextStyle(fontSize: 40),
-                            )
-                          ],
+                        CircleAvatar(
+                          backgroundColor: Theme.of(context).colorScheme.shadow,
+                          radius: 35,
                         ),
-                        //Title Container
-                        Container(
-                          width: MediaQuery.of(context).size.width * .95 - 180,
-                          height: 70,
-                          alignment: Alignment.centerLeft,
-                          padding: const EdgeInsets.only(left: 5),
-                          //FittedBox to ensure text doesn't overflow card
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                //Displays class name, bell name, or nothing (if null)
-                                Text(
-                                  settings['name']!,
-                                  style: const TextStyle(
-                                      height: 0.9,
-                                      fontSize: 25,
-                                      overflow: TextOverflow.ellipsis,
-                                      //bold
-                                      fontWeight: FontWeight.w600),
-                                ),
-                                Text(
-                                  settings['teacher']!,
-                                  style: const TextStyle(
-                                      fontSize: 18,
-                                      overflow: TextOverflow.ellipsis,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                                Text(
-                                  settings['location']!,
-                                  style: const TextStyle(
-                                      fontSize: 18,
-                                      overflow: TextOverflow.ellipsis,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Container(
-                          alignment: Alignment.center,
-                          width: 70,
-                          child: IconButton(
-                            iconSize: 45,
-                            onPressed: () {
-                              //Displays the popup with fade effect
-                              GlobalMethods.showPopup(
-                                  context, _buildBellSettings(bell));
-                            },
-                            icon: const Icon(Icons.settings),
-                          ),
+                        Text(
+                          settings['emoji'],
+                          style: const TextStyle(fontSize: 40),
                         )
                       ],
                     ),
+                    //Title Container
+                    Container(
+                      width: MediaQuery.of(context).size.width * .95 - 180,
+                      height: 70,
+                      alignment: Alignment.centerLeft,
+                      padding: const EdgeInsets.only(left: 5),
+                      //FittedBox to ensure text doesn't overflow card
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            //Displays class name, bell name, or nothing (if null)
+                            Text(
+                              settings['name']!,
+                              style: const TextStyle(
+                                  height: 0.9,
+                                  fontSize: 25,
+                                  overflow: TextOverflow.ellipsis,
+                                  //bold
+                                  fontWeight: FontWeight.w600),
+                            ),
+                            Text(
+                              settings['teacher']!,
+                              style: const TextStyle(
+                                  fontSize: 18,
+                                  overflow: TextOverflow.ellipsis,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                            Text(
+                              settings['location']!,
+                              style: const TextStyle(
+                                  fontSize: 18,
+                                  overflow: TextOverflow.ellipsis,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Container(
+                      alignment: Alignment.center,
+                      width: 70,
+                      child: const Icon(Icons.settings, size: 45),
+                    )
                   ],
-                )),
-          ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -261,65 +255,65 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(
-                    width: 200,
-                    child: Stack(
+                  width: 200,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      //Solid Color circle
+                      CircleAvatar(
+                        backgroundColor:
+                            //Color in variable type "HSVColor"; needs to be converted
+                            ScheduleSettings.colors[bell]!.toColor(),
+                        radius: 95,
+                      ),
+                      WheelPicker(
+                        showPalette: false,
+                        color: ScheduleSettings.colors[bell]!,
+                        onChanged: (HSVColor value) {
+                          setLocalState(() {
+                            ScheduleSettings.colors[bell] = value;
+                          });
+                        },
+                      ),
+                      //Transforms the default size to the size needed (radius * 2)
+                      //Emoji Picker
+                      Container(
+                        width: 115,
+                        height: 110,
                         alignment: Alignment.center,
-                        children: [
-                          //Solid Color circle
-                          CircleAvatar(
-                            backgroundColor:
-                                //Color in variable type "HSVColor"; needs to be converted
-                                ScheduleSettings.colors[bell]!.toColor(),
-                            radius: 95,
-                          ),
-                          WheelPicker(
-                            showPalette: false,
-                            color: ScheduleSettings.colors[bell]!,
-                            onChanged: (HSVColor value) {
+                        child: IntrinsicWidth(
+                          child: TextField(
+                            controller: ScheduleSettings.emojis[bell],
+                            decoration: const InputDecoration(
+                              isDense: true,
+                              border: InputBorder.none,
+                              // Removes the underline
+                              contentPadding: EdgeInsets.symmetric(
+                                  vertical: 10.0), // Optional: adjust padding
+                            ),
+                            style: const TextStyle(
+                              fontSize: 125, // Large font size
+                            ),
+                            onChanged: (String text) {
+                              //Ensured no empty values
+                              if (text.isEmpty) {
+                                text = '_';
+                              }
+                              //Ensures no values greater than one character; will use 2nd char so that you can quickly type
+                              //Use characters to ensure emojis work
+                              if (text.characters.length > 1) {
+                                text = text.characters.last;
+                              }
                               setLocalState(() {
-                                ScheduleSettings.colors[bell] = value;
+                                ScheduleSettings.emojis[bell]!.text = text;
                               });
                             },
                           ),
-                          //Transforms the default size to the size needed (radius * 2)
-                          //Emoji Picker
-                          Container(
-                            width: 115,
-                            height: 110,
-                            alignment: Alignment.center,
-                            child: IntrinsicWidth(
-                              child: TextField(
-                                controller: ScheduleSettings.emojis[bell],
-                                decoration: const InputDecoration(
-                                  isDense: true,
-                                  border: InputBorder.none,
-                                  // Removes the underline
-                                  contentPadding: EdgeInsets.symmetric(
-                                      vertical:
-                                          10.0), // Optional: adjust padding
-                                ),
-                                style: const TextStyle(
-                                  fontSize: 125, // Large font size
-                                ),
-                                onChanged: (String text) {
-                                  //Ensured no empty values
-                                  if (text.isEmpty) {
-                                    text = '_';
-                                  }
-                                  //Ensures no values greater than one character; will use 2nd char so that you can quickly type
-                                  if (text.length > 1) {
-                                    text = text[text.length - 1];
-                                  }
-                                  setLocalState(() {
-                                    ScheduleSettings.emojis[bell]!.text = text;
-                                  });
-                                },
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
                 const SizedBox(height: 15),
                 //Column of text forms
                 _buildTextForm(

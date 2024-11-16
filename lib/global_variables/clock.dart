@@ -5,6 +5,7 @@ Custom Class to construct custom 'Clock' Objects
 Clock objects allow for more efficient calculations when handling time
  */
 
+import 'package:xchedule/global_variables/gloabl_methods.dart';
 import 'package:xchedule/global_variables/global_variables.dart';
 
 class Clock {
@@ -30,7 +31,10 @@ class Clock {
   }
 
   //Outputs the clock as a string in a HOUR:MINUTE 24hr format
-  String display() {
+  String display({bool amPm = true}) {
+    if(amPm){
+      return '${GlobalMethods.amPmHour(hours)}:${GlobalVariables.stringDate(minutes)}';
+    }
     return '$hours:${GlobalVariables.stringDate(minutes)}';
   }
 

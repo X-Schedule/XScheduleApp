@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:color_hex/class/hex_to_color.dart';
 import 'package:flutter/material.dart';
 import 'package:xchedule/global_variables/clock.dart';
 import 'package:xchedule/global_variables/gloabl_methods.dart';
 import 'package:xchedule/global_variables/global_variables.dart';
 import 'package:xchedule/global_variables/global_widgets.dart';
+import 'package:xchedule/global_variables/stream_signal.dart';
 import 'package:xchedule/schedule/schedule.dart';
 import 'package:xchedule/schedule/schedule_data.dart';
 import 'package:xchedule/schedule/schedule_display/club_schedule_display.dart';
@@ -25,6 +28,8 @@ class ScheduleDisplay extends StatefulWidget {
   //pageIndex of Schedule PageView
   static int pageIndex = 0;
 
+  static StreamController<StreamSignal> scheduleStream = StreamController<StreamSignal>();
+
   @override
   State<ScheduleDisplay> createState() => _ScheduleDisplayState();
 }
@@ -44,100 +49,107 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
             ScheduleDisplay.initialDate, ScheduleDisplay.pageIndex - 25),
         GlobalMethods.addDay(
             ScheduleDisplay.initialDate, ScheduleDisplay.pageIndex + 25));
-    return Column(
-      children: [
-        SizedBox(height: MediaQuery.of(context).padding.top),
-        //The top day text display
-        Container(
-          margin: const EdgeInsets.symmetric(vertical: 5),
-          height: 50,
-          alignment: Alignment.center,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    ScheduleDisplay.scheduleStream = StreamController();
+    return StreamBuilder(
+        stream: ScheduleDisplay.scheduleStream.stream,
+        builder: (context, snapshot){
+          return Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 20),
-                child: GlobalWidgets.iconCircle(
-                    icon: Icons.calendar_month,
-                    color: Colors.blueGrey.withOpacity(0.4),
-                    radius: 20,
-                    padding: 10,
-                    onTap: () {
-                      GlobalMethods.showPopup(
-                          context,
-                          _buildCalendarNav(
-                              context,
-                              GlobalMethods.addDay(ScheduleDisplay.initialDate,
-                                  ScheduleDisplay.pageIndex)));
-                    }),
-              ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildNavButton(false),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width - 220,
-                    child: FittedBox(
-                      fit: BoxFit.contain,
-                      child: Text(
-                        GlobalMethods.dateText(GlobalMethods.addDay(
-                            ScheduleDisplay.initialDate,
-                            ScheduleDisplay.pageIndex)),
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w500, fontSize: 32.5),
-                        textAlign: TextAlign.center,
-                        maxLines: 1,
-                      ),
-                    ),
-                  ),
-                  _buildNavButton(true),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 20),
-                child: _buildInfoButton(),
-              ),
-            ],
-          ),
-        ),
-        //The schedule card viewer
-        Expanded(child: _buildPageView()),
-        //Button which leads to ScheduleSettings
-        Container(
-          margin: EdgeInsets.symmetric(
-              horizontal: MediaQuery.of(context).size.width * .3),
-          height: 30,
-          child: ElevatedButton(
-              onPressed: () {
-                GlobalMethods.pushSwipePage(
-                    context,
-                    const ScheduleSettings(
-                      backArrow: true,
-                    ));
-              },
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.secondary),
-              child: Container(
+              SizedBox(height: MediaQuery.of(context).padding.top),
+              //The top day text display
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 5),
+                height: 50,
                 alignment: Alignment.center,
-                width: MediaQuery.of(context).size.width * 3 / 5,
-                child: Icon(
-                  Icons.settings,
-                  color: Theme.of(context).colorScheme.onSecondary,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20),
+                      child: GlobalWidgets.iconCircle(
+                          icon: Icons.calendar_month,
+                          color: Colors.blueGrey.withOpacity(0.4),
+                          radius: 20,
+                          padding: 10,
+                          onTap: () {
+                            GlobalMethods.showPopup(
+                                context,
+                                _buildCalendarNav(
+                                    context,
+                                    GlobalMethods.addDay(ScheduleDisplay.initialDate,
+                                        ScheduleDisplay.pageIndex)));
+                          }),
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildNavButton(false),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width - 220,
+                          child: FittedBox(
+                            fit: BoxFit.contain,
+                            child: Text(
+                              GlobalMethods.dateText(GlobalMethods.addDay(
+                                  ScheduleDisplay.initialDate,
+                                  ScheduleDisplay.pageIndex)),
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w500, fontSize: 32.5),
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                            ),
+                          ),
+                        ),
+                        _buildNavButton(true),
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 20),
+                      child: _buildInfoButton(),
+                    ),
+                  ],
                 ),
-              )),
-        ),
-        const SizedBox(height: 80)
-      ],
+              ),
+              //The schedule card viewer
+              Expanded(child: _buildPageView()),
+              //Button which leads to ScheduleSettings
+              Container(
+                margin: EdgeInsets.symmetric(
+                    horizontal: MediaQuery.of(context).size.width * .3),
+                height: 30,
+                child: ElevatedButton(
+                    onPressed: () {
+                      GlobalMethods.pushSwipePage(
+                          context,
+                          const ScheduleSettings(
+                            backArrow: true,
+                          ));
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.secondary),
+                    child: Container(
+                      alignment: Alignment.center,
+                      width: MediaQuery.of(context).size.width * 3 / 5,
+                      child: Icon(
+                        Icons.settings,
+                        color: Theme.of(context).colorScheme.onSecondary,
+                      ),
+                    )),
+              ),
+              const SizedBox(height: 80)
+            ],
+          );
+        }
     );
   }
 
   //Loading wheel which appears while fetching data
   Widget _buildLoading(BuildContext context) {
     double cardHeight = MediaQuery.of(context).size.height -
-        200.5 -
-        MediaQuery.of(context).padding.top;
+        185.5 -
+        MediaQuery.of(context).padding.top -
+        MediaQuery.of(context).padding.bottom;
     return Container(
       height: cardHeight,
       alignment: Alignment.center,
@@ -153,8 +165,6 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
   Widget _buildPageView() {
     return PageView.builder(
         controller: _controller,
-        //Removes default scrolling functionality
-        physics: const NeverScrollableScrollPhysics(),
         //When page index is changes, updates pageIndex variable
         onPageChanged: (i) {
           setState(() {
@@ -169,40 +179,28 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
               ScheduleDisplay.initialDate, i - (maxPages / 2).round());
 
           //Schedule card wrapped in gestureDetector
-          return GestureDetector(
-              //When user swiped card, animated to schedule card
-              onHorizontalDragEnd: (detail) {
-                //The sign (-1 or +1) of the swipe velocity
-                int direction = (detail.primaryVelocity ?? 0).sign.round();
-                //Animates to page-1 or page+1
-                _controller.animateToPage(i - direction,
-                    duration: const Duration(milliseconds: 250),
-                    curve: Curves.easeInOut);
-              },
-              //Schedule card
-              child: Card(
-                  margin:
-                      const EdgeInsets.only(left: 20, right: 20, bottom: 10),
-                  color: Theme.of(context).colorScheme.surface,
-                  //If schedule data has been gathered, displays as usual; if not, used future builder to get it
-                  child: ScheduleData.schedule.isEmpty
-                      //FutureBuilder: will run async methods while displaying loading/placeholder widget; then replaces with widget once data fully fetched
-                      ? FutureBuilder(
-                          future: ScheduleData.getDailyOrder(),
-                          //Runs once progress updates in the async method
-                          builder: (context, snapshot) {
-                            //Checks to see if method is still loading/an error occurred (if error occurred, eternal hell of loading wheel)
-                            if (snapshot.connectionState ==
-                                    ConnectionState.waiting ||
-                                snapshot.hasError) {
-                              return _buildLoading(context);
-                            }
+          return Card(
+              margin: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
+              color: Theme.of(context).colorScheme.surface,
+              //If schedule data has been gathered, displays as usual; if not, used future builder to get it
+              child: ScheduleData.schedule.isEmpty
+                  //FutureBuilder: will run async methods while displaying loading/placeholder widget; then replaces with widget once data fully fetched
+                  ? FutureBuilder(
+                      future: ScheduleData.getDailyOrder(),
+                      //Runs once progress updates in the async method
+                      builder: (context, snapshot) {
+                        //Checks to see if method is still loading/an error occurred (if error occurred, eternal hell of loading wheel)
+                        if (snapshot.connectionState ==
+                                ConnectionState.waiting ||
+                            snapshot.hasError) {
+                          return _buildLoading(context);
+                        }
 
-                            ScheduleData.schedule.addAll(snapshot.data ?? {});
-                            //Returns full schedule card
-                            return _buildSchedule(date, context);
-                          })
-                      : _buildSchedule(date, context)));
+                        ScheduleData.schedule.addAll(snapshot.data ?? {});
+                        //Returns full schedule card
+                        return _buildSchedule(date, context);
+                      })
+                  : _buildSchedule(date, context));
         });
   }
 
@@ -210,8 +208,9 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
   Widget _buildSchedule(DateTime date, BuildContext context) {
     Schedule dayInfo = ScheduleData.schedule[date] ?? Schedule.empty();
     double cardHeight = MediaQuery.of(context).size.height -
-        197 -
-        MediaQuery.of(context).padding.top;
+        182 -
+        MediaQuery.of(context).padding.top -
+        MediaQuery.of(context).padding.bottom;
     if (!_schedule(date)) {
       //i.e. no schedule/classes
       return _buildEmpty(cardHeight);
@@ -232,7 +231,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
               return Padding(
                   padding: EdgeInsets.only(top: minuteHeight * i * 60),
                   child: Text(
-                    '${i + 8 < 10 ? '0${i + 8}' : i + 8} - ',
+                    '${GlobalVariables.stringDate(GlobalMethods.amPmHour(i + 8))} - ',
                     style: const TextStyle(
                         fontSize: 15, height: 0.9), //Text px height = 18
                   ));
@@ -337,26 +336,11 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                   fit: BoxFit.contain,
                   //Displays the class name (if null, then bell name), line skip, then time range
                   child: Text(
-                      '${(settings['name'] ?? bell) ?? ''}${height > 50 ? '\n' : ':     '}${times['start'].display()} - ${times['end'].display()}'),
+                    '${(settings['name'] ?? bell) ?? ''}${height > 50 ? '\n' : ':     '}${times['start'].display()} - ${times['end'].display()}',
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
                 ),
               ),
-              if (activities)
-                Align(
-                  alignment: Alignment.center,
-                  child: IconButton(
-                    iconSize: 35,
-                    onPressed: () {
-                      GlobalMethods.showPopup(
-                          context,
-                          ClubScheduelDsiplay(
-                              date: GlobalMethods.addDay(
-                                  ScheduleDisplay.initialDate,
-                                  ScheduleDisplay.pageIndex),
-                              schedule: schedule));
-                    },
-                    icon: const Icon(Icons.sports_soccer),
-                  ),
-                )
             ],
           ),
         ));
@@ -387,7 +371,9 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
         //When the popup is swiped, removes (or 'pops') the popup from the page
         onHorizontalDragEnd: (detail) {
           if (detail.primaryVelocity! < 0) {
-            Navigator.pop(context);
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            }
           }
         },
         child: SizedBox(
@@ -515,82 +501,91 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
 
   //Builds the calendar navigation popup
   Widget _buildCalendarNav(BuildContext context, DateTime date) {
-    int monthIndex = 0;
-    PageController calController = PageController(initialPage: 18);
+    int monthIndex = GlobalMethods.monthDiff(date, ScheduleDisplay.initialDate);
+    PageController calController = PageController(initialPage: 18 + monthIndex);
     double height = MediaQuery.of(context).size.width * 24 / 35;
     double width = MediaQuery.of(context).size.width * 4 / 5;
     //Aligns on center of screen
     return StatefulBuilder(builder: (context, setState) {
-      DateTime newMonth = DateTime(date.year, date.month + monthIndex);
-
+      DateTime newMonth = DateTime(ScheduleDisplay.initialDate.year,
+          ScheduleDisplay.initialDate.month + monthIndex);
       return Align(
         alignment: Alignment.center,
-        child: GestureDetector(
-          //When the popup is swiped, removes (or 'pops') the popup from the page
-          onHorizontalDragEnd: (detail) {
-            if (detail.primaryVelocity! < 0) {
-              Navigator.pop(context);
-            }
-          },
-          child: SizedBox(
-            width: width,
-            height: 69 + height,
-            child: Card(
-              color: Theme.of(context).colorScheme.surface,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconButton(
-                            iconSize: 25,
-                            onPressed: () {
-                              if (monthIndex.abs() < 18) {
-                                setState(() {
-                                  monthIndex--;
-                                });
-                                calController.animateToPage(
-                                    calController.page!.round() - 1,
-                                    duration: const Duration(milliseconds: 200),
-                                    curve: Curves.easeInOut);
-                              }
-                            },
-                            icon: const Icon(Icons.arrow_back_ios)),
-                        SizedBox(
-                          width: width - 200,
-                          height: 50,
-                          child: FittedBox(
-                            fit: BoxFit.contain,
-                            child: Text(
-                              "${GlobalVariables.monthText[newMonth.month]} ${newMonth.year}",
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w500, fontSize: 20),
-                              textAlign: TextAlign.center,
-                              maxLines: 1,
-                            ),
+        child: SizedBox(
+          width: width,
+          height: 69 + height,
+          child: Card(
+            color: Theme.of(context).colorScheme.surface,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                          iconSize: 25,
+                          onPressed: () {
+                            if (monthIndex > -18) {
+                              setState(() {
+                                monthIndex--;
+                              });
+                              calController.animateToPage(
+                                  calController.page!.round() - 1,
+                                  duration: const Duration(milliseconds: 200),
+                                  curve: Curves.easeInOut);
+                            }
+                          },
+                          icon: const Icon(Icons.arrow_back_ios)),
+                      SizedBox(
+                        width: width - 200,
+                        height: 50,
+                        child: FittedBox(
+                          fit: BoxFit.contain,
+                          child: Text(
+                            "${GlobalVariables.monthText[newMonth.month]} ${newMonth.year}",
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w500, fontSize: 20),
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
                           ),
                         ),
-                        IconButton(
-                            iconSize: 25,
-                            onPressed: () {
-                              if (monthIndex.abs() < 18) {
-                                setState(() {
-                                  monthIndex++;
-                                });
-                                calController.animateToPage(
-                                    calController.page!.round() + 1,
-                                    duration: const Duration(milliseconds: 200),
-                                    curve: Curves.easeInOut);
-                              }
-                            },
-                            icon: const Icon(Icons.arrow_forward_ios)),
-                      ],
-                    ),
-                    Container(
+                      ),
+                      IconButton(
+                          iconSize: 25,
+                          onPressed: () {
+                            if (monthIndex < 18) {
+                              setState(() {
+                                monthIndex++;
+                              });
+                              calController.animateToPage(
+                                  calController.page!.round() + 1,
+                                  duration: const Duration(milliseconds: 200),
+                                  curve: Curves.easeInOut);
+                            }
+                          },
+                          icon: const Icon(Icons.arrow_forward_ios)),
+                    ],
+                  ),
+                  GestureDetector(
+                    onHorizontalDragEnd: (details) {
+                      if ((details.primaryVelocity!.sign > 0 &&
+                              monthIndex > -18) ||
+                          (details.primaryVelocity!.sign < 0 &&
+                              monthIndex < 18)) {
+                        setState(() {
+                          monthIndex -= details.primaryVelocity!.sign.round();
+                        });
+                        calController.animateToPage(
+                            calController.page!.round() -
+                                details.primaryVelocity!.sign.round(),
+                            duration: const Duration(milliseconds: 200),
+                            curve: Curves.easeInOut);
+                      }
+                    },
+                    child: Container(
                       color: Theme.of(context).colorScheme.shadow,
                       height: height,
                       width: width,
@@ -599,11 +594,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                         physics: const NeverScrollableScrollPhysics(),
                         children: List<Widget>.generate(37, (i) {
                           int d = i - (monthIndex + 18);
-                          if (d.abs() > 1) {
-                            return Container();
-                          }
                           DateTime iMonth =
-                              DateTime(date.year, date.month + monthIndex + d);
+                              DateTime(newMonth.year, newMonth.month + d);
                           double radius = (width - 10) / 28;
                           return Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -644,6 +636,15 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                                         .withOpacity(0.60 + opacity);
                                     textColor =
                                         Theme.of(context).colorScheme.onPrimary;
+                                  } else if (dotDate ==
+                                      ScheduleDisplay.initialDate) {
+                                    dotColor = Theme.of(context)
+                                        .colorScheme
+                                        .secondary
+                                        .withOpacity(0.60 + opacity);
+                                    textColor = Theme.of(context)
+                                        .colorScheme
+                                        .onSecondary;
                                   }
                                   return GestureDetector(
                                       onTap: () {
@@ -682,9 +683,9 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                           );
                         }),
                       ),
-                    )
-                  ],
-                ),
+                    ),
+                  )
+                ],
               ),
             ),
           ),

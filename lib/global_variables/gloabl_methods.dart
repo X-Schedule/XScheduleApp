@@ -4,16 +4,27 @@ import 'package:flutter/material.dart';
 import 'global_variables.dart';
 
 class GlobalMethods {
-  static DateTime addDay(DateTime date, int days){
+  static int monthDiff(DateTime date1, DateTime date2) {
+    return (date1.year * 12 + date1.month) - (date2.year * 12 + date2.month);
+  }
+
+  static int amPmHour(int hour) {
+    if (hour > 12) {
+      return hour - 12;
+    }
+    return hour;
+  }
+
+  static DateTime addDay(DateTime date, int days) {
     DateTime result = date.add(Duration(days: days));
     //Fuck daylight savings!
-    if (result.hour > 12){
-      while(result.hour != 0){
+    if (result.hour > 12) {
+      while (result.hour != 0) {
         result = result.add(const Duration(hours: 1));
       }
     } else {
-      while(result.hour != 0){
-        result = result.subtract(const Duration(hours: 1)); 
+      while (result.hour != 0) {
+        result = result.subtract(const Duration(hours: 1));
       }
     }
     return result;
@@ -23,11 +34,11 @@ class GlobalMethods {
     return '${GlobalVariables.weekdayText[date.weekday]}, ${date.month}/${date.day}';
   }
 
-  static void pushSwipePage(BuildContext context, Widget page){
-    Navigator.of(context).push(CupertinoPageRoute(builder: (context){
+  static void pushSwipePage(BuildContext context, Widget page) {
+    Navigator.of(context).push(CupertinoPageRoute(builder: (context) {
       return GestureDetector(
-        onHorizontalDragEnd: (details){
-          if(details.primaryVelocity! > 0){
+        onHorizontalDragEnd: (details) {
+          if (details.primaryVelocity! > 0) {
             Navigator.pop(context);
           }
         },
@@ -65,7 +76,11 @@ class GlobalMethods {
             FadeTransition(
               opacity: a1.drive(fadeTween),
               child: GestureDetector(
-                onTap: () => Navigator.of(context).pop(),
+                onTap: () {
+                  if (Navigator.canPop(context)) {
+                    Navigator.of(context).pop();
+                  }
+                },
                 child: Container(
                   color: Colors.black.withOpacity(0.5),
                 ),

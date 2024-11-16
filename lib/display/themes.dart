@@ -16,6 +16,7 @@ class Themes {
     primaryContainer: Colors.white,
     secondary: Colors.blue,
     onSecondary: Color(0xFFCBCBCB),
+    tertiaryContainer: Color(0xFF6A6D75),
     surface: Color(0xFFDCDCDC),
     shadow: Color(0xFFCBCBCB),
     onSurface: Colors.black,
