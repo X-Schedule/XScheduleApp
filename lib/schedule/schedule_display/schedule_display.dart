@@ -9,7 +9,6 @@ import 'package:xchedule/global_variables/global_widgets.dart';
 import 'package:xchedule/global_variables/stream_signal.dart';
 import 'package:xchedule/schedule/schedule.dart';
 import 'package:xchedule/schedule/schedule_data.dart';
-import 'package:xchedule/schedule/schedule_display/club_schedule_display.dart';
 import 'package:xchedule/schedule/schedule_display/schedule_info_display.dart';
 import 'package:xchedule/schedule/schedule_settings.dart';
 
@@ -28,7 +27,8 @@ class ScheduleDisplay extends StatefulWidget {
   //pageIndex of Schedule PageView
   static int pageIndex = 0;
 
-  static StreamController<StreamSignal> scheduleStream = StreamController<StreamSignal>();
+  static StreamController<StreamSignal> scheduleStream =
+      StreamController<StreamSignal>();
 
   @override
   State<ScheduleDisplay> createState() => _ScheduleDisplayState();
@@ -43,6 +43,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
 
   @override
   Widget build(BuildContext context) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    MediaQueryData mediaQuery = MediaQuery.of(context);
     //Runs addDailyData asynchronously on page moved; may do nothing at all if ranges overlap
     ScheduleData.addDailyData(
         GlobalMethods.addDay(
@@ -52,118 +54,132 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     ScheduleDisplay.scheduleStream = StreamController();
     return StreamBuilder(
         stream: ScheduleDisplay.scheduleStream.stream,
-        builder: (context, snapshot){
-          return Column(
-            children: [
-              SizedBox(height: MediaQuery.of(context).padding.top),
-              //The top day text display
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 5),
-                height: 50,
-                alignment: Alignment.center,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20),
-                      child: GlobalWidgets.iconCircle(
-                          icon: Icons.calendar_month,
-                          color: Colors.blueGrey.withOpacity(0.4),
-                          radius: 20,
-                          padding: 10,
-                          onTap: () {
-                            GlobalMethods.showPopup(
-                                context,
-                                _buildCalendarNav(
-                                    context,
-                                    GlobalMethods.addDay(ScheduleDisplay.initialDate,
-                                        ScheduleDisplay.pageIndex)));
-                          }),
-                    ),
-                    Row(
+        builder: (context, snapshot) {
+          return Scaffold(
+              backgroundColor: colorScheme.primaryContainer,
+              body: Column(
+                children: [
+                  SizedBox(height: mediaQuery.padding.top),
+                  //The top day text display
+                  Container(
+                    margin: const EdgeInsets.symmetric(vertical: 5),
+                    height: 50,
+                    alignment: Alignment.center,
+                    child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _buildNavButton(false),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width - 220,
-                          child: FittedBox(
-                            fit: BoxFit.contain,
-                            child: Text(
-                              GlobalMethods.dateText(GlobalMethods.addDay(
-                                  ScheduleDisplay.initialDate,
-                                  ScheduleDisplay.pageIndex)),
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w500, fontSize: 32.5),
-                              textAlign: TextAlign.center,
-                              maxLines: 1,
-                            ),
-                          ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20),
+                          child: GlobalWidgets.iconCircle(
+                              icon: Icons.calendar_month,
+                              iconColor: colorScheme.onTertiary,
+                              color: colorScheme.tertiary.withOpacity(0.4),
+                              radius: 20,
+                              padding: 10,
+                              onTap: () {
+                                GlobalMethods.showPopup(
+                                    context,
+                                    _buildCalendarNav(
+                                        context,
+                                        GlobalMethods.addDay(
+                                            ScheduleDisplay.initialDate,
+                                            ScheduleDisplay.pageIndex)));
+                              }),
                         ),
-                        _buildNavButton(true),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildNavButton(context, -1),
+                            SizedBox(
+                              width: mediaQuery.size.width - 220,
+                              child: FittedBox(
+                                fit: BoxFit.contain,
+                                child: Text(
+                                  GlobalMethods.dateText(GlobalMethods.addDay(
+                                      ScheduleDisplay.initialDate,
+                                      ScheduleDisplay.pageIndex)),
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 32.5,
+                                      color: colorScheme.onSurface),
+                                  textAlign: TextAlign.center,
+                                  maxLines: 1,
+                                ),
+                              ),
+                            ),
+                            _buildNavButton(context, 1),
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 20),
+                          child: _buildInfoButton(context),
+                        ),
                       ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 20),
-                      child: _buildInfoButton(),
-                    ),
-                  ],
-                ),
-              ),
-              //The schedule card viewer
-              Expanded(child: _buildPageView()),
-              //Button which leads to ScheduleSettings
-              Container(
-                margin: EdgeInsets.symmetric(
-                    horizontal: MediaQuery.of(context).size.width * .3),
-                height: 30,
-                child: ElevatedButton(
-                    onPressed: () {
-                      GlobalMethods.pushSwipePage(
-                          context,
-                          const ScheduleSettings(
-                            backArrow: true,
-                          ));
-                    },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.secondary),
-                    child: Container(
-                      alignment: Alignment.center,
-                      width: MediaQuery.of(context).size.width * 3 / 5,
-                      child: Icon(
-                        Icons.settings,
-                        color: Theme.of(context).colorScheme.onSecondary,
-                      ),
-                    )),
-              ),
-            ],
-          );
-        }
-    );
+                  ),
+                  //The schedule card viewer
+                  Expanded(child: _buildPageView(context)),
+                  //Button which leads to ScheduleSettings
+                  Container(
+                    margin: EdgeInsets.symmetric(
+                        horizontal: mediaQuery.size.width * .3),
+                    height: 30,
+                    child: ElevatedButton(
+                        onPressed: () {
+                          GlobalMethods.pushSwipePage(
+                              context,
+                              const ScheduleSettings(
+                                backArrow: true,
+                              ));
+                        },
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: colorScheme.secondary),
+                        child: Container(
+                          alignment: Alignment.center,
+                          width: mediaQuery.size.width * 3 / 5,
+                          child: Icon(
+                            Icons.settings,
+                            color: colorScheme.onSecondary,
+                          ),
+                        )),
+                  ),
+                  const SizedBox(height: 5)
+                ],
+              ));
+        });
   }
 
   //Loading wheel which appears while fetching data
   Widget _buildLoading(BuildContext context) {
-    double cardHeight = MediaQuery.of(context).size.height -
-        185.5 -
-        MediaQuery.of(context).padding.top -
-        MediaQuery.of(context).padding.bottom;
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    MediaQueryData mediaQuery = MediaQuery.of(context);
+
+    double cardHeight = mediaQuery.size.height -
+        18 -
+        mediaQuery.padding.top -
+        mediaQuery.padding.bottom;
     return Container(
       height: cardHeight,
       alignment: Alignment.center,
-      child: const SizedBox(
+      child: SizedBox(
         height: 20,
         width: 20,
-        child: CircularProgressIndicator(),
+        child: CircularProgressIndicator(
+          color: colorScheme.onSurface,
+        ),
       ),
     );
   }
 
   //Pseudo-PageView which displays all schedule cards
-  Widget _buildPageView() {
+  Widget _buildPageView(BuildContext context) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+
     return PageView.builder(
         controller: _controller,
+        physics: const PageScrollPhysics(),
         //When page index is changes, updates pageIndex variable
         onPageChanged: (i) {
           setState(() {
@@ -178,41 +194,55 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
               ScheduleDisplay.initialDate, i - (maxPages / 2).round());
 
           //Schedule card wrapped in gestureDetector
-          return Card(
-              margin: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
-              color: Theme.of(context).colorScheme.surface,
-              //If schedule data has been gathered, displays as usual; if not, used future builder to get it
-              child: ScheduleData.schedule.isEmpty
-                  //FutureBuilder: will run async methods while displaying loading/placeholder widget; then replaces with widget once data fully fetched
-                  ? FutureBuilder(
-                      future: ScheduleData.getDailyOrder(),
-                      //Runs once progress updates in the async method
-                      builder: (context, snapshot) {
-                        //Checks to see if method is still loading/an error occurred (if error occurred, eternal hell of loading wheel)
-                        if (snapshot.connectionState ==
-                                ConnectionState.waiting ||
-                            snapshot.hasError) {
-                          return _buildLoading(context);
-                        }
+          return Container(
+            margin: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
+            decoration: BoxDecoration(
+                color: colorScheme.surface,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                      color: colorScheme.surfaceContainer,
+                      blurRadius: 3,
+                      spreadRadius: 1),
+                  //Fancy little shadow
+                  BoxShadow(
+                      color: colorScheme.surfaceContainer,
+                      offset: const Offset(2.25, 2.25))
+                ]),
+            child: ScheduleData.schedule.isEmpty
+                //FutureBuilder: will run async methods while displaying loading/placeholder widget; then replaces with widget once data fully fetched
+                ? FutureBuilder(
+                    future: ScheduleData.getDailyOrder(),
+                    //Runs once progress updates in the async method
+                    builder: (context, snapshot) {
+                      //Checks to see if method is still loading/an error occurred (if error occurred, eternal hell of loading wheel)
+                      if (snapshot.connectionState == ConnectionState.waiting ||
+                          snapshot.hasError) {
+                        return _buildLoading(context);
+                      }
 
-                        ScheduleData.schedule.addAll(snapshot.data ?? {});
-                        //Returns full schedule card
-                        return _buildSchedule(date, context);
-                      })
-                  : _buildSchedule(date, context));
+                      ScheduleData.schedule.addAll(snapshot.data ?? {});
+                      //Returns full schedule card
+                      return _buildSchedule(context, date);
+                    })
+                : _buildSchedule(context, date),
+          );
         });
   }
 
   //Builds the schedule card based on given date
-  Widget _buildSchedule(DateTime date, BuildContext context) {
+  Widget _buildSchedule(BuildContext context, DateTime date) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    MediaQueryData mediaQuery = MediaQuery.of(context);
+
     Schedule dayInfo = ScheduleData.schedule[date] ?? Schedule.empty();
-    double cardHeight = MediaQuery.of(context).size.height -
-        182 -
-        MediaQuery.of(context).padding.top -
-        MediaQuery.of(context).padding.bottom;
+    double cardHeight = mediaQuery.size.height -
+        180 -
+        mediaQuery.padding.top -
+        mediaQuery.padding.bottom;
     if (!_schedule(date)) {
       //i.e. no schedule/classes
-      return _buildEmpty(cardHeight);
+      return _buildEmpty(context, cardHeight);
     }
     //Schedule data
     Map schedule = dayInfo.schedule;
@@ -225,14 +255,15 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
         children: [
           //Column of time references to the left
           Stack(
-            children: List<Widget>.generate(
-                (dayInfo.end!.difference(dayInfo.start!).inHours) + 1, (i) {
+            children: List<Widget>.generate(8, (i) {
               return Padding(
                   padding: EdgeInsets.only(top: minuteHeight * i * 60),
                   child: Text(
                     '${GlobalVariables.stringDate(GlobalMethods.amPmHour(i + 8))} - ',
-                    style: const TextStyle(
-                        fontSize: 15, height: 0.9), //Text px height = 18
+                    style: TextStyle(
+                        fontSize: 15,
+                        height: 0.9,
+                        color: colorScheme.onSurface), //Text px height = 18
                   ));
             }),
           ),
@@ -273,6 +304,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
   //Builds the 'Schedule Tile's displayed on the schedule card
   Widget _buildTile(BuildContext context, Schedule schedule, String bell,
       double minuteHeight) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    MediaQueryData mediaQuery = MediaQuery.of(context);
     //Gets Map from schedule_settings.dart
     Map settings = ScheduleSettings.bellInfo[bell] ?? {};
 
@@ -294,9 +327,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
         child: Container(
           height: height,
           margin: EdgeInsets.only(top: margin),
-          color: activities
-              ? Theme.of(context).colorScheme.surfaceContainer
-              : Theme.of(context).colorScheme.shadow,
+          color: colorScheme.surfaceContainer,
           child: Row(
             children: [
               //Left color nib; if no setting set, displays as grey
@@ -312,13 +343,15 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                   alignment: Alignment.center,
                   children: [
                     CircleAvatar(
-                      backgroundColor: Colors.black26,
+                      backgroundColor: Colors.black.withOpacity(.2),
                       radius: height * 3 / 7 - 5,
                     ),
                     Text(
                       //If no emoji set in settings, displays default book emoji
                       settings['emoji'] ?? '📚',
-                      style: TextStyle(fontSize: height * 3 / 7),
+                      style: TextStyle(
+                          fontSize: height * 3 / 7,
+                          color: colorScheme.onSurface),
                     )
                   ],
                 ),
@@ -326,7 +359,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
               Container(
                 margin: const EdgeInsets.only(left: 7.5),
                 alignment: Alignment.centerLeft,
-                width: MediaQuery.of(context).size.width -
+                width: mediaQuery.size.width -
                     135 -
                     (activities ? 70 : 0) -
                     (height * 6 / 7 - 10),
@@ -336,7 +369,9 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                   //Displays the class name (if null, then bell name), line skip, then time range
                   child: Text(
                     '${(settings['name'] ?? bell) ?? ''}${height > 50 ? '\n' : ':     '}${times['start'].display()} - ${times['end'].display()}',
-                    style: const TextStyle(fontWeight: FontWeight.w500),
+                    style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: colorScheme.onSurface),
                   ),
                 ),
               ),
@@ -346,20 +381,28 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
   }
 
   //Builds the display for a day with no classes
-  Widget _buildEmpty(double cardHeight) {
+  Widget _buildEmpty(BuildContext context, double cardHeight) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       height: cardHeight,
       alignment: Alignment.center,
       margin: const EdgeInsets.only(left: 5, right: 10, top: 10, bottom: 10),
-      child: const Text(
+      child: Text(
         'No Classes',
-        style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500),
+        style: TextStyle(
+            fontSize: 30,
+            fontWeight: FontWeight.w500,
+            color: colorScheme.onSurface),
       ),
     );
   }
 
   //Builds the bell info popup
   Widget _buildBellInfo(BuildContext context, Schedule schedule, String bell) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    MediaQueryData mediaQuery = MediaQuery.of(context);
+
     //Gets settings from schedule_settings.dart
     Map settings = ScheduleSettings.bellInfo[bell] ?? {};
     Map times = schedule.clockMap(bell) ?? {};
@@ -375,11 +418,11 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
             }
           }
         },
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width * 4 / 5,
-          height: 160,
-          child: Card(
-            color: Theme.of(context).colorScheme.surface,
+        child: Card(
+          color: colorScheme.surface,
+          child: SizedBox(
+            width: mediaQuery.size.width * 4 / 5,
+            height: 160,
             child: Row(
               children: [
                 //Left color nib w/ rounded edges
@@ -407,20 +450,20 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                               alignment: Alignment.center,
                               children: [
                                 CircleAvatar(
-                                  backgroundColor:
-                                      Theme.of(context).colorScheme.shadow,
+                                  backgroundColor: colorScheme.surfaceContainer,
                                   radius: 45,
                                 ),
                                 Text(
                                   settings['emoji'] ?? '📚',
-                                  style: const TextStyle(fontSize: 50),
+                                  style: TextStyle(
+                                      fontSize: 50,
+                                      color: colorScheme.onSurface),
                                 )
                               ],
                             ),
                             //Title Container
                             Container(
-                              width: MediaQuery.of(context).size.width * 4 / 5 -
-                                  130,
+                              width: mediaQuery.size.width * 4 / 5 - 130,
                               height: 90,
                               alignment: Alignment.centerLeft,
                               padding: const EdgeInsets.only(left: 5),
@@ -434,9 +477,10 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                                     Text(
                                       settings['name'] ??
                                           '$bell${bell.length <= 1 ? ' Bell' : ''}',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                           height: 0.9,
                                           fontSize: 25,
+                                          color: colorScheme.onSurface,
                                           //bold
                                           fontWeight: FontWeight.w600),
                                     ),
@@ -444,16 +488,18 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                                     if (settings['teacher'] != null)
                                       Text(
                                         settings['teacher'],
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                             fontSize: 18,
+                                            color: colorScheme.onSurface,
                                             fontWeight: FontWeight.w500),
                                       ),
                                     //Displays the location of the class or nothing (if null)
                                     if (settings['location'] != null)
                                       Text(
                                         settings['location'],
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                             fontSize: 18,
+                                            color: colorScheme.onSurface,
                                             fontWeight: FontWeight.w500),
                                       ),
                                   ],
@@ -473,17 +519,19 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                                 //Displays bell name or nothing (if null)
                                 Text(
                                   '$bell${bell.length <= 1 ? ' Bell' : ''}:   ',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                       height: 0.9,
                                       fontSize: 25,
+                                      color: colorScheme.onSurface,
                                       fontWeight: FontWeight.w500),
                                 ),
                                 //Displays the time length (time length cannot be null)
                                 Text(
                                   '${times['start'].display()} - ${times['end'].display()}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                       height: 0.9,
                                       fontSize: 25,
+                                      color: colorScheme.onSurface,
                                       fontWeight: FontWeight.w500),
                                 ),
                               ],
@@ -500,10 +548,13 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
 
   //Builds the calendar navigation popup
   Widget _buildCalendarNav(BuildContext context, DateTime date) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    MediaQueryData mediaQuery = MediaQuery.of(context);
+
     int monthIndex = GlobalMethods.monthDiff(date, ScheduleDisplay.initialDate);
     PageController calController = PageController(initialPage: 18 + monthIndex);
-    double height = MediaQuery.of(context).size.width * 24 / 35;
-    double width = MediaQuery.of(context).size.width * 4 / 5;
+    double height = mediaQuery.size.width * 24 / 35;
+    double width = mediaQuery.size.width * 4 / 5;
     //Aligns on center of screen
     return StatefulBuilder(builder: (context, setState) {
       DateTime newMonth = DateTime(ScheduleDisplay.initialDate.year,
@@ -514,7 +565,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
           width: width,
           height: 69 + height,
           child: Card(
-            color: Theme.of(context).colorScheme.surface,
+            color: colorScheme.surface,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: Column(
@@ -537,7 +588,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                                   curve: Curves.easeInOut);
                             }
                           },
-                          icon: const Icon(Icons.arrow_back_ios)),
+                          icon: Icon(Icons.arrow_back_ios,
+                              color: colorScheme.onSurface)),
                       SizedBox(
                         width: width - 200,
                         height: 50,
@@ -545,8 +597,10 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                           fit: BoxFit.contain,
                           child: Text(
                             "${GlobalVariables.monthText[newMonth.month]} ${newMonth.year}",
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w500, fontSize: 20),
+                            style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 20,
+                                color: colorScheme.onSurface),
                             textAlign: TextAlign.center,
                             maxLines: 1,
                           ),
@@ -565,7 +619,10 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                                   curve: Curves.easeInOut);
                             }
                           },
-                          icon: const Icon(Icons.arrow_forward_ios)),
+                          icon: Icon(
+                            Icons.arrow_forward_ios,
+                            color: colorScheme.onSurface,
+                          )),
                     ],
                   ),
                   GestureDetector(
@@ -585,7 +642,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                       }
                     },
                     child: Container(
-                      color: Theme.of(context).colorScheme.shadow,
+                      color: colorScheme.surfaceContainer,
                       height: height,
                       width: width,
                       child: PageView(
@@ -629,21 +686,14 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                                       Colors.black.withOpacity(0.05 + opacity);
                                   Color textColor = Colors.black;
                                   if (dotDate == date) {
-                                    dotColor = Theme.of(context)
-                                        .colorScheme
-                                        .primary
+                                    dotColor = colorScheme.primary
                                         .withOpacity(0.60 + opacity);
-                                    textColor =
-                                        Theme.of(context).colorScheme.onPrimary;
+                                    textColor = colorScheme.onPrimary;
                                   } else if (dotDate ==
                                       ScheduleDisplay.initialDate) {
-                                    dotColor = Theme.of(context)
-                                        .colorScheme
-                                        .secondary
+                                    dotColor = colorScheme.secondary
                                         .withOpacity(0.60 + opacity);
-                                    textColor = Theme.of(context)
-                                        .colorScheme
-                                        .onSecondary;
+                                    textColor = colorScheme.onSecondary;
                                   }
                                   return GestureDetector(
                                       onTap: () {
@@ -694,23 +744,27 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
   }
 
   //Builds the arrow buttons for swapping between pages
-  Widget _buildNavButton(bool forwards) {
+  Widget _buildNavButton(BuildContext context, int direction) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+
     //Returns Arrow Icon Button
     return IconButton(
         //When pressed, animates to new page
         onPressed: () {
           //If forwards == true, animates to next page, if not, animates backwards
           _controller.animateToPage(
-              _controller.page!.round() + (forwards ? 1 : -1),
+              _controller.page!.round() + direction,
               duration: const Duration(milliseconds: 200),
               curve: Curves.easeInOut);
         },
         //If forwards == true, displays forward arrow, if not, backwards arrow
-        icon: Icon(forwards ? Icons.arrow_forward_ios : Icons.arrow_back_ios));
+        icon: Icon(direction > 0 ? Icons.arrow_forward_ios : Icons.arrow_back_ios), color: colorScheme.onSurface,);
   }
 
   //Builds the info popup button
-  Widget _buildInfoButton() {
+  Widget _buildInfoButton(BuildContext context) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+
     return FutureBuilder(future: ScheduleData.awaitCondition(() {
       return ScheduleData.dailyData[GlobalMethods.addDay(
               ScheduleDisplay.initialDate, ScheduleDisplay.pageIndex)] !=
@@ -721,7 +775,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
           opacity: 0.4,
           child: GlobalWidgets.iconCircle(
               icon: Icons.info_outline,
-              color: Colors.blueGrey.withOpacity(0.4),
+              iconColor: colorScheme.onSurface,
+              color: colorScheme.tertiary,
               radius: 20,
               padding: 5,
               onTap: () {
@@ -735,7 +790,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
       }
       return GlobalWidgets.iconCircle(
           icon: Icons.info_outline,
-          color: Colors.blueGrey.withOpacity(0.4),
+          iconColor: colorScheme.onSurface,
+          color: colorScheme.tertiary.withOpacity(0.4),
           radius: 20,
           padding: 5,
           onTap: () {

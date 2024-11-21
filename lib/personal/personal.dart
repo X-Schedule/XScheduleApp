@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
-import 'package:xchedule/global_variables/gloabl_methods.dart';
-import 'package:xchedule/schedule/schedule_settings.dart';
+import 'package:xchedule/display/home_page.dart';
+import 'package:xchedule/global_variables/stream_signal.dart';
+
+import '../global_variables/gloabl_methods.dart';
+import '../schedule/schedule_settings.dart';
 
 /*
 Personal Page:
@@ -14,65 +17,91 @@ class Personal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.center,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          //Button that leads to ScheduleSettings
-          ElevatedButton(
-              onPressed: () {
-                GlobalMethods.pushSwipePage(
-                    context, const ScheduleSettings(backArrow: true));
-              },
-              style:
-              ElevatedButton.styleFrom(backgroundColor: Theme
-                  .of(context)
-                  .colorScheme
-                  .primary),
-              child: Container(
-                alignment: Alignment.center,
-                width: MediaQuery
-                    .of(context)
-                    .size
-                    .width * 3 / 5,
-                child: Text(
-                  "Customize Bell Appearances",
-                  style: TextStyle(
-                      color: Theme
-                          .of(context)
-                          .colorScheme
-                          .onPrimary
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    MediaQueryData mediaQuery = MediaQuery.of(context);
+    return Scaffold(
+        backgroundColor: colorScheme.primaryContainer,
+        appBar: PreferredSize(
+            preferredSize:
+                Size(mediaQuery.size.width, 55 + mediaQuery.padding.top),
+            child: Container(
+              alignment: Alignment.bottomCenter,
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FittedBox(
+                    fit: BoxFit.contain,
+                    child: Text(
+                      "Settings",
+                      style: TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: "Georama",
+                          color: colorScheme.onSurface),
+                    ),
                   ),
-                ),
-              )),
-          const SizedBox(height: 100),
-          ElevatedButton(
-              onPressed: () {
-                localStorage.clear();
-              },
-              style:
-              ElevatedButton.styleFrom(backgroundColor: Theme
-                  .of(context)
-                  .colorScheme
-                  .primary),
-              child: Container(
-                alignment: Alignment.center,
-                width: MediaQuery
-                    .of(context)
-                    .size
-                    .width * 3 / 5,
-                child: Text(
-                  "Erase Local Data",
-                  style: TextStyle(
-                      color: Theme
-                          .of(context)
-                          .colorScheme
-                          .onPrimary
+                  Container(
+                    color: colorScheme.shadow,
+                    height: 2.5,
+                    width: mediaQuery.size.width - 10,
+                    margin: const EdgeInsets.only(top: 5),
+                  )
+                ],
+              ),
+            )),
+        body: Column(children: [
+          _buildOption(context, "Customize Bell Appearances", () {
+            GlobalMethods.pushSwipePage(
+                context, const ScheduleSettings(backArrow: true));
+          }),
+          _buildOption(context, "Reset Local Data", () {
+            localStorage.clear();
+            StreamSignal.updateStream(
+                streamController: HomePage.homePageStream);
+          })
+        ]));
+  }
+
+  Widget _buildOption(
+      BuildContext context, String text, void Function() action) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    return GestureDetector(
+      onTap: action,
+      onHorizontalDragEnd: (detail) {
+        if (detail.primaryVelocity! < 0) {
+          action();
+        }
+      },
+      child: Container(
+        color: colorScheme.primaryContainer,
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Column(
+          children: [
+            SizedBox(
+              height: 60,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    text,
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                        color: colorScheme.onSurface),
                   ),
-                ),
-              )),
-        ],
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    size: 20,
+                    color: colorScheme.onSurface,
+                  )
+                ],
+              ),
+            ),
+            Divider(color: Theme.of(context).colorScheme.shadow)
+          ],
+        ),
       ),
     );
   }

@@ -9,6 +9,8 @@ import 'display/home_page.dart';
 /*
 Main:
 What the app runs on startup
+XcheduleApp:
+The base of the app's widget tree
  */
 
 Future<void> main() async {
@@ -29,11 +31,11 @@ Future<void> main() async {
     ScheduleData.coCurriculars = result;
   });
 
-  runApp(const MyApp());
+  runApp(const XcheduleApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class XcheduleApp extends StatelessWidget {
+  const XcheduleApp({super.key});
 
   // This widget is the root of your application.
   @override
@@ -44,8 +46,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Xchedule',
       //HomePage Wrapped in DefaultTextStyle so that we don't need to specify EVERY TIME we display text
-      home: DefaultTextStyle(
-        style: const TextStyle(
+      home: const DefaultTextStyle(
+        style: TextStyle(
             color: Colors.black, fontSize: 25, decoration: null),
         child: HomePage(),
       ),

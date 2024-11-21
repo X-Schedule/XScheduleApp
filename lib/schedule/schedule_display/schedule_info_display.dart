@@ -17,6 +17,9 @@ class ScheduleInfoDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    MediaQueryData mediaQuery = MediaQuery.of(context);
+
     //Gets the schedules and dailyData based on the given date
     Schedule schedule = ScheduleData.schedule[date] ?? Schedule.empty();
     Map<String, dynamic> dailyData = ScheduleData.dailyData[date] ?? {};
@@ -30,9 +33,9 @@ class ScheduleInfoDisplay extends StatelessWidget {
           }
         },
         child: SizedBox(
-          width: MediaQuery.of(context).size.width * 4 / 5,
+          width: mediaQuery.size.width * 4 / 5,
           child: Card(
-            color: Theme.of(context).colorScheme.surface,
+            color: colorScheme.surface,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
               child: Column(
@@ -41,23 +44,28 @@ class ScheduleInfoDisplay extends StatelessWidget {
                   //Date Text
                   Text(
                     GlobalMethods.dateText(date),
-                    style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: colorScheme.onSurface),
                   ),
                   FittedBox(
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Text(
+                        Text(
                           '⏰ ',
                           style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.w500),
+                              fontSize: 20,
+                              fontWeight: FontWeight.w500,
+                              color: colorScheme.onSurface),
                         ),
                         Text(
                           schedule.name,
                           style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w500,
+                              color: colorScheme.onSurface,
                               fontStyle: schedule.name.contains("No Classes")
                                   ? FontStyle.italic
                                   : FontStyle.normal),
@@ -72,15 +80,19 @@ class ScheduleInfoDisplay extends StatelessWidget {
                       if (dailyData['quarter'] != null)
                         Text(
                           '🗓️ Quarter ${dailyData['quarter']}',
-                          style: const TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.w500),
+                          style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w500,
+                              color: colorScheme.onSurface),
                         ),
                       //If variable is null, then replace with empty string, and checks if string is empty; detects both null and empty values
                       if ((dailyData['dressCode'] ?? '').isNotEmpty)
                         Text(
                           '${GlobalVariables.dressEmoji(dailyData['dressCode'])} ${dailyData['dressCode']}',
-                          style: const TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.w500),
+                          style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w500,
+                              color: colorScheme.onSurface),
                         ),
                     ],
                   ),
@@ -90,19 +102,23 @@ class ScheduleInfoDisplay extends StatelessWidget {
                       (dailyData['lunchMain'] ?? '').isNotEmpty)
                     Column(
                       children: [
-                        const Divider(
-                          color: Colors.black,
+                        Divider(
+                          color: colorScheme.shadow,
                         ),
-                        const Text(
+                        Text(
                           "Lunch",
                           style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.w600),
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                              color: colorScheme.onSurface),
                         ),
                         if ((dailyData['lunchMain'] ?? '').isNotEmpty)
                           Text(
                             '🥘 ${dailyData['lunchMain']}',
-                            style: const TextStyle(
-                                fontSize: 15, fontWeight: FontWeight.w500),
+                            style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w500,
+                                color: colorScheme.onSurface),
                           ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -110,14 +126,18 @@ class ScheduleInfoDisplay extends StatelessWidget {
                             if ((dailyData['lunchPasta'] ?? '').isNotEmpty)
                               Text(
                                 '🍝 ${dailyData['lunchPasta']}',
-                                style: const TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.w500),
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w500,
+                                    color: colorScheme.onSurface),
                               ),
                             if ((dailyData['lunchBox'] ?? '').isNotEmpty)
                               Text(
                                 '🍱 ${dailyData['lunchBox']}',
-                                style: const TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.w500),
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w500,
+                                    color: colorScheme.onSurface),
                               ),
                           ],
                         )
@@ -126,21 +146,25 @@ class ScheduleInfoDisplay extends StatelessWidget {
                   if ((dailyData['event'] ?? '').isNotEmpty)
                     Column(
                       children: [
-                        const Divider(
-                          color: Colors.black,
+                        Divider(
+                          color: colorScheme.shadow,
                         ),
-                        const Text(
+                        Text(
                           '📢 Announcement',
                           style: TextStyle(
-                              fontWeight: FontWeight.w600, fontSize: 20),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 20,
+                              color: colorScheme.onSurface),
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: Text(
                             dailyData['event'],
                             maxLines: 10,
-                            style: const TextStyle(
-                                fontSize: 15, overflow: TextOverflow.ellipsis),
+                            style: TextStyle(
+                                fontSize: 15,
+                                overflow: TextOverflow.ellipsis,
+                                color: colorScheme.onSurface),
                           ),
                         ),
                       ],

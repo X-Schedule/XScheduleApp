@@ -42,13 +42,16 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
 
   @override
   Widget build(BuildContext context) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    MediaQueryData mediaQuery = MediaQuery.of(context);
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+      backgroundColor: colorScheme.primaryContainer,
       //Top Bar
       appBar: AppBar(
         leading: widget.backArrow ? null : Container(),
         centerTitle: true,
-        title: const FittedBox(
+        backgroundColor: colorScheme.surface,
+        title: FittedBox(
           fit: BoxFit.contain,
           child: Text(
             "Customize Bell Appearance",
@@ -56,7 +59,8 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                 //Custom font Goerama
                 fontFamily: "Georama",
                 fontSize: 25,
-                fontWeight: FontWeight.w600),
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurface),
           ),
         ),
       ),
@@ -66,39 +70,42 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
       bottomNavigationBar: Container(
         height: 40,
         margin: EdgeInsets.symmetric(
-            vertical: 15, horizontal: MediaQuery.of(context).size.width * .35),
+            vertical: 15, horizontal: mediaQuery.size.width * .35),
         child: ElevatedButton(
             onPressed: () {
               localStorage.setItem(
                   "scheduleSettings", json.encode(ScheduleSettings.bellInfo));
               localStorage.setItem("state", "logged");
               Navigator.pop(context);
-              StreamSignal.updateStream(streamController: HomePage.homePageStream);
-              StreamSignal.updateStream(streamController: ScheduleDisplay.scheduleStream);
+              StreamSignal.updateStream(
+                  streamController: HomePage.homePageStream);
+              StreamSignal.updateStream(
+                  streamController: ScheduleDisplay.scheduleStream);
             },
-            style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary),
+            style:
+                ElevatedButton.styleFrom(backgroundColor: colorScheme.primary),
             child: Container(
               alignment: Alignment.center,
-              width: MediaQuery.of(context).size.width * 3 / 5,
+              width: mediaQuery.size.width * 3 / 5,
               child: Icon(
                 Icons.check,
-                color: Colors.white.withOpacity(.9),
+                color: colorScheme.onPrimary,
               ),
             )),
       ),
       //Body is a scroll view of seperate tiles
       body: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
         child: Column(
           children: [
-            _buildBellTile('A'),
-            _buildBellTile('B'),
-            _buildBellTile('C'),
-            _buildBellTile('D'),
-            _buildBellTile('E'),
-            _buildBellTile('F'),
-            _buildBellTile('G'),
-            _buildBellTile('H'),
+            _buildBellTile(context, 'A'),
+            _buildBellTile(context, 'B'),
+            _buildBellTile(context, 'C'),
+            _buildBellTile(context, 'D'),
+            _buildBellTile(context, 'E'),
+            _buildBellTile(context, 'F'),
+            _buildBellTile(context, 'G'),
+            _buildBellTile(context, 'H'),
             //So that with the bottom bar, you can still scorll to view last item
             const SizedBox(height: 55)
           ],
@@ -133,7 +140,10 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
   }
 
   //Builds the tiles displayed in the scroll view
-  Widget _buildBellTile(String bell) {
+  Widget _buildBellTile(BuildContext context, String bell) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    MediaQueryData mediaQuery = MediaQuery.of(context);
+
     //Ensures no null values
     _defineBells(bell);
     //For brevity purposes
@@ -141,14 +151,14 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
     //Tile very similar to those displayed in the schedule
     return Container(
       margin: const EdgeInsets.all(10),
-      width: MediaQuery.of(context).size.width * .95,
+      width: mediaQuery.size.width * .95,
       height: 100,
       child: GestureDetector(
         onTap: () {
           GlobalMethods.showPopup(context, _buildBellSettings(bell));
         },
         child: Card(
-          color: Theme.of(context).colorScheme.surface,
+          color: colorScheme.surface,
           child: Row(
             children: [
               //Left color nib w/ rounded edges
@@ -172,18 +182,19 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                       alignment: Alignment.center,
                       children: [
                         CircleAvatar(
-                          backgroundColor: Theme.of(context).colorScheme.shadow,
+                          backgroundColor: colorScheme.surfaceContainer,
                           radius: 35,
                         ),
                         Text(
                           settings['emoji'],
-                          style: const TextStyle(fontSize: 40),
+                          style: TextStyle(
+                              fontSize: 40, color: colorScheme.onSurface),
                         )
                       ],
                     ),
                     //Title Container
                     Container(
-                      width: MediaQuery.of(context).size.width * .95 - 180,
+                      width: mediaQuery.size.width * .95 - 180,
                       height: 70,
                       alignment: Alignment.centerLeft,
                       padding: const EdgeInsets.only(left: 5),
@@ -196,26 +207,29 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                             //Displays class name, bell name, or nothing (if null)
                             Text(
                               settings['name']!,
-                              style: const TextStyle(
+                              style: TextStyle(
                                   height: 0.9,
                                   fontSize: 25,
                                   overflow: TextOverflow.ellipsis,
                                   //bold
-                                  fontWeight: FontWeight.w600),
+                                  fontWeight: FontWeight.w600,
+                                  color: colorScheme.onSurface),
                             ),
                             Text(
                               settings['teacher']!,
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontSize: 18,
                                   overflow: TextOverflow.ellipsis,
-                                  fontWeight: FontWeight.w500),
+                                  fontWeight: FontWeight.w500,
+                                  color: colorScheme.onSurface),
                             ),
                             Text(
                               settings['location']!,
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontSize: 18,
                                   overflow: TextOverflow.ellipsis,
-                                  fontWeight: FontWeight.w500),
+                                  fontWeight: FontWeight.w500,
+                                  color: colorScheme.onSurface),
                             ),
                           ],
                         ),
@@ -224,7 +238,8 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                     Container(
                       alignment: Alignment.center,
                       width: 70,
-                      child: const Icon(Icons.settings, size: 45),
+                      child: Icon(Icons.settings,
+                          size: 45, color: colorScheme.onSurface),
                     )
                   ],
                 ),
@@ -238,8 +253,11 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
 
   //Builds the setting popup
   Widget _buildBellSettings(String bell) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    MediaQueryData mediaQuery = MediaQuery.of(context);
+
     //Radius of colorWheel; also used in other measurements
-    double size = MediaQuery.of(context).size.width * 5 / 6;
+    double size = mediaQuery.size.width * 5 / 6;
     //Allows for "setState" to be called, and only effect this popup
     return StatefulBuilder(
         builder: (BuildContext context, StateSetter setLocalState) {
@@ -291,9 +309,9 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                               contentPadding: EdgeInsets.symmetric(
                                   vertical: 10.0), // Optional: adjust padding
                             ),
-                            style: const TextStyle(
-                              fontSize: 120, // Large font size
-                            ),
+                            style: TextStyle(
+                                fontSize: 120, // Large font size
+                                color: colorScheme.onSurface),
                             onChanged: (String text) {
                               //Ensured no empty values
                               if (text.isEmpty) {
@@ -311,17 +329,17 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                           ),
                         ),
                       ),
-                      ],
+                    ],
                   ),
                 ),
                 const SizedBox(height: 15),
                 //Column of text forms
                 _buildTextForm(
-                    ScheduleSettings.names[bell]!, "Bell Name", size),
+                    context, ScheduleSettings.names[bell]!, "Bell Name"),
                 _buildTextForm(
-                    ScheduleSettings.teachers[bell]!, "Teacher", size),
+                    context, ScheduleSettings.teachers[bell]!, "Teacher"),
                 _buildTextForm(
-                    ScheduleSettings.locations[bell]!, "Location", size),
+                    context, ScheduleSettings.locations[bell]!, "Location"),
                 //Submits
                 ElevatedButton(
                     onPressed: () {
@@ -347,7 +365,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                       width: MediaQuery.of(context).size.width * 3 / 5,
                       child: Icon(
                         Icons.check,
-                        color: Colors.white.withOpacity(.9),
+                        color: colorScheme.onPrimary,
                       ),
                     )),
               ],
@@ -360,7 +378,11 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
 
   //The text form displayed in the settings page
   Widget _buildTextForm(
-      TextEditingController controller, String display, double size) {
+      BuildContext context, TextEditingController controller, String display) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    MediaQueryData mediaQuery = MediaQuery.of(context);
+
+    double size = mediaQuery.size.width * 5 / 6;
     return Container(
       margin: const EdgeInsets.only(top: 5),
       height: size * 2 / 15,
@@ -375,11 +397,11 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
           isDense: true,
           counterText: '',
           labelStyle: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface,
+              color: colorScheme.onSurface,
               overflow: TextOverflow.ellipsis),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Colors.grey, width: 1),
+            borderSide: BorderSide(color: colorScheme.shadow, width: 1),
           ),
         ),
       ),

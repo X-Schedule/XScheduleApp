@@ -1,8 +1,4 @@
-import 'dart:ui';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:xchedule/global_variables/clock.dart';
 import 'package:xchedule/schedule/schedule_data.dart';
 
@@ -68,7 +64,7 @@ class _ClubScheduleDisplayState extends State<ClubScheduelDsiplay> {
                   ),
                   Container(
                       width: MediaQuery.of(context).size.width * 3 / 4 - 70,
-                      color: Theme.of(context).colorScheme.shadow,
+                      color: Theme.of(context).colorScheme.surfaceContainer,
                       child: clubs.isEmpty
                           ? const Align(
                               alignment: Alignment.center,

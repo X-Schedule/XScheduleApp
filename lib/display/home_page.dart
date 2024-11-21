@@ -19,6 +19,7 @@ Displays the appbar, navbar, and is parent of the body
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
+  //Stream which allows reference to widgets across widget tree
   static StreamController<StreamSignal> homePageStream = StreamController();
 
   @override
@@ -43,6 +44,8 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     //Checks the local storage to see if app has gone through login page before
     HomePage.homePageStream = StreamController();
+    //Will refresh when stream updated
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
     return StreamBuilder(
         stream: HomePage.homePageStream.stream,
         builder: (context, snapshot){
@@ -50,10 +53,11 @@ class _HomePageState extends State<HomePage> {
             return const Welcome();
           }
           return Scaffold(
-            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+            backgroundColor: colorScheme.primaryContainer,
             bottomNavigationBar: _buildNavBar(context),
             body: PageView(
               controller: controller,
+              physics: const PageScrollPhysics(),
               //Once page changes, sets pageIndex to the new index
               onPageChanged: (i) {
                 setState(() {
@@ -69,35 +73,42 @@ class _HomePageState extends State<HomePage> {
 
   //The bottom nav bar
   Widget _buildNavBar(BuildContext context) {
-    Color gradient = Theme.of(context).colorScheme.primary;
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    MediaQueryData mediaQuery = MediaQuery.of(context);
+    //Color used in navbar gradient
+    Color gradient = colorScheme.primary;
     return GestureDetector(
+      //Allows gestures on navbar to affect homepage
       onHorizontalDragEnd: (detail) {
         controller.animateToPage(
             pageIndex - detail.primaryVelocity!.sign.round(),
             duration: const Duration(milliseconds: 125),
             curve: Curves.easeInOut);
       },
+      //Size of navbar
       child: SizedBox(
-          height: 65 + MediaQuery.of(context).padding.bottom,
+          height: 65 + mediaQuery.padding.bottom,
           child: Stack(
             children: [
+              //Navbar body aligned at bottom
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Container(
-                  height: 62.5 + MediaQuery.of(context).padding.bottom,
-                  color: Theme.of(context).colorScheme.tertiaryContainer,
+                  height: 62.5 + mediaQuery.padding.bottom,
+                  color: colorScheme.tertiaryContainer,
                   padding: EdgeInsets.only(
-                      bottom: 15 + MediaQuery.of(context).padding.bottom),
+                      bottom: 15 + mediaQuery.padding.bottom),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _buildPageIcon(Icons.calendar_month, 0),
-                      _buildPageIcon(Icons.person, 1),
+                      _buildPageIcon(context, Icons.calendar_month, 0),
+                      _buildPageIcon(context, Icons.person, 1),
                     ],
                   ),
                 ),
               ),
+              //Navbar gradient aligned at top
               Align(
                 alignment: Alignment.topCenter,
                 child: Container(
@@ -117,7 +128,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   //Builds the icons in the bottom NavBar
-  Widget _buildPageIcon(IconData icon, int index) {
+  Widget _buildPageIcon(BuildContext context, IconData icon, int index) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+
     return TextButton(
         //When pressed, animated PageView to the selected page
         onPressed: () {
@@ -126,12 +139,12 @@ class _HomePageState extends State<HomePage> {
               curve: Curves.easeInOut);
         },
         child: DecoratedIcon(
-            decoration: const IconDecoration(
-                border: IconBorder(width: 2, color: Colors.black)),
+            decoration: IconDecoration(
+                border: IconBorder(width: 2, color: colorScheme.onSurface)),
             icon: Icon(
               icon,
               //When page selected, icon is fully opaque and white; if not, only at 70% opacity
-              color: pageIndex == index ? Colors.white : Colors.white.withOpacity(0.65),
+              color: colorScheme.onPrimary.withOpacity(pageIndex == index ? 1 : 0.65),
               size: 30,
             )));
   }
