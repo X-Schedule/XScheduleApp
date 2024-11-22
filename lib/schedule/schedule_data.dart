@@ -51,11 +51,15 @@ class ScheduleData {
       Map<String, String> forSchedule = {};
       for (String part in scheduleParts) {
         //Ensures no junk strings make it into the list
-        if (part.replaceAll(' -', '').replaceAll(' ', '').isNotEmpty) {
+        if (part.replaceAll('-', '').replaceAll(' ', '').isNotEmpty) {
           //Gets the 2nd last two values separated by ' '
           List<String> partParts = part.replaceAll(' -', '').split(' ');
-          forSchedule[partParts[partParts.length - 2]
-              .replaceAll('HR', 'Homeroom')] = partParts[partParts.length - 1];
+          String title =
+              partParts[partParts.length - 2].replaceAll('HR', 'Homeroom').replaceAll(':', '');
+          if(int.tryParse(title) != null){
+            title = 'Flex $title';
+          }
+          forSchedule[title] = partParts[partParts.length - 1];
         }
       }
       //Date of the data
@@ -72,7 +76,8 @@ class ScheduleData {
     return result;
   }
 
-  static Future<Map<DateTime, List<Map<String, dynamic>>>> getCoCurriculars() async {
+  static Future<Map<DateTime, List<Map<String, dynamic>>>>
+      getCoCurriculars() async {
     Map<DateTime, List<Map<String, dynamic>>> result = {};
     //The Base URL for the RSS request. When updating, see St. X Calendar RSS icon or ST X IT Department.
     String baseUrl = 'https://www.stxavier.org/calendar/calendar_242.ics';
@@ -129,7 +134,7 @@ class ScheduleData {
   }
 
   static Future<void> awaitCondition(bool Function() condition) async {
-    while(!condition()){
+    while (!condition()) {
       await Future.delayed(const Duration(milliseconds: 100));
     }
   }

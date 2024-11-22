@@ -48,7 +48,7 @@ class _HomePageState extends State<HomePage> {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     return StreamBuilder(
         stream: HomePage.homePageStream.stream,
-        builder: (context, snapshot){
+        builder: (context, snapshot) {
           if (localStorage.getItem("state") != "logged") {
             return const Welcome();
           }
@@ -67,8 +67,7 @@ class _HomePageState extends State<HomePage> {
               children: pages,
             ),
           );
-        }
-    );
+        });
   }
 
   //The bottom nav bar
@@ -87,17 +86,16 @@ class _HomePageState extends State<HomePage> {
       },
       //Size of navbar
       child: SizedBox(
-          height: 65 + mediaQuery.padding.bottom,
+          height: 65,
           child: Stack(
             children: [
               //Navbar body aligned at bottom
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Container(
-                  height: 62.5 + mediaQuery.padding.bottom,
+                  height: 62.5,
                   color: colorScheme.tertiaryContainer,
-                  padding: EdgeInsets.only(
-                      bottom: 15 + mediaQuery.padding.bottom),
+                  padding: const EdgeInsets.only(bottom: 15),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -144,7 +142,8 @@ class _HomePageState extends State<HomePage> {
             icon: Icon(
               icon,
               //When page selected, icon is fully opaque and white; if not, only at 70% opacity
-              color: colorScheme.onPrimary.withOpacity(pageIndex == index ? 1 : 0.65),
+              color: colorScheme.onPrimary
+                  .withOpacity(pageIndex == index ? 1 : 0.65),
               size: 30,
             )));
   }

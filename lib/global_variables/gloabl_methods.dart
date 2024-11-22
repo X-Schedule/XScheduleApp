@@ -1,9 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'global_variables.dart';
 
 class GlobalMethods {
+  static void visitUrl(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri)) {
+    throw Exception('Could not launch $url');
+    }
+  }
+
   static int monthDiff(DateTime date1, DateTime date2) {
     return (date1.year * 12 + date1.month) - (date2.year * 12 + date2.month);
   }

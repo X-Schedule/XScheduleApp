@@ -29,7 +29,6 @@ class Schedule {
       int? minutes = start?.difference(end!).inMinutes;
       if (minutes != null) {
         Clock clock = Clock(minutes: minutes.abs());
-        clock.factorMinutes();
         return clock;
       }
     }

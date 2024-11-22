@@ -23,7 +23,7 @@ class Personal extends StatelessWidget {
         backgroundColor: colorScheme.primaryContainer,
         appBar: PreferredSize(
             preferredSize:
-                Size(mediaQuery.size.width, 55 + mediaQuery.padding.top),
+                Size(mediaQuery.size.width, 55),
             child: Container(
               alignment: Alignment.bottomCenter,
               padding: const EdgeInsets.symmetric(horizontal: 5),
@@ -59,6 +59,9 @@ class Personal extends StatelessWidget {
             localStorage.clear();
             StreamSignal.updateStream(
                 streamController: HomePage.homePageStream);
+          }),
+          _buildOption(context, "Submit Beta Report", () {
+            GlobalMethods.visitUrl("https://forms.office.com/Pages/ResponsePage.aspx?id=udgb07DszU6VE6pe_6S_QEKQcshWKqpCj4E9J0VU-BRUN1o3SlRJMzk1SkZMMklLWFc3UEVFVkIzOC4u");
           })
         ]));
   }

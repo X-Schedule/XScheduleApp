@@ -5,12 +5,17 @@ Custom Class to construct custom 'Clock' Objects
 Clock objects allow for more efficient calculations when handling time
  */
 
-import 'package:xchedule/global_variables/gloabl_methods.dart';
-import 'package:xchedule/global_variables/global_variables.dart';
+import 'gloabl_methods.dart';
+import 'global_variables.dart';
 
 class Clock {
   //Constructor
-  Clock({this.hours = 0, this.minutes = 0});
+  Clock({this.hours = 0, this.minutes = 0}) {
+    while (minutes >= 60) {
+      hours++;
+      minutes -= 60;
+    }
+  }
 
   int hours;
   int minutes;
@@ -30,16 +35,8 @@ class Clock {
     }
   }
 
-  //Outputs the clock as a string in a HOUR:MINUTE 24hr format
-  String display({bool amPm = true}) {
-    if(amPm){
-      return '${GlobalMethods.amPmHour(hours)}:${GlobalVariables.stringDate(minutes)}';
-    }
-    return '$hours:${GlobalVariables.stringDate(minutes)}';
-  }
-
   //Outputs temporary clock with time added to it
-  Clock displayAdd({int deltaHours = 0, int deltaMinutes = 0}) {
+  String display({int deltaHours = 0, int deltaMinutes = 0, bool amPm = true}) {
     //Adds delta values to current values
     int minuteDisplay = minutes + deltaMinutes;
     int hourDisplay = hours + deltaHours;
@@ -52,47 +49,48 @@ class Clock {
     while (hours >= 24) {
       hours -= 24;
     }
-    return Clock(hours: hourDisplay, minutes: minuteDisplay);
-  }
-
-  //Method which factors minutes into hours; used after declaring
-  void factorMinutes() {
-    while (minutes >= 60) {
-      hours++;
-      minutes -= 60;
+    if(amPm){
+      return '${GlobalMethods.amPmHour(hours)}:${GlobalVariables.stringDate(minutes)}';
     }
+    return '$hours:${GlobalVariables.stringDate(minutes)}';
   }
 
   //Finds the time interval between one clock and another
   int difference(Clock otherClock) {
-    return (otherClock.minutes - minutes + (otherClock.hours - hours) * 60)
-        .abs();
+    return (minutes - otherClock.minutes + (hours - otherClock.hours) * 60);
   }
 
   //Provides a copy of the clock
-  Clock instance() {
+  Clock clone() {
     return Clock(hours: hours, minutes: minutes);
   }
-  int totalMinutes(){
-    return minutes + hours*60;
+
+  int totalMinutes() {
+    return minutes + hours * 60;
   }
 
   //Returns a Clock from a given String
-  static Clock? parse(String clockText){
+  static Clock? parse(String clockText) {
     List<String> parts = clockText.split(':');
     //If improperly formated, returns null
-    if(parts.length == 2) {
+    if (parts.length == 2) {
       int? tryHours = int.tryParse(parts[0]);
       int? tryMinutes = int.tryParse(parts[1]);
-      if(tryHours != null && tryMinutes != null){
+      if (tryHours != null && tryMinutes != null) {
         return Clock(hours: tryHours, minutes: tryMinutes);
       }
     }
     return null;
   }
 
+  //Returns a Clock from a given DateTime
+  static Clock fromDateTime(DateTime date) {
+    return Clock(hours: date.hour, minutes: date.minute);
+  }
+
   //Creates a datetime, with given year, month, and day, with the current time values
-  DateTime toDateTime(DateTime reference){
-    return DateTime(reference.year, reference.month, reference.day, hours, minutes);
+  DateTime toDateTime(DateTime reference) {
+    return DateTime(
+        reference.year, reference.month, reference.day, hours, minutes);
   }
 }

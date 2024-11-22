@@ -9,6 +9,7 @@ import 'package:xchedule/global_variables/global_widgets.dart';
 import 'package:xchedule/global_variables/stream_signal.dart';
 import 'package:xchedule/schedule/schedule.dart';
 import 'package:xchedule/schedule/schedule_data.dart';
+import 'package:xchedule/schedule/schedule_display/schedule_flex_display.dart';
 import 'package:xchedule/schedule/schedule_display/schedule_info_display.dart';
 import 'package:xchedule/schedule/schedule_settings.dart';
 
@@ -194,38 +195,50 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
               ScheduleDisplay.initialDate, i - (maxPages / 2).round());
 
           //Schedule card wrapped in gestureDetector
-          return Container(
-            margin: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
-            decoration: BoxDecoration(
-                color: colorScheme.surface,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                      color: colorScheme.surfaceContainer,
-                      blurRadius: 3,
-                      spreadRadius: 1),
-                  //Fancy little shadow
-                  BoxShadow(
-                      color: colorScheme.surfaceContainer,
-                      offset: const Offset(2.25, 2.25))
-                ]),
-            child: ScheduleData.schedule.isEmpty
-                //FutureBuilder: will run async methods while displaying loading/placeholder widget; then replaces with widget once data fully fetched
-                ? FutureBuilder(
-                    future: ScheduleData.getDailyOrder(),
-                    //Runs once progress updates in the async method
-                    builder: (context, snapshot) {
-                      //Checks to see if method is still loading/an error occurred (if error occurred, eternal hell of loading wheel)
-                      if (snapshot.connectionState == ConnectionState.waiting ||
-                          snapshot.hasError) {
-                        return _buildLoading(context);
-                      }
+          return GestureDetector(
+            onLongPress: (){
+              setState(() {
+                _controller.animateToPage((_controller.page!-ScheduleDisplay.pageIndex).floor(), duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+                ScheduleDisplay.pageIndex = 0;
+              });
+            },
+            onVerticalDragEnd: (detail){
+              _controller.animateToPage((_controller.page!-(detail.primaryVelocity!).sign).floor(), duration: const Duration(milliseconds: 200), curve: Curves.easeInOut);
+              ScheduleDisplay.pageIndex += (detail.primaryVelocity!).sign.floor();
+            },
+            child: Container(
+              margin: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
+              decoration: BoxDecoration(
+                  color: colorScheme.surface,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                        color: colorScheme.surfaceContainer,
+                        blurRadius: 3,
+                        spreadRadius: 1),
+                    //Fancy little shadow
+                    BoxShadow(
+                        color: colorScheme.surfaceContainer,
+                        offset: const Offset(2.25, 2.25))
+                  ]),
+              child: ScheduleData.schedule.isEmpty
+              //FutureBuilder: will run async methods while displaying loading/placeholder widget; then replaces with widget once data fully fetched
+                  ? FutureBuilder(
+                  future: ScheduleData.getDailyOrder(),
+                  //Runs once progress updates in the async method
+                  builder: (context, snapshot) {
+                    //Checks to see if method is still loading/an error occurred (if error occurred, eternal hell of loading wheel)
+                    if (snapshot.connectionState == ConnectionState.waiting ||
+                        snapshot.hasError) {
+                      return _buildLoading(context);
+                    }
 
-                      ScheduleData.schedule.addAll(snapshot.data ?? {});
-                      //Returns full schedule card
-                      return _buildSchedule(context, date);
-                    })
-                : _buildSchedule(context, date),
+                    ScheduleData.schedule.addAll(snapshot.data ?? {});
+                    //Returns full schedule card
+                    return _buildSchedule(context, date);
+                  })
+                  : _buildSchedule(context, date),
+            ),
           );
         });
   }
@@ -313,15 +326,24 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
 
     Map times = schedule.clockMap(bell) ?? {};
     //Gets the height (in pxs) of the tile, based on minuteHeight (see _buildSchedule)
-    double height = minuteHeight * times['start']?.difference(times['end']);
+    double height = minuteHeight * times['end'].difference(times['start']);
 
-    double margin = Clock(hours: 8).difference(times['start']) * minuteHeight;
+    double margin = times['start'].difference(Clock(hours: 8)) * minuteHeight;
     //Returns Tile Wrapped in GestureDetector
     return GestureDetector(
         //When Tile is tapped, will display popup with more info
         onTap: () {
-          GlobalMethods.showPopup(
-              context, _buildBellInfo(context, schedule, bell));
+          if (activities) {
+            GlobalMethods.showPopup(
+                context,
+                FlexScheduleDisplay(
+                    date: GlobalMethods.addDay(
+                        ScheduleDisplay.initialDate, ScheduleDisplay.pageIndex),
+                    schedule: schedule));
+          } else {
+            GlobalMethods.showPopup(
+                context, _buildBellInfo(context, schedule, bell));
+          }
         },
         //Tile
         child: Container(
@@ -359,10 +381,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
               Container(
                 margin: const EdgeInsets.only(left: 7.5),
                 alignment: Alignment.centerLeft,
-                width: mediaQuery.size.width -
-                    135 -
-                    (activities ? 70 : 0) -
-                    (height * 6 / 7 - 10),
+                width: mediaQuery.size.width - 135 - (height * 6 / 7 - 10),
                 child: FittedBox(
                   //If text overflows the tile, will shrink to fully include it
                   fit: BoxFit.contain,
@@ -626,6 +645,14 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                     ],
                   ),
                   GestureDetector(
+                    onLongPress: () {
+                      setState(() {
+                        monthIndex = 0;
+                      });
+                      calController.animateToPage(18,
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.easeInOut);
+                    },
                     onHorizontalDragEnd: (details) {
                       if ((details.primaryVelocity!.sign > 0 &&
                               monthIndex > -18) ||
@@ -749,16 +776,18 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
 
     //Returns Arrow Icon Button
     return IconButton(
-        //When pressed, animates to new page
-        onPressed: () {
-          //If forwards == true, animates to next page, if not, animates backwards
-          _controller.animateToPage(
-              _controller.page!.round() + direction,
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeInOut);
-        },
-        //If forwards == true, displays forward arrow, if not, backwards arrow
-        icon: Icon(direction > 0 ? Icons.arrow_forward_ios : Icons.arrow_back_ios), color: colorScheme.onSurface,);
+      //When pressed, animates to new page
+      onPressed: () {
+        //If forwards == true, animates to next page, if not, animates backwards
+        _controller.animateToPage(_controller.page!.round() + direction,
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut);
+      },
+      //If forwards == true, displays forward arrow, if not, backwards arrow
+      icon:
+          Icon(direction > 0 ? Icons.arrow_forward_ios : Icons.arrow_back_ios),
+      color: colorScheme.onSurface,
+    );
   }
 
   //Builds the info popup button
