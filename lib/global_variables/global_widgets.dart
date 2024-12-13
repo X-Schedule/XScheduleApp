@@ -33,8 +33,8 @@ class GlobalWidgets {
     );
   }
 
-  //Xchedule logo
-  static Widget xchedule({double height = 50}) {
+  //X-Schedule logo
+  static Widget xschedule({double height = 50}) {
     return Stack(
       alignment: Alignment.centerLeft,
       children: [

@@ -1,6 +1,6 @@
 {
-    "name": "xchedule",
-    "short_name": "xchedule",
+    "name": "X-Schedule",
+    "short_name": "XSchedule",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

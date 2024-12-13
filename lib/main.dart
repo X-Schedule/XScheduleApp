@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
-import 'package:xchedule/display/themes.dart';
-import 'package:xchedule/global_variables/supabase_db.dart';
-import 'package:xchedule/schedule/schedule_data.dart';
+import 'package:xschedule/display/themes.dart';
+import 'package:xschedule/global_variables/supabase_db.dart';
+import 'package:xschedule/schedule/schedule_data.dart';
 
 import 'display/home_page.dart';
 
 /*
 Main:
 What the app runs on startup
-XcheduleApp:
+XScheduleApp:
 The base of the app's widget tree
  */
 
@@ -31,11 +31,11 @@ Future<void> main() async {
     ScheduleData.coCurriculars = result;
   });
 
-  runApp(const XcheduleApp());
+  runApp(const XScheduleApp());
 }
 
-class XcheduleApp extends StatelessWidget {
-  const XcheduleApp({super.key});
+class XScheduleApp extends StatelessWidget {
+  const XScheduleApp({super.key});
 
   // This widget is the root of your application.
   @override
@@ -44,7 +44,7 @@ class XcheduleApp extends StatelessWidget {
       theme: Themes.blueTheme,
       //Gets rid of that pesky debug banner
       debugShowCheckedModeBanner: false,
-      title: 'Xchedule',
+      title: 'X-Schedule',
       //HomePage Wrapped in DefaultTextStyle so that we don't need to specify EVERY TIME we display text
       home: const DefaultTextStyle(
         style: TextStyle(

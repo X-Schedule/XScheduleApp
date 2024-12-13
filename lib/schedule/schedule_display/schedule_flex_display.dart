@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:xchedule/global_variables/clock.dart';
-import 'package:xchedule/global_variables/gloabl_methods.dart';
-import 'package:xchedule/global_variables/global_variables.dart';
-import 'package:xchedule/schedule/schedule_data.dart';
+import 'package:xschedule/global_variables/clock.dart';
+import 'package:xschedule/global_variables/gloabl_methods.dart';
+import 'package:xschedule/global_variables/global_variables.dart';
+import 'package:xschedule/schedule/schedule_data.dart';
 
 import '../schedule.dart';
 

@@ -2,16 +2,16 @@ import 'dart:async';
 
 import 'package:color_hex/class/hex_to_color.dart';
 import 'package:flutter/material.dart';
-import 'package:xchedule/global_variables/clock.dart';
-import 'package:xchedule/global_variables/gloabl_methods.dart';
-import 'package:xchedule/global_variables/global_variables.dart';
-import 'package:xchedule/global_variables/global_widgets.dart';
-import 'package:xchedule/global_variables/stream_signal.dart';
-import 'package:xchedule/schedule/schedule.dart';
-import 'package:xchedule/schedule/schedule_data.dart';
-import 'package:xchedule/schedule/schedule_display/schedule_flex_display.dart';
-import 'package:xchedule/schedule/schedule_display/schedule_info_display.dart';
-import 'package:xchedule/schedule/schedule_settings.dart';
+import 'package:xschedule/global_variables/clock.dart';
+import 'package:xschedule/global_variables/gloabl_methods.dart';
+import 'package:xschedule/global_variables/global_variables.dart';
+import 'package:xschedule/global_variables/global_widgets.dart';
+import 'package:xschedule/global_variables/stream_signal.dart';
+import 'package:xschedule/schedule/schedule.dart';
+import 'package:xschedule/schedule/schedule_data.dart';
+import 'package:xschedule/schedule/schedule_display/schedule_flex_display.dart';
+import 'package:xschedule/schedule/schedule_display/schedule_info_display.dart';
+import 'package:xschedule/schedule/schedule_settings.dart';
 
 /*
 ScheduleDisplay:

@@ -4,9 +4,9 @@ import 'package:color_hex/color_hex.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hsvcolor_picker/flutter_hsvcolor_picker.dart';
 import 'package:localstorage/localstorage.dart';
-import 'package:xchedule/display/home_page.dart';
-import 'package:xchedule/global_variables/stream_signal.dart';
-import 'package:xchedule/schedule/schedule_display/schedule_display.dart';
+import 'package:xschedule/display/home_page.dart';
+import 'package:xschedule/global_variables/stream_signal.dart';
+import 'package:xschedule/schedule/schedule_display/schedule_display.dart';
 
 import '../global_variables/gloabl_methods.dart';
 

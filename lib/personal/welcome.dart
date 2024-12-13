@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:xchedule/schedule/schedule_settings.dart';
+import 'package:xschedule/schedule/schedule_settings.dart';
 
 class Welcome extends StatelessWidget {
   const Welcome({super.key});
@@ -28,7 +28,7 @@ class Welcome extends StatelessWidget {
             child: Container(
               margin: EdgeInsets.only(top: MediaQuery.of(context).size.width / 10),
               height: MediaQuery.of(context).size.height * 5 / 16,
-              child: Image.asset("assets/images/xchedule_transparent.png"),
+              child: Image.asset("assets/images/xschedule_transparent.png"),
             ),
           ),
           Card(
@@ -40,7 +40,7 @@ class Welcome extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    "Welcome to Xchedule",
+                    "Welcome to X-Schedule",
                     style: TextStyle(
                       fontFamily: "SansitaSwashed",
                       fontSize: 30,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
-import 'package:xchedule/display/home_page.dart';
-import 'package:xchedule/global_variables/stream_signal.dart';
+import 'package:xschedule/display/home_page.dart';
+import 'package:xschedule/global_variables/stream_signal.dart';
 
 import '../global_variables/gloabl_methods.dart';
 import '../schedule/schedule_settings.dart';
