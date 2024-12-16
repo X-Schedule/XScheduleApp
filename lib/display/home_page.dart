@@ -45,7 +45,7 @@ class _HomePageState extends State<HomePage> {
     //Checks the local storage to see if app has gone through login page before
     HomePage.homePageStream = StreamController();
     //Will refresh when stream updated
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return StreamBuilder(
         stream: HomePage.homePageStream.stream,
         builder: (context, snapshot) {
@@ -72,8 +72,8 @@ class _HomePageState extends State<HomePage> {
 
   //The bottom nav bar
   Widget _buildNavBar(BuildContext context) {
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
-    MediaQueryData mediaQuery = MediaQuery.of(context);
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final MediaQueryData mediaQuery = MediaQuery.of(context);
     //Color used in navbar gradient
     Color gradient = colorScheme.primary;
     return GestureDetector(
@@ -127,7 +127,7 @@ class _HomePageState extends State<HomePage> {
 
   //Builds the icons in the bottom NavBar
   Widget _buildPageIcon(BuildContext context, IconData icon, int index) {
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return TextButton(
         //When pressed, animated PageView to the selected page

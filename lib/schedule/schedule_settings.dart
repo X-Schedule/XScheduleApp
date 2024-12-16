@@ -42,8 +42,8 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
 
   @override
   Widget build(BuildContext context) {
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
-    MediaQueryData mediaQuery = MediaQuery.of(context);
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final MediaQueryData mediaQuery = MediaQuery.of(context);
     return Scaffold(
       backgroundColor: colorScheme.primaryContainer,
       //Top Bar
@@ -141,8 +141,8 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
 
   //Builds the tiles displayed in the scroll view
   Widget _buildBellTile(BuildContext context, String bell) {
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
-    MediaQueryData mediaQuery = MediaQuery.of(context);
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final MediaQueryData mediaQuery = MediaQuery.of(context);
 
     //Ensures no null values
     _defineBells(bell);
@@ -253,8 +253,8 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
 
   //Builds the setting popup
   Widget _buildBellSettings(String bell) {
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
-    MediaQueryData mediaQuery = MediaQuery.of(context);
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final MediaQueryData mediaQuery = MediaQuery.of(context);
 
     //Radius of colorWheel; also used in other measurements
     double size = mediaQuery.size.width * 5 / 6;
@@ -379,8 +379,8 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
   //The text form displayed in the settings page
   Widget _buildTextForm(
       BuildContext context, TextEditingController controller, String display) {
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
-    MediaQueryData mediaQuery = MediaQuery.of(context);
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final MediaQueryData mediaQuery = MediaQuery.of(context);
 
     double size = mediaQuery.size.width * 5 / 6;
     return Container(

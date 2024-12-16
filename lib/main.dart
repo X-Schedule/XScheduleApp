@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:xschedule/display/themes.dart';
+import 'package:xschedule/global_variables/global_variables.dart';
 import 'package:xschedule/global_variables/supabase_db.dart';
 import 'package:xschedule/schedule/schedule_data.dart';
 
@@ -19,6 +21,8 @@ Future<void> main() async {
 
   //Initializes localstorage
   await initLocalStorage();
+
+  GlobalVariables.packageInfo = await PackageInfo.fromPlatform();
 
   //Fetches data from supabase asynchronously on startup
   DateTime now = DateTime.now();

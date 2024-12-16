@@ -62,4 +62,23 @@ class GlobalWidgets {
       ],
     );
   }
+
+  static Widget popup(BuildContext context, Widget child){
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+    return Align(
+      alignment: Alignment.center,
+      child: GestureDetector(
+        onHorizontalDragEnd: (detail) {
+          if (detail.primaryVelocity! < 0) {
+            Navigator.pop(context);
+          }
+        },
+        child: Card(
+          color: colorScheme.surface,
+          child: child,
+        ),
+      ),
+    );
+  }
 }

@@ -3,7 +3,10 @@ GlobalVariables:
 Class created to organize objects used globally in the app
  */
 
+import 'package:package_info_plus/package_info_plus.dart';
+
 class GlobalVariables {
+  static late PackageInfo packageInfo;
   //Uniform emoji from given dress code string
   static String dressEmoji(String dressCode){
     if(dressCode.toLowerCase().contains("formal")){

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:xschedule/global_variables/clock.dart';
 import 'package:xschedule/global_variables/gloabl_methods.dart';
 import 'package:xschedule/global_variables/global_variables.dart';
+import 'package:xschedule/global_variables/global_widgets.dart';
 import 'package:xschedule/schedule/schedule_data.dart';
 
 import '../schedule.dart';
@@ -20,8 +21,8 @@ class FlexScheduleDisplay extends StatefulWidget {
 class _FlexScheduleDisplayState extends State<FlexScheduleDisplay> {
   @override
   Widget build(BuildContext context) {
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
-    MediaQueryData mediaQuery = MediaQuery.of(context);
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final MediaQueryData mediaQuery = MediaQuery.of(context);
 
     Map<String, dynamic> dailyData = ScheduleData.dailyData[widget.date] ?? {};
 
@@ -74,189 +75,176 @@ class _FlexScheduleDisplayState extends State<FlexScheduleDisplay> {
 
     List<Map<String, dynamic>> clubs =
         ScheduleData.coCurriculars[widget.date] ?? [];
-    return Align(
-      alignment: Alignment.center,
-      child: GestureDetector(
-        onHorizontalDragEnd: (detail) {
-          if (detail.primaryVelocity! < 0) {
-            Navigator.pop(context);
-          }
-        },
-        child: Card(
-          color: colorScheme.surface,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            width: mediaQuery.size.width * 7 / 8,
-            constraints: BoxConstraints(
-              maxHeight: mediaQuery.size.height * 3 / 4,
+    return GlobalWidgets.popup(context, Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      width: mediaQuery.size.width * 7 / 8,
+      constraints: BoxConstraints(
+        maxHeight: mediaQuery.size.height * 3 / 4,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FittedBox(
+            fit: BoxFit.contain,
+            child: Text(
+              GlobalMethods.dateText(widget.date),
+              style: TextStyle(
+                  color: colorScheme.onSurface,
+                  fontSize: 35,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: "Georama"),
             ),
+          ),
+          Container(
+            width: mediaQuery.size.width * 7 / 8 - 20,
+            height: 2.5,
+            color: colorScheme.shadow,
+          ),
+          FittedBox(
+            fit: BoxFit.contain,
             child: Column(
-              mainAxisSize: MainAxisSize.min,
               children: [
-                FittedBox(
-                  fit: BoxFit.contain,
-                  child: Text(
-                    GlobalMethods.dateText(widget.date),
-                    style: TextStyle(
-                        color: colorScheme.onSurface,
-                        fontSize: 35,
-                        fontWeight: FontWeight.w500,
-                        fontFamily: "Georama"),
-                  ),
-                ),
-                Container(
-                  width: mediaQuery.size.width * 7 / 8 - 20,
-                  height: 2.5,
-                  color: colorScheme.shadow,
-                ),
-                FittedBox(
-                  fit: BoxFit.contain,
-                  child: Column(
-                    children: [
-                      Text(
-                        title,
-                        style: TextStyle(
-                            color: colorScheme.onSurface,
-                            fontSize: 30,
-                            fontWeight: FontWeight.w500,
-                            fontFamily: "Georama"),
-                      ),
-                      Text(
-                        flexTime,
-                        style: TextStyle(
-                          color: colorScheme.onSurface,
-                          fontSize: 27.5,
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                if ((dailyData['lunchPasta'] ?? '').isNotEmpty ||
-                    (dailyData['lunchBox'] ?? '').isNotEmpty ||
-                    (dailyData['lunchMain'] ?? '').isNotEmpty)
-                  Column(
-                    children: [
-                      Divider(
-                        color: colorScheme.shadow,
-                      ),
-                      Text(
-                        "Lunch",
-                        style: TextStyle(
-                            color: colorScheme.onSurface,
-                            fontSize: 30,
-                            fontWeight: FontWeight.w500,
-                            fontFamily: "Georama"),
-                      ),
-                      if ((dailyData['lunchMain'] ?? '').isNotEmpty)
-                        FittedBox(
-                          fit: BoxFit.contain,
-                          child: Text(
-                            '🥘 ${dailyData['lunchMain']}',
-                            style: TextStyle(
-                              color: colorScheme.onSurface,
-                              fontSize: 22.5,
-                            ),
-                          ),
-                        ),
-                      FittedBox(
-                        fit: BoxFit.contain,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            if ((dailyData['lunchPasta'] ?? '').isNotEmpty)
-                              Text(
-                                '🍝 ${dailyData['lunchPasta']}',
-                                style: TextStyle(
-                                  color: colorScheme.onSurface,
-                                  fontSize: 22.5,
-                                ),
-                              ),
-                            if ((dailyData['lunchBox'] ?? '').isNotEmpty)
-                              Text(
-                                '🍱 ${dailyData['lunchBox']}',
-                                style: TextStyle(
-                                  color: colorScheme.onSurface,
-                                  fontSize: 22.5,
-                                ),
-                              ),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                Divider(color: colorScheme.shadow),
                 Text(
-                  "Extracurriculars",
+                  title,
                   style: TextStyle(
                       color: colorScheme.onSurface,
                       fontSize: 30,
                       fontWeight: FontWeight.w500,
                       fontFamily: "Georama"),
                 ),
-                SingleChildScrollView(
-                  child: clubs.isEmpty
-                      ? Text(
-                          "No Scheduled\nExtracurriculars",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              color: colorScheme.onSurface,
-                              fontSize: 25,
-                              fontFamily: "SansitaSwashed"),
-                        )
-                      : Column(
-                          children: List<Widget>.generate(clubs.length, (i) {
-                            Map<String, dynamic> club = clubs[i];
-                            return Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      club['summary'],
-                                      textAlign: TextAlign.left,
-                                      style: TextStyle(
-                                          color: colorScheme.onSurface,
-                                          fontSize: 17.5,
-                                          fontWeight: FontWeight.w500,
-                                          overflow: TextOverflow.ellipsis),
-                                    ),
-                                    Text(
-                                      club['location'],
-                                      textAlign: TextAlign.left,
-                                      style: TextStyle(
-                                          color: colorScheme.onSurface,
-                                          fontSize: 17.5,
-                                          height: 0.9,
-                                          overflow: TextOverflow.ellipsis),
-                                    )
-                                  ],
-                                ),
-                                FittedBox(
-                                  fit: BoxFit.contain,
-                                  child: Text(
-                                    '${Clock.fromDateTime(club['dtStart']).display()}-${Clock.fromDateTime(club['dtEnd']).display()}',
-                                    textAlign: TextAlign.left,
-                                    style: TextStyle(
-                                        color: colorScheme.onSurface,
-                                        fontSize: 20,
-                                        height: 0.9,
-                                        overflow: TextOverflow.ellipsis),
-                                  ),
-                                )
-                              ],
-                            );
-                          }),
-                        ),
-                ),
-                const SizedBox(
-                  height: 10,
+                Text(
+                  flexTime,
+                  style: TextStyle(
+                    color: colorScheme.onSurface,
+                    fontSize: 27.5,
+                  ),
                 )
               ],
             ),
           ),
-        ),
+          if ((dailyData['lunchPasta'] ?? '').isNotEmpty ||
+              (dailyData['lunchBox'] ?? '').isNotEmpty ||
+              (dailyData['lunchMain'] ?? '').isNotEmpty)
+            Column(
+              children: [
+                Divider(
+                  color: colorScheme.shadow,
+                ),
+                Text(
+                  "Lunch",
+                  style: TextStyle(
+                      color: colorScheme.onSurface,
+                      fontSize: 30,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: "Georama"),
+                ),
+                if ((dailyData['lunchMain'] ?? '').isNotEmpty)
+                  FittedBox(
+                    fit: BoxFit.contain,
+                    child: Text(
+                      '🥘 ${dailyData['lunchMain']}',
+                      style: TextStyle(
+                        color: colorScheme.onSurface,
+                        fontSize: 22.5,
+                      ),
+                    ),
+                  ),
+                FittedBox(
+                  fit: BoxFit.contain,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      if ((dailyData['lunchPasta'] ?? '').isNotEmpty)
+                        Text(
+                          '🍝 ${dailyData['lunchPasta']}',
+                          style: TextStyle(
+                            color: colorScheme.onSurface,
+                            fontSize: 22.5,
+                          ),
+                        ),
+                      if ((dailyData['lunchBox'] ?? '').isNotEmpty)
+                        Text(
+                          '🍱 ${dailyData['lunchBox']}',
+                          style: TextStyle(
+                            color: colorScheme.onSurface,
+                            fontSize: 22.5,
+                          ),
+                        ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          Divider(color: colorScheme.shadow),
+          Text(
+            "Extracurriculars",
+            style: TextStyle(
+                color: colorScheme.onSurface,
+                fontSize: 30,
+                fontWeight: FontWeight.w500,
+                fontFamily: "Georama"),
+          ),
+          SingleChildScrollView(
+            child: clubs.isEmpty
+                ? Text(
+              "No Scheduled\nExtracurriculars",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  color: colorScheme.onSurface,
+                  fontSize: 25,
+                  fontFamily: "SansitaSwashed"),
+            )
+                : Column(
+              children: List<Widget>.generate(clubs.length, (i) {
+                Map<String, dynamic> club = clubs[i];
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          club['summary'],
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                              color: colorScheme.onSurface,
+                              fontSize: 17.5,
+                              fontWeight: FontWeight.w500,
+                              overflow: TextOverflow.ellipsis),
+                        ),
+                        Text(
+                          club['location'],
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                              color: colorScheme.onSurface,
+                              fontSize: 17.5,
+                              height: 0.9,
+                              overflow: TextOverflow.ellipsis),
+                        )
+                      ],
+                    ),
+                    FittedBox(
+                      fit: BoxFit.contain,
+                      child: Text(
+                        '${Clock.fromDateTime(club['dtStart']).display()}-${Clock.fromDateTime(club['dtEnd']).display()}',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                            color: colorScheme.onSurface,
+                            fontSize: 20,
+                            height: 0.9,
+                            overflow: TextOverflow.ellipsis),
+                      ),
+                    )
+                  ],
+                );
+              }),
+            ),
+          ),
+          const SizedBox(
+            height: 10,
+          )
+        ],
       ),
-    );
+    ));
   }
 }
