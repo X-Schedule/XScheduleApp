@@ -44,8 +44,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
 
   @override
   Widget build(BuildContext context) {
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
-    MediaQueryData mediaQuery = MediaQuery.of(context);
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final MediaQueryData mediaQuery = MediaQuery.of(context);
     //Runs addDailyData asynchronously on page moved; may do nothing at all if ranges overlap
     ScheduleData.addDailyData(
         GlobalMethods.addDay(
@@ -154,8 +154,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
 
   //Loading wheel which appears while fetching data
   Widget _buildLoading(BuildContext context) {
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
-    MediaQueryData mediaQuery = MediaQuery.of(context);
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final MediaQueryData mediaQuery = MediaQuery.of(context);
 
     double cardHeight = mediaQuery.size.height -
         18 -
@@ -176,7 +176,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
 
   //Pseudo-PageView which displays all schedule cards
   Widget _buildPageView(BuildContext context) {
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return PageView.builder(
         controller: _controller,
@@ -196,15 +196,22 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
 
           //Schedule card wrapped in gestureDetector
           return GestureDetector(
-            onLongPress: (){
+            onLongPress: () {
               setState(() {
-                _controller.animateToPage((_controller.page!-ScheduleDisplay.pageIndex).floor(), duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+                _controller.animateToPage(
+                    (_controller.page! - ScheduleDisplay.pageIndex).floor(),
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeInOut);
                 ScheduleDisplay.pageIndex = 0;
               });
             },
-            onVerticalDragEnd: (detail){
-              _controller.animateToPage((_controller.page!-(detail.primaryVelocity!).sign).floor(), duration: const Duration(milliseconds: 200), curve: Curves.easeInOut);
-              ScheduleDisplay.pageIndex += (detail.primaryVelocity!).sign.floor();
+            onVerticalDragEnd: (detail) {
+              _controller.animateToPage(
+                  (_controller.page! - (detail.primaryVelocity!).sign).floor(),
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeInOut);
+              ScheduleDisplay.pageIndex +=
+                  (detail.primaryVelocity!).sign.floor();
             },
             child: Container(
               margin: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
@@ -222,21 +229,22 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                         offset: const Offset(2.25, 2.25))
                   ]),
               child: ScheduleData.schedule.isEmpty
-              //FutureBuilder: will run async methods while displaying loading/placeholder widget; then replaces with widget once data fully fetched
+                  //FutureBuilder: will run async methods while displaying loading/placeholder widget; then replaces with widget once data fully fetched
                   ? FutureBuilder(
-                  future: ScheduleData.getDailyOrder(),
-                  //Runs once progress updates in the async method
-                  builder: (context, snapshot) {
-                    //Checks to see if method is still loading/an error occurred (if error occurred, eternal hell of loading wheel)
-                    if (snapshot.connectionState == ConnectionState.waiting ||
-                        snapshot.hasError) {
-                      return _buildLoading(context);
-                    }
+                      future: ScheduleData.getDailyOrder(),
+                      //Runs once progress updates in the async method
+                      builder: (context, snapshot) {
+                        //Checks to see if method is still loading/an error occurred (if error occurred, eternal hell of loading wheel)
+                        if (snapshot.connectionState ==
+                                ConnectionState.waiting ||
+                            snapshot.hasError) {
+                          return _buildLoading(context);
+                        }
 
-                    ScheduleData.schedule.addAll(snapshot.data ?? {});
-                    //Returns full schedule card
-                    return _buildSchedule(context, date);
-                  })
+                        ScheduleData.schedule.addAll(snapshot.data ?? {});
+                        //Returns full schedule card
+                        return _buildSchedule(context, date);
+                      })
                   : _buildSchedule(context, date),
             ),
           );
@@ -245,55 +253,91 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
 
   //Builds the schedule card based on given date
   Widget _buildSchedule(BuildContext context, DateTime date) {
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
-    MediaQueryData mediaQuery = MediaQuery.of(context);
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final MediaQueryData mediaQuery = MediaQuery.of(context);
 
     Schedule dayInfo = ScheduleData.schedule[date] ?? Schedule.empty();
     double cardHeight = mediaQuery.size.height -
-        180 -
+        190 -
         mediaQuery.padding.top -
         mediaQuery.padding.bottom;
     if (!_schedule(date)) {
       //i.e. no schedule/classes
       return _buildEmpty(context, cardHeight);
     }
+
+    DateTime currentTime = DateTime.now();
+    double timeMargin = currentTime.hour * 60 + currentTime.minute - 480;
+
     //Schedule data
     Map schedule = dayInfo.schedule;
     //The height (in pxs) that each minute will be on the screen, based on the devices screen size etc.
     double minuteHeight = cardHeight / 430;
-    return Container(
-      margin: const EdgeInsets.only(left: 5, right: 10),
-      height: cardHeight - 20,
-      child: Row(
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: Stack(
         children: [
-          //Column of time references to the left
-          Stack(
-            children: List<Widget>.generate(8, (i) {
-              return Padding(
-                  padding: EdgeInsets.only(top: minuteHeight * i * 60),
-                  child: Text(
-                    '${GlobalVariables.stringDate(GlobalMethods.amPmHour(i + 8))} - ',
-                    style: TextStyle(
-                        fontSize: 15,
-                        height: 0.9,
-                        color: colorScheme.onSurface), //Text px height = 18
-                  ));
-            }),
-          ),
-          //Expanded Box (as much width as possible) wrapping sized box (set height of card) wrapping stack of bell tiles
-          Expanded(
-              child: Container(
-            padding: const EdgeInsets.only(top: 6.5),
+          Container(
+            margin: const EdgeInsets.only(left: 5, right: 15),
             height: cardHeight,
-            child: Stack(
-              alignment: Alignment.topCenter,
-              children: List<Widget>.generate(schedule.keys.length, (i) {
-                //Returns Schedule 'Tile' based on schedule info
-                String key = schedule.keys.toList()[i];
-                return _buildTile(context, dayInfo, key, minuteHeight);
-              }),
+            child: Row(
+              children: [
+                //Column of time references to the left
+                Stack(
+                  children: List<Widget>.generate(8, (i) {
+                    return Padding(
+                        padding: EdgeInsets.only(top: minuteHeight * i * 60),
+                        child: Text(
+                          '${GlobalVariables.stringDate(GlobalMethods.amPmHour(i + 8))} - ',
+                          style: TextStyle(
+                              fontSize: 15,
+                              height: 0.9,
+                              color: colorScheme.onSurface), //Text px height = 18
+                        ));
+                  }),
+                ),
+                //Expanded Box (as much width as possible) wrapping sized box (set height of card) wrapping stack of bell tiles
+                Expanded(
+                    child: Container(
+                  padding: const EdgeInsets.only(top: 6.5),
+                  height: cardHeight,
+                  child: Stack(
+                    alignment: Alignment.topCenter,
+                    children: List<Widget>.generate(schedule.keys.length, (i) {
+                      //Returns Schedule 'Tile' based on schedule info
+                      String key = schedule.keys.toList()[i];
+                      return _buildTile(context, dayInfo, key, minuteHeight);
+                    }),
+                  ),
+                )),
+              ],
             ),
-          )),
+          ),
+          if (timeMargin >= 0 &&
+              timeMargin <= 425 &&
+              date == ScheduleDisplay.initialDate)
+            Opacity(
+              opacity: 0.6,
+              child: Padding(
+                padding: EdgeInsets.only(
+                    left: 25, top: timeMargin * cardHeight / 425),
+                child: Row(
+                  children: [
+                    Container(
+                      height: 1.5,
+                      width: mediaQuery.size.width - 80,
+                      color: colorScheme.secondary,
+                    ),
+                    const SizedBox(width: 5),
+                    Icon(
+                      Icons.arrow_back_ios,
+                      size: 10,
+                      color: colorScheme.secondary,
+                    )
+                  ],
+                ),
+              ),
+            )
         ],
       ),
     );
@@ -317,8 +361,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
   //Builds the 'Schedule Tile's displayed on the schedule card
   Widget _buildTile(BuildContext context, Schedule schedule, String bell,
       double minuteHeight) {
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
-    MediaQueryData mediaQuery = MediaQuery.of(context);
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final MediaQueryData mediaQuery = MediaQuery.of(context);
     //Gets Map from schedule_settings.dart
     Map settings = ScheduleSettings.bellInfo[bell] ?? {};
 
@@ -401,7 +445,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
 
   //Builds the display for a day with no classes
   Widget _buildEmpty(BuildContext context, double cardHeight) {
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Container(
       height: cardHeight,
@@ -419,156 +463,141 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
 
   //Builds the bell info popup
   Widget _buildBellInfo(BuildContext context, Schedule schedule, String bell) {
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
-    MediaQueryData mediaQuery = MediaQuery.of(context);
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final MediaQueryData mediaQuery = MediaQuery.of(context);
 
     //Gets settings from schedule_settings.dart
     Map settings = ScheduleSettings.bellInfo[bell] ?? {};
     Map times = schedule.clockMap(bell) ?? {};
     //Aligns on center of screen
-    return Align(
-      alignment: Alignment.center,
-      child: GestureDetector(
-        //When the popup is swiped, removes (or 'pops') the popup from the page
-        onHorizontalDragEnd: (detail) {
-          if (detail.primaryVelocity! < 0) {
-            if (Navigator.canPop(context)) {
-              Navigator.pop(context);
-            }
-          }
-        },
-        child: Card(
-          color: colorScheme.surface,
-          child: SizedBox(
-            width: mediaQuery.size.width * 4 / 5,
-            height: 160,
-            child: Row(
-              children: [
-                //Left color nib w/ rounded edges
-                Container(
-                  decoration: BoxDecoration(
-                    //rounds the left edges to match the Card
-                    borderRadius: const BorderRadius.horizontal(
-                        left: Radius.circular(10)),
-                    //Converts hex color string to flutter color object
-                    color: hexToColor(settings['color'] ?? '#999999'),
-                  ),
-                  width: 10,
+    return GlobalWidgets.popup(
+        context,
+        SizedBox(
+          width: mediaQuery.size.width * 4 / 5,
+          height: 160,
+          child: Row(
+            children: [
+              //Left color nib w/ rounded edges
+              Container(
+                decoration: BoxDecoration(
+                  //rounds the left edges to match the Card
+                  borderRadius:
+                      const BorderRadius.horizontal(left: Radius.circular(10)),
+                  //Converts hex color string to flutter color object
+                  color: hexToColor(settings['color'] ?? '#999999'),
                 ),
-                Padding(
-                    padding: const EdgeInsets.all(10),
-                    //Column w/ two rows
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        //Uppermost row; emoji and title
-                        Row(
-                          children: [
-                            //Stacks the emoji on top of a shadowed circle
-                            Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                CircleAvatar(
-                                  backgroundColor: colorScheme.surfaceContainer,
-                                  radius: 45,
-                                ),
-                                Text(
-                                  settings['emoji'] ?? '📚',
-                                  style: TextStyle(
-                                      fontSize: 50,
-                                      color: colorScheme.onSurface),
-                                )
-                              ],
-                            ),
-                            //Title Container
-                            Container(
-                              width: mediaQuery.size.width * 4 / 5 - 130,
-                              height: 90,
-                              alignment: Alignment.centerLeft,
-                              padding: const EdgeInsets.only(left: 5),
-                              //FittedBox to ensure text doesn't overflow card
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    //Displays class name, bell name, or nothing (if null)
-                                    Text(
-                                      settings['name'] ??
-                                          '$bell${bell.length <= 1 ? ' Bell' : ''}',
-                                      style: TextStyle(
-                                          height: 0.9,
-                                          fontSize: 25,
-                                          color: colorScheme.onSurface,
-                                          //bold
-                                          fontWeight: FontWeight.w600),
-                                    ),
-                                    //Displays teacher or nothing (if null)
-                                    if (settings['teacher'] != null)
-                                      Text(
-                                        settings['teacher'],
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            color: colorScheme.onSurface,
-                                            fontWeight: FontWeight.w500),
-                                      ),
-                                    //Displays the location of the class or nothing (if null)
-                                    if (settings['location'] != null)
-                                      Text(
-                                        settings['location'],
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            color: colorScheme.onSurface,
-                                            fontWeight: FontWeight.w500),
-                                      ),
-                                  ],
-                                ),
+                width: 10,
+              ),
+              Padding(
+                  padding: const EdgeInsets.all(10),
+                  //Column w/ two rows
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      //Uppermost row; emoji and title
+                      Row(
+                        children: [
+                          //Stacks the emoji on top of a shadowed circle
+                          Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: colorScheme.surfaceContainer,
+                                radius: 45,
                               ),
-                            )
-                          ],
-                        ),
-                        //Bottom 'Row'; Displays bell name and time range
-                        Container(
-                            height: 40,
-                            padding: const EdgeInsets.only(left: 12.5),
+                              Text(
+                                settings['emoji'] ?? '📚',
+                                style: TextStyle(
+                                    fontSize: 50, color: colorScheme.onSurface),
+                              )
+                            ],
+                          ),
+                          //Title Container
+                          Container(
+                            width: mediaQuery.size.width * 4 / 5 - 130,
+                            height: 90,
                             alignment: Alignment.centerLeft,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                //Displays bell name or nothing (if null)
-                                Text(
-                                  '$bell${bell.length <= 1 ? ' Bell' : ''}:   ',
-                                  style: TextStyle(
-                                      height: 0.9,
-                                      fontSize: 25,
-                                      color: colorScheme.onSurface,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                                //Displays the time length (time length cannot be null)
-                                Text(
-                                  '${times['start'].display()} - ${times['end'].display()}',
-                                  style: TextStyle(
-                                      height: 0.9,
-                                      fontSize: 25,
-                                      color: colorScheme.onSurface,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                              ],
-                            ))
-                      ],
-                    )),
-              ],
-            ),
+                            padding: const EdgeInsets.only(left: 5),
+                            //FittedBox to ensure text doesn't overflow card
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  //Displays class name, bell name, or nothing (if null)
+                                  Text(
+                                    settings['name'] ??
+                                        '$bell${bell.length <= 1 ? ' Bell' : ''}',
+                                    style: TextStyle(
+                                        height: 0.9,
+                                        fontSize: 25,
+                                        color: colorScheme.onSurface,
+                                        //bold
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                  //Displays teacher or nothing (if null)
+                                  if (settings['teacher'] != null)
+                                    Text(
+                                      settings['teacher'],
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          color: colorScheme.onSurface,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  //Displays the location of the class or nothing (if null)
+                                  if (settings['location'] != null)
+                                    Text(
+                                      settings['location'],
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          color: colorScheme.onSurface,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                      //Bottom 'Row'; Displays bell name and time range
+                      Container(
+                          height: 40,
+                          padding: const EdgeInsets.only(left: 12.5),
+                          alignment: Alignment.centerLeft,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              //Displays bell name or nothing (if null)
+                              Text(
+                                '$bell${bell.length <= 1 ? ' Bell' : ''}:   ',
+                                style: TextStyle(
+                                    height: 0.9,
+                                    fontSize: 25,
+                                    color: colorScheme.onSurface,
+                                    fontWeight: FontWeight.w500),
+                              ),
+                              //Displays the time length (time length cannot be null)
+                              Text(
+                                '${times['start'].display()} - ${times['end'].display()}',
+                                style: TextStyle(
+                                    height: 0.9,
+                                    fontSize: 25,
+                                    color: colorScheme.onSurface,
+                                    fontWeight: FontWeight.w500),
+                              ),
+                            ],
+                          ))
+                    ],
+                  )),
+            ],
           ),
-        ),
-      ),
-    );
+        ));
   }
 
   //Builds the calendar navigation popup
   Widget _buildCalendarNav(BuildContext context, DateTime date) {
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
-    MediaQueryData mediaQuery = MediaQuery.of(context);
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final MediaQueryData mediaQuery = MediaQuery.of(context);
 
     int monthIndex = GlobalMethods.monthDiff(date, ScheduleDisplay.initialDate);
     PageController calController = PageController(initialPage: 18 + monthIndex);
@@ -772,7 +801,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
 
   //Builds the arrow buttons for swapping between pages
   Widget _buildNavButton(BuildContext context, int direction) {
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     //Returns Arrow Icon Button
     return IconButton(
@@ -792,7 +821,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
 
   //Builds the info popup button
   Widget _buildInfoButton(BuildContext context) {
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return FutureBuilder(future: ScheduleData.awaitCondition(() {
       return ScheduleData.dailyData[GlobalMethods.addDay(

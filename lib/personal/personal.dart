@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:xschedule/display/home_page.dart';
+import 'package:xschedule/global_variables/global_variables.dart';
+import 'package:xschedule/global_variables/global_widgets.dart';
 import 'package:xschedule/global_variables/stream_signal.dart';
 
 import '../global_variables/gloabl_methods.dart';
@@ -17,13 +20,13 @@ class Personal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
-    MediaQueryData mediaQuery = MediaQuery.of(context);
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final MediaQueryData mediaQuery = MediaQuery.of(context);
+
     return Scaffold(
         backgroundColor: colorScheme.primaryContainer,
         appBar: PreferredSize(
-            preferredSize:
-                Size(mediaQuery.size.width, 55),
+            preferredSize: Size(mediaQuery.size.width, 55),
             child: Container(
               alignment: Alignment.bottomCenter,
               padding: const EdgeInsets.symmetric(horizontal: 5),
@@ -56,19 +59,90 @@ class Personal extends StatelessWidget {
                 context, const ScheduleSettings(backArrow: true));
           }),
           _buildOption(context, "Reset Local Data", () {
+            ScheduleSettings.bellInfo = {};
             localStorage.clear();
             StreamSignal.updateStream(
                 streamController: HomePage.homePageStream);
           }),
+          _buildOption(context, "Credits and Copyright", () {
+            GlobalMethods.showPopup(context, _buildInfo(context));
+          }),
           _buildOption(context, "Submit Beta Report", () {
-            GlobalMethods.visitUrl("https://forms.office.com/Pages/ResponsePage.aspx?id=udgb07DszU6VE6pe_6S_QEKQcshWKqpCj4E9J0VU-BRUN1o3SlRJMzk1SkZMMklLWFc3UEVFVkIzOC4u");
-          })
+            GlobalMethods.visitUrl(
+                "https://forms.office.com/Pages/ResponsePage.aspx?id=udgb07DszU6VE6pe_6S_QEKQcshWKqpCj4E9J0VU-BRUN1o3SlRJMzk1SkZMMklLWFc3UEVFVkIzOC4u");
+          }),
         ]));
+  }
+
+  Widget _buildInfo(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final MediaQueryData mediaQuery = MediaQuery.of(context);
+
+    final PackageInfo packageInfo = GlobalVariables.packageInfo;
+
+    return GlobalWidgets.popup(
+        context,
+        SizedBox(
+          width: mediaQuery.size.width * 4 / 5,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                height: 125,
+                margin: const EdgeInsets.all(5),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.asset("assets/images/xschedule.png"),
+                ),
+              ),
+              Text(
+                "X-Schedule",
+                style: TextStyle(
+                    fontSize: 25,
+                    fontFamily: "Georama",
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface),
+              ),
+              Text(
+                "Created by John Daniher",
+                style: TextStyle(
+                    fontSize: 20,
+                    height: 0.9,
+                    fontFamily: "Georama",
+                    color: colorScheme.onSurface),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                "© 2024 St. Xavier HS\nAvailable under MIT license.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    height: 0.975,
+                    fontSize: 17.5,
+                    fontFamily: "Georama",
+                    color: colorScheme.onSurface),
+              ),
+              const SizedBox(height: 5),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  "v${packageInfo.version} Build ${packageInfo.buildNumber}",
+                  style: TextStyle(
+                      fontSize: 14,
+                      height: 0.9,
+                      fontFamily: "Georama",
+                      color: colorScheme.onSurface),
+                ),
+              ),
+              const SizedBox(height: 5),
+            ],
+          ),
+        ));
   }
 
   Widget _buildOption(
       BuildContext context, String text, void Function() action) {
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: action,
       onHorizontalDragEnd: (detail) {
