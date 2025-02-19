@@ -46,13 +46,13 @@ class Clock {
       minuteDisplay -= 60;
     }
     //Simplifies hou count
-    while (hours >= 24) {
-      hours -= 24;
+    while (hourDisplay >= 24) {
+      hourDisplay -= 24;
     }
     if(amPm){
-      return '${GlobalMethods.amPmHour(hours)}:${GlobalVariables.stringDate(minutes)}';
+      return '${GlobalMethods.amPmHour(hourDisplay)}:${GlobalVariables.stringDate(minuteDisplay)}';
     }
-    return '$hours:${GlobalVariables.stringDate(minutes)}';
+    return '$hourDisplay:${GlobalVariables.stringDate(minuteDisplay)}';
   }
 
   //Finds the time interval between one clock and another

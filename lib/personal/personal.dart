@@ -7,7 +7,7 @@ import 'package:xschedule/global_variables/global_widgets.dart';
 import 'package:xschedule/global_variables/stream_signal.dart';
 
 import '../global_variables/gloabl_methods.dart';
-import '../schedule/schedule_settings.dart';
+import '../schedule/schedule_settings/schedule_settings.dart';
 
 /*
 Personal Page:

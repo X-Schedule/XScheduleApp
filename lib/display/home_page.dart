@@ -73,7 +73,6 @@ class _HomePageState extends State<HomePage> {
   //The bottom nav bar
   Widget _buildNavBar(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final MediaQueryData mediaQuery = MediaQuery.of(context);
     //Color used in navbar gradient
     Color gradient = colorScheme.primary;
     return GestureDetector(
@@ -113,10 +112,10 @@ class _HomePageState extends State<HomePage> {
                   height: 10,
                   decoration: BoxDecoration(
                       gradient: LinearGradient(colors: [
-                    gradient.withOpacity(0),
-                    gradient.withOpacity(0.125),
-                    gradient.withOpacity(0.25),
-                    gradient.withOpacity(0)
+                    gradient.withValues(alpha: 0),
+                    gradient.withValues(alpha: 0.125),
+                    gradient.withValues(alpha: 0.25),
+                    gradient.withValues(alpha: 0)
                   ], begin: Alignment.bottomCenter, end: Alignment.topCenter)),
                 ),
               ),
@@ -143,7 +142,7 @@ class _HomePageState extends State<HomePage> {
               icon,
               //When page selected, icon is fully opaque and white; if not, only at 70% opacity
               color: colorScheme.onPrimary
-                  .withOpacity(pageIndex == index ? 1 : 0.65),
+                  .withValues(alpha: pageIndex == index ? 1 : 0.65),
               size: 30,
             )));
   }

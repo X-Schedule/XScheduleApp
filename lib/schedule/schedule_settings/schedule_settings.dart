@@ -4,11 +4,13 @@ import 'package:color_hex/color_hex.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hsvcolor_picker/flutter_hsvcolor_picker.dart';
 import 'package:localstorage/localstorage.dart';
+import 'package:showcaseview/showcaseview.dart';
 import 'package:xschedule/display/home_page.dart';
 import 'package:xschedule/global_variables/stream_signal.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_display.dart';
+import 'package:xschedule/schedule/schedule_settings/schedule_settings_camera.dart';
 
-import '../global_variables/gloabl_methods.dart';
+import '../../global_variables/gloabl_methods.dart';
 
 /*
 Schedule Settings:
@@ -38,80 +40,139 @@ class ScheduleSettings extends StatefulWidget {
 }
 
 class _ScheduleSettingsState extends State<ScheduleSettings> {
-  Color pickerColor = Colors.blue;
+  final Color pickerColor = Colors.blue;
+
+  static final List<String> tutorials = ['tutorial_ai'];
+
+  final Map<String, GlobalKey> tutorialKeys = {};
+
+  void generateKeys() {
+    for (String key in tutorials) {
+      tutorialKeys[key] = GlobalKey();
+    }
+  }
+
+  void showTutorial(BuildContext context){
+    final List<String> newTutorials = tutorials
+        .where((element) => (localStorage.getItem(element) ?? '').isEmpty)
+        .toList();
+    final List<GlobalKey> newTutorialKeys =
+    List<GlobalKey>.generate(newTutorials.length, (i) {
+      localStorage.setItem(newTutorials[i], 'T');
+      return tutorialKeys[newTutorials[i]]!;
+    });
+    if (newTutorials.isNotEmpty) {
+      ShowCaseWidget.of(context).startShowCase(newTutorialKeys);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
-    return Scaffold(
-      backgroundColor: colorScheme.primaryContainer,
-      //Top Bar
-      appBar: AppBar(
-        leading: widget.backArrow ? null : Container(),
-        centerTitle: true,
-        backgroundColor: colorScheme.surface,
-        title: FittedBox(
-          fit: BoxFit.contain,
-          child: Text(
-            "Customize Bell Appearance",
-            style: TextStyle(
-                //Custom font Goerama
-                fontFamily: "Georama",
-                fontSize: 25,
-                fontWeight: FontWeight.w600,
-                color: colorScheme.onSurface),
+
+    generateKeys();
+
+    return ShowCaseWidget(builder: (context) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showTutorial(context);
+      });
+
+      return Scaffold(
+        backgroundColor: colorScheme.primaryContainer,
+        //Top Bar
+        appBar: AppBar(
+          leading: widget.backArrow ? null : Container(),
+          centerTitle: true,
+          backgroundColor: colorScheme.surface,
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 10),
+              child: Showcase(
+                  key: tutorialKeys['tutorial_ai']!,
+                  description:
+                      "Try uploading a picture of your\nschedule to let AI interpret it for you!",
+                  descTextStyle: TextStyle(
+                      color: colorScheme.onPrimary,
+                      fontSize: 17,
+                      fontFamily: 'Georama'),
+                  tooltipBackgroundColor: colorScheme.primary,
+                  targetShapeBorder: CircleBorder(),
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.camera_outlined,
+                      size: 35,
+                      color: colorScheme.onSurface,
+                    ),
+                    onPressed: () {
+                      GlobalMethods.pushSwipePage(
+                          context, ScheduleSettingsCamera());
+                    },
+                  )),
+            )
+          ],
+          title: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              "Customize Bell Appearance",
+              style: TextStyle(
+                  //Custom font Goerama
+                  fontFamily: "Georama",
+                  fontSize: 25,
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface),
+            ),
           ),
         ),
-      ),
-      //Extends the body behind the bottom bar
-      extendBody: true,
-      //Bottom bar; the done button
-      bottomNavigationBar: Container(
-        height: 40,
-        margin: EdgeInsets.symmetric(
-            vertical: 15, horizontal: mediaQuery.size.width * .35),
-        child: ElevatedButton(
-            onPressed: () {
-              localStorage.setItem(
-                  "scheduleSettings", json.encode(ScheduleSettings.bellInfo));
-              localStorage.setItem("state", "logged");
-              Navigator.pop(context);
-              StreamSignal.updateStream(
-                  streamController: HomePage.homePageStream);
-              StreamSignal.updateStream(
-                  streamController: ScheduleDisplay.scheduleStream);
-            },
-            style:
-                ElevatedButton.styleFrom(backgroundColor: colorScheme.primary),
-            child: Container(
-              alignment: Alignment.center,
-              width: mediaQuery.size.width * 3 / 5,
-              child: Icon(
-                Icons.check,
-                color: colorScheme.onPrimary,
-              ),
-            )),
-      ),
-      //Body is a scroll view of seperate tiles
-      body: SingleChildScrollView(
-        physics: const ClampingScrollPhysics(),
-        child: Column(
-          children: [
-            _buildBellTile(context, 'A'),
-            _buildBellTile(context, 'B'),
-            _buildBellTile(context, 'C'),
-            _buildBellTile(context, 'D'),
-            _buildBellTile(context, 'E'),
-            _buildBellTile(context, 'F'),
-            _buildBellTile(context, 'G'),
-            _buildBellTile(context, 'H'),
-            //So that with the bottom bar, you can still scorll to view last item
-            const SizedBox(height: 55)
-          ],
+        //Extends the body behind the bottom bar
+        extendBody: true,
+        //Bottom bar; the done button
+        bottomNavigationBar: Container(
+          height: 40,
+          margin: EdgeInsets.symmetric(
+              vertical: 20, horizontal: mediaQuery.size.width * .325),
+          child: ElevatedButton(
+              onPressed: () {
+                localStorage.setItem(
+                    "scheduleSettings", json.encode(ScheduleSettings.bellInfo));
+                localStorage.setItem("state", "logged");
+                Navigator.pop(context);
+                StreamSignal.updateStream(
+                    streamController: HomePage.homePageStream);
+                StreamSignal.updateStream(
+                    streamController: ScheduleDisplay.scheduleStream);
+              },
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: colorScheme.primary),
+              child: Container(
+                alignment: Alignment.center,
+                width: mediaQuery.size.width * 3 / 5,
+                child: Icon(
+                  Icons.check,
+                  color: colorScheme.onPrimary,
+                ),
+              )),
         ),
-      ),
-    );
+        //Body is a scroll view of seperate tiles
+        body: SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          child: Column(
+            children: [
+              _buildBellTile(context, 'A'),
+              _buildBellTile(context, 'B'),
+              _buildBellTile(context, 'C'),
+              _buildBellTile(context, 'D'),
+              _buildBellTile(context, 'E'),
+              _buildBellTile(context, 'F'),
+              _buildBellTile(context, 'G'),
+              _buildBellTile(context, 'H'),
+              //So that with the bottom bar, you can still scorll to view last item
+              const SizedBox(height: 60)
+            ],
+          ),
+        ),
+      );
+    });
   }
 
   //Ensures no bell values are null
@@ -254,10 +315,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
   //Builds the setting popup
   Widget _buildBellSettings(String bell) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final MediaQueryData mediaQuery = MediaQuery.of(context);
 
-    //Radius of colorWheel; also used in other measurements
-    double size = mediaQuery.size.width * 5 / 6;
     //Allows for "setState" to be called, and only effect this popup
     return StatefulBuilder(
         builder: (BuildContext context, StateSetter setLocalState) {
@@ -397,8 +455,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
           isDense: true,
           counterText: '',
           labelStyle: TextStyle(
-              color: colorScheme.onSurface,
-              overflow: TextOverflow.ellipsis),
+              color: colorScheme.onSurface, overflow: TextOverflow.ellipsis),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
             borderSide: BorderSide(color: colorScheme.shadow, width: 1),

@@ -11,7 +11,7 @@ import 'package:xschedule/schedule/schedule.dart';
 import 'package:xschedule/schedule/schedule_data.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_flex_display.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_info_display.dart';
-import 'package:xschedule/schedule/schedule_settings.dart';
+import 'package:xschedule/schedule/schedule_settings/schedule_settings.dart';
 
 /*
 ScheduleDisplay:

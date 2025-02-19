@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:xschedule/schedule/schedule_settings.dart';
+import 'package:xschedule/schedule/schedule_settings/schedule_settings.dart';
 
 class Welcome extends StatelessWidget {
   const Welcome({super.key});
