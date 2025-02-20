@@ -34,6 +34,9 @@ class ScheduleData {
     //Formats the response type (ICS) into an object we can work with
     final ICalendar iCalendar = ICalendar.fromString(response.body);
 
+    //RegExp used for decoding schedule
+    final RegExp regexp = RegExp(r'^\s*([\w\s]+?)\s*[:\-]?\s*(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})\s*$');
+
     //Gets the calendar data as a list from the iCalendar
     List<Map> schedules = iCalendar.data;
 
@@ -49,18 +52,18 @@ class ScheduleData {
 
       //The return schedule of this for loop
       Map<String, String> forSchedule = {};
+      print(instance);
       for (String part in scheduleParts) {
         //Ensures no junk strings make it into the list
-        if (part.replaceAll('-', '').replaceAll(' ', '').isNotEmpty) {
-          //Gets the 2nd last two values separated by ' '
-          List<String> partParts = part.replaceAll(' -', '').split(' ');
-          String title =
-              partParts[partParts.length - 2].replaceAll('HR', 'Homeroom').replaceAll(':', '');
-          if(int.tryParse(title) != null){
-            title = 'Flex $title';
+          final RegExpMatch? match = regexp.firstMatch(part);
+          if(match != null){
+            String title = match.group(1)!;
+            if(int.tryParse(title) != null){
+              title = 'Flex $title';
+            }
+            print(match.group(1));
+            forSchedule[title] = '${match.group(2)!}-${match.group(3)!}';
           }
-          forSchedule[title] = partParts[partParts.length - 1];
-        }
       }
       //Date of the data
       DateTime date = instance['dtstart'].toDateTime();

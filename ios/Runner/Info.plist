@@ -44,5 +44,7 @@
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
+	<key>NSPhotoLibraryUsageDescription</key>
+    	<string>Allows the optional submission of images from the photo library to use AI to interpret a schedule.</string>
 </dict>
 </plist>

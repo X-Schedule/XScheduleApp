@@ -6,7 +6,7 @@ import 'package:xschedule/global_variables/global_variables.dart';
 import 'package:xschedule/global_variables/global_widgets.dart';
 import 'package:xschedule/global_variables/stream_signal.dart';
 
-import '../global_variables/gloabl_methods.dart';
+import '../global_variables/global_methods.dart';
 import '../schedule/schedule_settings/schedule_settings.dart';
 
 /*
@@ -34,7 +34,7 @@ class Personal extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   FittedBox(
-                    fit: BoxFit.contain,
+                    fit: BoxFit.scaleDown,
                     child: Text(
                       "Settings",
                       style: TextStyle(

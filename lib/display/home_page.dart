@@ -39,6 +39,12 @@ class _HomePageState extends State<HomePage> {
   //int value representing which page the pageView is on
   int pageIndex = 0;
 
+  @override
+  void dispose(){
+    super.dispose();
+    controller.dispose();
+  }
+
   //Builds the HomePage
   @override
   Widget build(BuildContext context) {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:xschedule/global_variables/clock.dart';
-import 'package:xschedule/global_variables/gloabl_methods.dart';
+import 'package:xschedule/global_variables/global_methods.dart';
 import 'package:xschedule/global_variables/global_variables.dart';
 import 'package:xschedule/global_variables/global_widgets.dart';
 import 'package:xschedule/schedule/schedule_data.dart';
@@ -85,7 +85,7 @@ class _FlexScheduleDisplayState extends State<FlexScheduleDisplay> {
         mainAxisSize: MainAxisSize.min,
         children: [
           FittedBox(
-            fit: BoxFit.contain,
+            fit: BoxFit.scaleDown,
             child: Text(
               GlobalMethods.dateText(widget.date),
               style: TextStyle(
@@ -101,7 +101,7 @@ class _FlexScheduleDisplayState extends State<FlexScheduleDisplay> {
             color: colorScheme.shadow,
           ),
           FittedBox(
-            fit: BoxFit.contain,
+            fit: BoxFit.scaleDown,
             child: Column(
               children: [
                 Text(
@@ -140,7 +140,7 @@ class _FlexScheduleDisplayState extends State<FlexScheduleDisplay> {
                 ),
                 if ((dailyData['lunchMain'] ?? '').isNotEmpty)
                   FittedBox(
-                    fit: BoxFit.contain,
+                    fit: BoxFit.scaleDown,
                     child: Text(
                       '🥘 ${dailyData['lunchMain']}',
                       style: TextStyle(
@@ -150,7 +150,7 @@ class _FlexScheduleDisplayState extends State<FlexScheduleDisplay> {
                     ),
                   ),
                 FittedBox(
-                  fit: BoxFit.contain,
+                  fit: BoxFit.scaleDown,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -224,7 +224,7 @@ class _FlexScheduleDisplayState extends State<FlexScheduleDisplay> {
                       ],
                     ),
                     FittedBox(
-                      fit: BoxFit.contain,
+                      fit: BoxFit.scaleDown,
                       child: Text(
                         '${Clock.fromDateTime(club['dtStart']).display()}-${Clock.fromDateTime(club['dtEnd']).display()}',
                         textAlign: TextAlign.left,

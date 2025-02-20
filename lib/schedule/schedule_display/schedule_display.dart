@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:color_hex/class/hex_to_color.dart';
 import 'package:flutter/material.dart';
 import 'package:xschedule/global_variables/clock.dart';
-import 'package:xschedule/global_variables/gloabl_methods.dart';
+import 'package:xschedule/global_variables/global_methods.dart';
 import 'package:xschedule/global_variables/global_variables.dart';
 import 'package:xschedule/global_variables/global_widgets.dart';
 import 'package:xschedule/global_variables/stream_signal.dart';
@@ -75,7 +75,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                           child: GlobalWidgets.iconCircle(
                               icon: Icons.calendar_month,
                               iconColor: colorScheme.onTertiary,
-                              color: colorScheme.tertiary.withOpacity(0.4),
+                              color: colorScheme.tertiary.withValues(alpha: 0.4),
                               radius: 20,
                               padding: 10,
                               onTap: () {
@@ -409,7 +409,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                   alignment: Alignment.center,
                   children: [
                     CircleAvatar(
-                      backgroundColor: Colors.black.withOpacity(.2),
+                      backgroundColor: Colors.black.withValues(alpha: .2),
                       radius: height * 3 / 7 - 5,
                     ),
                     Text(
@@ -739,16 +739,16 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                                     }
                                   }
                                   Color dotColor =
-                                      Colors.black.withOpacity(0.05 + opacity);
+                                      Colors.black.withValues(alpha: 0.05 + opacity);
                                   Color textColor = Colors.black;
                                   if (dotDate == date) {
                                     dotColor = colorScheme.primary
-                                        .withOpacity(0.60 + opacity);
+                                        .withValues(alpha: 0.60 + opacity);
                                     textColor = colorScheme.onPrimary;
                                   } else if (dotDate ==
                                       ScheduleDisplay.initialDate) {
                                     dotColor = colorScheme.secondary
-                                        .withOpacity(0.60 + opacity);
+                                        .withValues(alpha: 0.60 + opacity);
                                     textColor = colorScheme.onSecondary;
                                   }
                                   return GestureDetector(
@@ -849,7 +849,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
       return GlobalWidgets.iconCircle(
           icon: Icons.info_outline,
           iconColor: colorScheme.onSurface,
-          color: colorScheme.tertiary.withOpacity(0.4),
+          color: colorScheme.tertiary.withValues(alpha: 0.4),
           radius: 20,
           padding: 5,
           onTap: () {
