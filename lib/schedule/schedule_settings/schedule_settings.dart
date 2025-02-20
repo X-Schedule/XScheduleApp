@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:color_hex/color_hex.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hsvcolor_picker/flutter_hsvcolor_picker.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:showcaseview/showcaseview.dart';
@@ -46,7 +46,6 @@ class ScheduleSettings extends StatefulWidget {
 class _ScheduleSettingsState extends State<ScheduleSettings> {
   final Color pickerColor = Colors.blue;
 
-  final ImagePicker _imagePicker = ImagePicker();
   File? imageFile;
 
   static final List<String> tutorials = ['tutorial_ai'];
@@ -472,14 +471,16 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
   }
 
   Future<void> selectImage(StateSetter setState) async {
-    XFile? pickedImage =
-        await _imagePicker.pickImage(source: ImageSource.gallery);
+    FilePickerResult? pickedImage = await FilePicker.platform
+        .pickFiles(type: FileType.image, allowMultiple: false);
     if (pickedImage != null) {
-      final File pickedFile = File(pickedImage.path);
-      if (await pickedFile.exists() && context.mounted) {
-        setState(() {
-          imageFile = pickedFile;
-        });
+      if (pickedImage.xFiles.isNotEmpty) {
+        final File pickedFile = File(pickedImage.xFiles.first.path);
+        if (await pickedFile.exists() && context.mounted) {
+          setState(() {
+            imageFile = pickedFile;
+          });
+        }
       }
     }
   }
@@ -586,7 +587,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                         if (await imageFile!.exists()) {
                           final Map<String, dynamic>? aiScan =
                               await ScheduleSettingsAI.scanSchedule(
-                                      imageFile!.path);
+                                  imageFile!.path);
                           if (aiScan != null && context.mounted) {
                             setState(() {
                               ScheduleSettings.bellInfo = aiScan;
@@ -605,7 +606,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                             //Pops popup
                             Navigator.pop(context);
                           } else {
-                            setLocalState((){
+                            setLocalState(() {
                               isLoading = false;
                             });
                           }

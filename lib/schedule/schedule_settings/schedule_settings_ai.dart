@@ -98,7 +98,6 @@ class ScheduleSettingsAI {
 
       List<dynamic> choices = body['choices'] ?? [];
       if (choices.isNotEmpty) {
-        print(body['usage']['completion_tokens']);
         return jsonDecode(choices.first['message']['content']);
       }
     }
