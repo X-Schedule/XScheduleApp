@@ -38,7 +38,11 @@
 	<true/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
-		<string>UIInterfaceOrientationPortrait</string>
+	<string>UIInterfaceOrientationPortrait</string>
 	</array>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Allows the optional submission of images from the photo library to use AI to interpret a schedule.</string>
+	<key>NSCameraUsageDescription</key>
+    <string>Allows the optional submission of images taken using the camera to use AI to interpret a schedule.</string>
 </dict>
 </plist>
