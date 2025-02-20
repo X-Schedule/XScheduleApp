@@ -1,14 +1,18 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:color_hex/color_hex.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hsvcolor_picker/flutter_hsvcolor_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:localstorage/localstorage.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:xschedule/display/home_page.dart';
+import 'package:xschedule/global_variables/global_widgets.dart';
 import 'package:xschedule/global_variables/stream_signal.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_display.dart';
-import 'package:xschedule/schedule/schedule_settings/schedule_settings_camera.dart';
+import 'package:xschedule/schedule/schedule_settings/schedule_settings_ai.dart';
 
 import '../../global_variables/gloabl_methods.dart';
 
@@ -42,6 +46,9 @@ class ScheduleSettings extends StatefulWidget {
 class _ScheduleSettingsState extends State<ScheduleSettings> {
   final Color pickerColor = Colors.blue;
 
+  final ImagePicker _imagePicker = ImagePicker();
+  File? imageFile;
+
   static final List<String> tutorials = ['tutorial_ai'];
 
   final Map<String, GlobalKey> tutorialKeys = {};
@@ -52,12 +59,12 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
     }
   }
 
-  void showTutorial(BuildContext context){
+  void showTutorial(BuildContext context) {
     final List<String> newTutorials = tutorials
         .where((element) => (localStorage.getItem(element) ?? '').isEmpty)
         .toList();
     final List<GlobalKey> newTutorialKeys =
-    List<GlobalKey>.generate(newTutorials.length, (i) {
+        List<GlobalKey>.generate(newTutorials.length, (i) {
       localStorage.setItem(newTutorials[i], 'T');
       return tutorialKeys[newTutorials[i]]!;
     });
@@ -105,8 +112,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                       color: colorScheme.onSurface,
                     ),
                     onPressed: () {
-                      GlobalMethods.pushSwipePage(
-                          context, ScheduleSettingsCamera());
+                      GlobalMethods.showPopup(context, _buildPicPopup(context));
                     },
                   )),
             )
@@ -176,7 +182,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
   }
 
   //Ensures no bell values are null
-  void _defineBells(String bell) {
+  void _defineBell(String bell) {
     // ??= means if null, then define as this value
     ScheduleSettings.bellInfo[bell] ??= {};
     ScheduleSettings.bellInfo[bell]!['color'] ??= "#006aff";
@@ -206,7 +212,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
     //Ensures no null values
-    _defineBells(bell);
+    _defineBell(bell);
     //For brevity purposes
     Map settings = ScheduleSettings.bellInfo[bell];
     //Tile very similar to those displayed in the schedule
@@ -463,5 +469,184 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
         ),
       ),
     );
+  }
+
+  Future<void> selectImage(StateSetter setState) async {
+    XFile? pickedImage =
+        await _imagePicker.pickImage(source: ImageSource.gallery);
+    if (pickedImage != null) {
+      final File pickedFile = File(pickedImage.path);
+      if (await pickedFile.exists() && context.mounted) {
+        setState(() {
+          imageFile = pickedFile;
+        });
+      }
+    }
+  }
+
+  Widget _buildPicPopup(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final MediaQueryData mediaQuery = MediaQuery.of(context);
+
+    final double width = mediaQuery.size.width;
+
+    bool uploaded = false;
+    bool isLoading = false;
+
+    return StatefulBuilder(
+        builder: (BuildContext context, StateSetter setLocalState) {
+      uploaded = imageFile != null;
+      //Aligns card in center
+      return GlobalWidgets.popup(
+          context,
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Padding(
+                  padding: const EdgeInsets.only(left: 10, right: 10, top: 5),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      "Schedule from Image",
+                      style: TextStyle(
+                          fontFamily: "Exo2",
+                          fontSize: 35,
+                          fontWeight: FontWeight.w600),
+                    ),
+                  )),
+              GestureDetector(
+                onTap: () async {
+                  await selectImage(setLocalState);
+                },
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                        width: width * 3 / 5,
+                        height: width * 3 / 5,
+                        decoration: BoxDecoration(
+                            border: Border.all(
+                                color: colorScheme.onSurface.withAlpha(128),
+                                width: 5)),
+                        padding: const EdgeInsets.all(2.5),
+                        margin: const EdgeInsets.all(15),
+                        alignment: Alignment.center,
+                        child: uploaded
+                            ? SizedBox(
+                                width: width * 3 / 5,
+                                height: width * 3 / 5,
+                                child: ClipRect(
+                                    child: FittedBox(
+                                  fit: BoxFit.cover,
+                                  child: Image.file(imageFile!),
+                                )),
+                              )
+                            : Icon(
+                                Icons.photo_outlined,
+                                size: width * 1 / 2,
+                                color: colorScheme.onSecondary,
+                              )),
+                    if (uploaded && !isLoading)
+                      Opacity(
+                        opacity: 0.1,
+                        child: Icon(
+                          Icons.photo_outlined,
+                          size: width * 1 / 2,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                    if (isLoading)
+                      Opacity(
+                        opacity: 0.75,
+                        child: Shimmer.fromColors(
+                            baseColor: colorScheme.surface.withAlpha(128),
+                            highlightColor: colorScheme.onPrimary,
+                            child: Container(
+                                width: width * 3 / 5 - 15,
+                                height: width * 3 / 5 - 15,
+                                color: colorScheme.surface)),
+                      )
+                  ],
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.only(bottom: 15),
+                padding: EdgeInsets.symmetric(horizontal: width * .08),
+                width: width * 4 / 5,
+                child: ElevatedButton(
+                    onPressed: () async {
+                      if (!uploaded) {
+                        await selectImage(setLocalState);
+                      } else if (!isLoading) {
+                        setLocalState(() {
+                          isLoading = true;
+                        });
+                        if (await imageFile!.exists()) {
+                          final Map<String, dynamic>? aiScan =
+                              await ScheduleSettingsAI.scanSchedule(
+                                      imageFile!.path);
+                          if (aiScan != null && context.mounted) {
+                            setState(() {
+                              ScheduleSettings.bellInfo = aiScan;
+
+                              ScheduleSettings.names.clear();
+                              ScheduleSettings.teachers.clear();
+                              ScheduleSettings.locations.clear();
+                              ScheduleSettings.colors.clear();
+                              ScheduleSettings.emojis.clear();
+
+                              for (String bell
+                                  in ScheduleSettings.bellInfo.keys) {
+                                _defineBell(bell);
+                              }
+                            });
+                            //Pops popup
+                            Navigator.pop(context);
+                          } else {
+                            setLocalState((){
+                              isLoading = false;
+                            });
+                          }
+                        }
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: uploaded
+                            ? colorScheme.primary
+                            : colorScheme.secondary,
+                        shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(15)))),
+                    child: Container(
+                        alignment: Alignment.center,
+                        height: 37.5,
+                        child: Shimmer.fromColors(
+                            baseColor: colorScheme.onPrimary,
+                            highlightColor: colorScheme.onSecondary,
+                            enabled: isLoading,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  uploaded
+                                      ? Icons.document_scanner_outlined
+                                      : Icons.add_photo_alternate_outlined,
+                                  size: 25,
+                                  color: colorScheme.onPrimary,
+                                ),
+                                Text(
+                                  uploaded ? "  Scan Image" : "  Upload Image",
+                                  style: TextStyle(
+                                      fontSize: 25, fontFamily: "Georama"),
+                                )
+                              ],
+                            )))),
+              )
+            ],
+          ));
+    });
   }
 }
