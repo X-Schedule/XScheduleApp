@@ -11,6 +11,7 @@ import 'package:showcaseview/showcaseview.dart';
 import 'package:xschedule/display/home_page.dart';
 import 'package:xschedule/global_variables/global_widgets.dart';
 import 'package:xschedule/global_variables/stream_signal.dart';
+import 'package:xschedule/global_variables/tutorial_system.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_display.dart';
 import 'package:xschedule/schedule/schedule_settings/schedule_settings_ai.dart';
 
@@ -48,43 +49,27 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
 
   File? imageFile;
 
-  static final List<String> tutorials = [
+  static final TutorialSystem tutorialSystem = TutorialSystem({
     'tutorial_settings',
     'tutorial_settings_button',
-    'tutorial_ai'
-  ];
-  final Map<String, GlobalKey> tutorialKeys = {};
-
-  void generateKeys() {
-    for (String key in tutorials) {
-      tutorialKeys[key] = GlobalKey();
-    }
-  }
-
-  void showTutorial(BuildContext context) {
-    final List<String> newTutorials = tutorials
-        .where((element) => (localStorage.getItem(element) ?? '').isEmpty)
-        .toList();
-    final List<GlobalKey> newTutorialKeys =
-        List<GlobalKey>.generate(newTutorials.length, (i) {
-      localStorage.setItem(newTutorials[i], 'T');
-      return tutorialKeys[newTutorials[i]]!;
-    });
-    if (newTutorials.isNotEmpty) {
-      ShowCaseWidget.of(context).startShowCase(newTutorialKeys);
-    }
-  }
+    'tutorial_settings_ai'
+  });
 
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
-    generateKeys();
+    tutorialSystem.refreshKeys();
+    tutorialSystem.removeFinished();
 
-    return ShowCaseWidget(builder: (context) {
+    return ShowCaseWidget(onComplete: (_, __) {
+      tutorialSystem.finish();
+    }, builder: (context) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        showTutorial(context);
+        if (!tutorialSystem.finished) {
+          tutorialSystem.showTutorials(context);
+        }
       });
 
       return Scaffold(
@@ -97,16 +82,12 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
             actions: [
               Padding(
                 padding: const EdgeInsets.only(right: 10),
-                child: Showcase(
-                    key: tutorialKeys['tutorial_ai']!,
-                    description:
+                child: tutorialSystem.showcase(
+                    context: context,
+                    circular: true,
+                    tutorial: 'tutorial_settings_ai',
+                    message:
                         "... or try uploading a picture of your schedule to let AI interpret it for you!",
-                    descTextStyle: TextStyle(
-                        color: colorScheme.onPrimary,
-                        fontSize: 17,
-                        fontFamily: 'Exo2'),
-                    tooltipBackgroundColor: colorScheme.primary,
-                    targetShapeBorder: CircleBorder(),
                     child: IconButton(
                       icon: Icon(
                         Icons.camera_outlined,
@@ -120,15 +101,11 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                     )),
               )
             ],
-            title: Showcase(
-              key: tutorialKeys['tutorial_settings']!,
-              description:
+            title: tutorialSystem.showcase(
+              context: context,
+              tutorial: 'tutorial_settings',
+              message:
                   "In this menu, you'll be able to customize your schedule to contain the classes you have.",
-              descTextStyle: TextStyle(
-                  color: colorScheme.onPrimary,
-                  fontSize: 17,
-                  fontFamily: 'Exo2'),
-              tooltipBackgroundColor: colorScheme.primary,
               child: FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
@@ -176,15 +153,11 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
             physics: const ClampingScrollPhysics(),
             child: Column(
               children: [
-                Showcase(
-                    key: tutorialKeys['tutorial_settings_button']!,
-                    description:
+                tutorialSystem.showcase(
+                    context: context,
+                    tutorial: 'tutorial_settings_button',
+                    message:
                         "Click on any individual bell to change its name, information, and appearance.",
-                    descTextStyle: TextStyle(
-                        color: colorScheme.onPrimary,
-                        fontSize: 17,
-                        fontFamily: 'Exo2'),
-                    tooltipBackgroundColor: colorScheme.primary,
                     child: _buildBellTile(context, 'A')),
                 _buildBellTile(context, 'B'),
                 _buildBellTile(context, 'C'),

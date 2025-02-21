@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:color_hex/class/hex_to_color.dart';
 import 'package:flutter/material.dart';
+import 'package:showcaseview/showcaseview.dart';
 import 'package:xschedule/global_variables/clock.dart';
 import 'package:xschedule/global_variables/global_methods.dart';
 import 'package:xschedule/global_variables/global_variables.dart';
@@ -12,6 +13,8 @@ import 'package:xschedule/schedule/schedule_data.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_flex_display.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_info_display.dart';
 import 'package:xschedule/schedule/schedule_settings/schedule_settings.dart';
+
+import '../../global_variables/tutorial_system.dart';
 
 /*
 ScheduleDisplay:
@@ -24,6 +27,7 @@ class ScheduleDisplay extends StatefulWidget {
   //Gets the current date (ignoring time)
   static DateTime initialDate =
       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+  static DateTime displayDate = initialDate;
 
   //pageIndex of Schedule PageView
   static int pageIndex = 0;
@@ -38,14 +42,29 @@ class ScheduleDisplay extends StatefulWidget {
 class _ScheduleDisplayState extends State<ScheduleDisplay> {
   //Creates the controller of PageView and sets the max # of pages; controller starts in the middle
   //Set to 365*3 to allow to allow viewing of 3 years of schedules
-  int maxPages = 365 * 3;
-  final PageController _controller = PageController(
-      initialPage: (365 * 3 / 2).round() + ScheduleDisplay.pageIndex);
+  static const int maxPages = 365 * 3;
+  static const int initialPage = 547;
+  final PageController _controller =
+      PageController(initialPage: initialPage + ScheduleDisplay.pageIndex);
+
+  final TutorialSystem tutorialSystem = TutorialSystem({
+    'tutorial_schedule',
+    'tutorial_schedule_bell',
+    'tutorial_schedule_flex',
+    'tutorial_schedule_date',
+    'tutorial_schedule_calendar',
+    'tutorial_schedule_info',
+    'tutorial_schedule_settings'
+  });
 
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
+
+    tutorialSystem.refreshKeys();
+    tutorialSystem.removeFinished();
+
     //Runs addDailyData asynchronously on page moved; may do nothing at all if ranges overlap
     ScheduleData.addDailyData(
         GlobalMethods.addDay(
@@ -56,99 +75,155 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     return StreamBuilder(
         stream: ScheduleDisplay.scheduleStream.stream,
         builder: (context, snapshot) {
-          return Scaffold(
-              backgroundColor: colorScheme.primaryContainer,
-              body: Column(
-                children: [
-                  SizedBox(height: mediaQuery.padding.top),
-                  //The top day text display
-                  Container(
-                    margin: const EdgeInsets.symmetric(vertical: 5),
-                    height: 50,
-                    alignment: Alignment.center,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 20),
-                          child: GlobalWidgets.iconCircle(
-                              icon: Icons.calendar_month,
-                              iconColor: colorScheme.onTertiary,
-                              color: colorScheme.tertiary.withValues(alpha: 0.4),
-                              radius: 20,
-                              padding: 10,
-                              onTap: () {
-                                GlobalMethods.showPopup(
-                                    context,
-                                    _buildCalendarNav(
-                                        context,
-                                        GlobalMethods.addDay(
-                                            ScheduleDisplay.initialDate,
-                                            ScheduleDisplay.pageIndex)));
-                              }),
-                        ),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            _buildNavButton(context, -1),
-                            SizedBox(
-                              width: mediaQuery.size.width - 220,
-                              child: FittedBox(
-                                fit: BoxFit.contain,
-                                child: Text(
-                                  GlobalMethods.dateText(GlobalMethods.addDay(
-                                      ScheduleDisplay.initialDate,
-                                      ScheduleDisplay.pageIndex)),
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 32.5,
-                                      color: colorScheme.onSurface),
-                                  textAlign: TextAlign.center,
-                                  maxLines: 1,
-                                ),
-                              ),
-                            ),
-                            _buildNavButton(context, 1),
-                          ],
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 20),
-                          child: _buildInfoButton(context),
-                        ),
-                      ],
-                    ),
-                  ),
-                  //The schedule card viewer
-                  Expanded(child: _buildPageView(context)),
-                  //Button which leads to ScheduleSettings
-                  Container(
-                    margin: EdgeInsets.symmetric(
-                        horizontal: mediaQuery.size.width * .3),
-                    height: 30,
-                    child: ElevatedButton(
-                        onPressed: () {
-                          GlobalMethods.pushSwipePage(
-                              context,
-                              const ScheduleSettings(
-                                backArrow: true,
-                              ));
-                        },
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: colorScheme.secondary),
-                        child: Container(
-                          alignment: Alignment.center,
-                          width: mediaQuery.size.width * 3 / 5,
-                          child: Icon(
-                            Icons.settings,
-                            color: colorScheme.onSecondary,
+          return ShowCaseWidget(onComplete: (_, __) {
+            tutorialSystem.finish();
+          }, builder: (context) {
+            WidgetsBinding.instance.addPostFrameCallback((_) async {
+              while (ScheduleData.schedule.isEmpty) {
+                await Future.delayed(Duration(milliseconds: 100));
+              }
+              if (!tutorialSystem.finished) {
+                int index = 0;
+                while (index <= 25 &&
+                    ScheduleDisplay.displayDate ==
+                        ScheduleDisplay.initialDate) {
+                  if (_schedule(
+                      GlobalMethods.addDay(ScheduleDisplay.initialDate, index),
+                      tutorial: true)) {
+                    break;
+                  }
+                  if (_schedule(
+                      GlobalMethods.addDay(ScheduleDisplay.initialDate, -index),
+                      tutorial: true)) {
+                    index = -index;
+                    break;
+                  }
+                  index++;
+                }
+
+                if (index != 26) {
+                  ScheduleDisplay.pageIndex = index;
+                  ScheduleDisplay.displayDate =
+                      GlobalMethods.addDay(ScheduleDisplay.initialDate, index);
+                  _controller.animateToPage(initialPage + index,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut);
+                  if (context.mounted) {
+                    tutorialSystem.showTutorials(context);
+                  }
+                }
+              }
+            });
+            return Scaffold(
+                backgroundColor: colorScheme.primaryContainer,
+                body: Column(
+                  children: [
+                    SizedBox(height: mediaQuery.padding.top),
+                    //The top day text display
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 5),
+                      height: 50,
+                      alignment: Alignment.center,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 20),
+                            child: tutorialSystem.showcase(
+                                context: context,
+                                circular: true,
+                                message: "... or click this button to quickly navigate through the school days of the year.",
+                                tutorial: 'tutorial_schedule_calendar',
+                                child: GlobalWidgets.iconCircle(
+                                    icon: Icons.calendar_month,
+                                    iconColor: colorScheme.onTertiary,
+                                    color: colorScheme.tertiary
+                                        .withValues(alpha: 0.4),
+                                    radius: 20,
+                                    padding: 10,
+                                    onTap: () {
+                                      GlobalMethods.showPopup(
+                                          context,
+                                          _buildCalendarNav(
+                                              context,
+                                              GlobalMethods.addDay(
+                                                  ScheduleDisplay.initialDate,
+                                                  ScheduleDisplay.pageIndex)));
+                                    })),
                           ),
-                        )),
-                  ),
-                  const SizedBox(height: 5)
-                ],
-              ));
+                          tutorialSystem.showcase(
+                              context: context,
+                              message: "Up top, you'll find the date you're currently viewing. You can use the buttons or simple swiping gestures to flip between days.",
+                              tutorial: 'tutorial_schedule_date',
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  _buildNavButton(context, -1),
+                                  SizedBox(
+                                    width: mediaQuery.size.width - 220,
+                                    child: FittedBox(
+                                      fit: BoxFit.contain,
+                                      child: Text(
+                                        GlobalMethods.dateText(
+                                            GlobalMethods.addDay(
+                                                ScheduleDisplay.initialDate,
+                                                ScheduleDisplay.pageIndex)),
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 32.5,
+                                            color: colorScheme.onSurface),
+                                        textAlign: TextAlign.center,
+                                        maxLines: 1,
+                                      ),
+                                    ),
+                                  ),
+                                  _buildNavButton(context, 1),
+                                ],
+                              )),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 20),
+                            child: tutorialSystem.showcase(
+                                context: context,
+                                circular: true,
+                                message: "Tap this button to view important information about a school day, if available.",
+                                tutorial: 'tutorial_schedule_info',
+                                child: _buildInfoButton(context)),
+                          ),
+                        ],
+                      ),
+                    ),
+                    //The schedule card viewer
+                    Expanded(child: _buildPageView(context)),
+                    //Button which leads to ScheduleSettings
+                    Container(
+                      margin: EdgeInsets.symmetric(
+                          horizontal: mediaQuery.size.width * .3),
+                      height: 30,
+                      child: tutorialSystem.showcase(context: context, message: 'Lastly, if you every want to edit your class information, you can do so by clicking this button.', tutorial: 'tutorial_schedule_settings', child: ElevatedButton(
+                          onPressed: () {
+                            GlobalMethods.pushSwipePage(
+                                context,
+                                const ScheduleSettings(
+                                  backArrow: true,
+                                ));
+                          },
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: colorScheme.secondary),
+                          child: Container(
+                            alignment: Alignment.center,
+                            width: mediaQuery.size.width * 3 / 5,
+                            child: Icon(
+                              Icons.settings,
+                              color: colorScheme.onSecondary,
+                            ),
+                          ))),
+                    ),
+                    const SizedBox(height: 5)
+                  ],
+                ));
+          });
         });
   }
 
@@ -177,22 +252,21 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
   //Pseudo-PageView which displays all schedule cards
   Widget _buildPageView(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-
     return PageView.builder(
         controller: _controller,
         physics: const PageScrollPhysics(),
         //When page index is changes, updates pageIndex variable
         onPageChanged: (i) {
           setState(() {
-            ScheduleDisplay.pageIndex = i - (maxPages / 2).round();
+            ScheduleDisplay.pageIndex = i - initialPage;
           });
         },
         itemCount: maxPages,
         //Builds the schedules based on given index(i)
-        itemBuilder: (context, i) {
+        itemBuilder: (_, i) {
           //The date of the schedule (currentDate+index)
           DateTime date = GlobalMethods.addDay(
-              ScheduleDisplay.initialDate, i - (maxPages / 2).round());
+              ScheduleDisplay.initialDate, i - initialPage);
 
           //Schedule card wrapped in gestureDetector
           return GestureDetector(
@@ -273,79 +347,93 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     Map schedule = dayInfo.schedule;
     //The height (in pxs) that each minute will be on the screen, based on the devices screen size etc.
     double minuteHeight = cardHeight / 430;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      child: Stack(
-        children: [
-          Container(
-            margin: const EdgeInsets.only(left: 5, right: 15),
-            height: cardHeight,
-            child: Row(
-              children: [
-                //Column of time references to the left
-                Stack(
-                  children: List<Widget>.generate(8, (i) {
-                    return Padding(
-                        padding: EdgeInsets.only(top: minuteHeight * i * 60),
-                        child: Text(
-                          '${GlobalVariables.stringDate(GlobalMethods.amPmHour(i + 8))} - ',
-                          style: TextStyle(
-                              fontSize: 15,
-                              height: 0.9,
-                              color: colorScheme.onSurface), //Text px height = 18
-                        ));
-                  }),
-                ),
-                //Expanded Box (as much width as possible) wrapping sized box (set height of card) wrapping stack of bell tiles
-                Expanded(
-                    child: Container(
-                  padding: const EdgeInsets.only(top: 6.5),
-                  height: cardHeight,
-                  child: Stack(
-                    alignment: Alignment.topCenter,
-                    children: List<Widget>.generate(schedule.keys.length, (i) {
-                      //Returns Schedule 'Tile' based on schedule info
-                      String key = schedule.keys.toList()[i];
-                      return _buildTile(context, dayInfo, key, minuteHeight);
-                    }),
-                  ),
-                )),
-              ],
-            ),
-          ),
-          if (timeMargin >= 0 &&
-              timeMargin <= 425 &&
-              date == ScheduleDisplay.initialDate)
-            Opacity(
-              opacity: 0.6,
-              child: Padding(
-                padding: EdgeInsets.only(
-                    left: 25, top: timeMargin * cardHeight / 425),
+    return tutorialSystem.showcase(
+        context: context,
+        message: "In this menu, you'll be able to see the schedule of any school day out of the year.",
+        tutorial: date == ScheduleDisplay.displayDate
+            ? 'tutorial_schedule'
+            : 'no_tutorial',
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 5),
+          child: Stack(
+            children: [
+              Container(
+                margin: const EdgeInsets.only(left: 5, right: 15),
+                height: cardHeight,
                 child: Row(
                   children: [
-                    Container(
-                      height: 1.5,
-                      width: mediaQuery.size.width - 80,
-                      color: colorScheme.secondary,
+                    //Column of time references to the left
+                    Stack(
+                      children: List<Widget>.generate(8, (i) {
+                        return Padding(
+                            padding:
+                                EdgeInsets.only(top: minuteHeight * i * 60),
+                            child: Text(
+                              '${GlobalVariables.stringDate(GlobalMethods.amPmHour(i + 8))} - ',
+                              style: TextStyle(
+                                  fontSize: 15,
+                                  height: 0.9,
+                                  color: colorScheme
+                                      .onSurface), //Text px height = 18
+                            ));
+                      }),
                     ),
-                    const SizedBox(width: 5),
-                    Icon(
-                      Icons.arrow_back_ios,
-                      size: 10,
-                      color: colorScheme.secondary,
-                    )
+                    //Expanded Box (as much width as possible) wrapping sized box (set height of card) wrapping stack of bell tiles
+                    Expanded(
+                        child: Container(
+                      padding: const EdgeInsets.only(top: 6.5),
+                      height: cardHeight,
+                      child: Stack(
+                        alignment: Alignment.topCenter,
+                        children:
+                            List<Widget>.generate(schedule.keys.length, (i) {
+                          //Returns Schedule 'Tile' based on schedule info
+                          String key = schedule.keys.toList()[i];
+                          return _buildTile(context, date, key, minuteHeight);
+                        }),
+                      ),
+                    )),
                   ],
                 ),
               ),
-            )
-        ],
-      ),
-    );
+              if (timeMargin >= 0 &&
+                  timeMargin <= 425 &&
+                  date == ScheduleDisplay.initialDate)
+                Opacity(
+                  opacity: 0.6,
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                        left: 25, top: timeMargin * cardHeight / 425),
+                    child: Row(
+                      children: [
+                        Container(
+                          height: 1.5,
+                          width: mediaQuery.size.width - 80,
+                          color: colorScheme.secondary,
+                        ),
+                        const SizedBox(width: 5),
+                        Icon(
+                          Icons.arrow_back_ios,
+                          size: 10,
+                          color: colorScheme.secondary,
+                        )
+                      ],
+                    ),
+                  ),
+                )
+            ],
+          ),
+        ));
   }
 
   //Checks that all info of the schedule of a given date is proper
-  bool _schedule(DateTime date) {
+  bool _schedule(DateTime date, {bool tutorial = false}) {
     Schedule dayInfo = ScheduleData.schedule[date] ?? Schedule.empty();
+    if (tutorial) {
+      if (dayInfo.schedule.length < 2 || dayInfo.firstFlex == null) {
+        return false;
+      }
+    }
     if (dayInfo.schedule.isEmpty || dayInfo.schedule.containsKey('-')) {
       return false;
     }
@@ -358,11 +446,28 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     return true;
   }
 
+  String _tutorial(final DateTime date, final String bell) {
+    if (date == ScheduleDisplay.displayDate) {
+      final Schedule schedule = ScheduleData.schedule[date] ?? Schedule.empty();
+      if (bell == schedule.firstBell) {
+        return 'tutorial_schedule_bell';
+      }
+      if (bell == schedule.firstFlex) {
+        return 'tutorial_schedule_flex';
+      }
+    }
+
+    return 'no_tutorial';
+  }
+
   //Builds the 'Schedule Tile's displayed on the schedule card
-  Widget _buildTile(BuildContext context, Schedule schedule, String bell,
-      double minuteHeight) {
+  Widget _buildTile(
+      BuildContext context, DateTime date, String bell, double minuteHeight) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
+
+    final Schedule schedule = ScheduleData.schedule[date] ?? Schedule.empty();
+
     //Gets Map from schedule_settings.dart
     Map settings = ScheduleSettings.bellInfo[bell] ?? {};
 
@@ -391,56 +496,60 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
         },
         //Tile
         child: Container(
-          height: height,
-          margin: EdgeInsets.only(top: margin),
-          color: colorScheme.surfaceContainer,
-          child: Row(
-            children: [
-              //Left color nib; if no setting set, displays as grey
-              Container(
-                width: 10,
-                color: hexToColor(settings['color'] ?? '#999999'),
-              ),
-              //spacer
-              const SizedBox(width: 7.5),
-              //If tile is not too short, displays emoji circle
-              if (height > 25)
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    CircleAvatar(
-                      backgroundColor: Colors.black.withValues(alpha: .2),
-                      radius: height * 3 / 7 - 5,
-                    ),
-                    Text(
-                      //If no emoji set in settings, displays default book emoji
-                      settings['emoji'] ?? '📚',
-                      style: TextStyle(
-                          fontSize: height * 3 / 7,
-                          color: colorScheme.onSurface),
-                    )
-                  ],
-                ),
-              //Text (with line skips) wrapped in FittedBox
-              Container(
-                margin: const EdgeInsets.only(left: 7.5),
-                alignment: Alignment.centerLeft,
-                width: mediaQuery.size.width - 135 - (height * 6 / 7 - 10),
-                child: FittedBox(
-                  //If text overflows the tile, will shrink to fully include it
-                  fit: BoxFit.contain,
-                  //Displays the class name (if null, then bell name), line skip, then time range
-                  child: Text(
-                    '${(settings['name'] ?? bell) ?? ''}${height > 50 ? '\n' : ':     '}${times['start'].display()} - ${times['end'].display()}',
-                    style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        color: colorScheme.onSurface),
+            height: height,
+            margin: EdgeInsets.only(top: margin),
+            color: colorScheme.surfaceContainer,
+            child: tutorialSystem.showcase(
+              context: context,
+              message: bell == schedule.firstFlex ? 'Additionally, you can tap the Flex bell to view information about lunch, clubs, and more!' : 'Each individual bell is set to match the information you provided about your class schedule, and clicking on any bell will display more information about it.',
+              tutorial: _tutorial(date, bell),
+              child: Row(
+                children: [
+                  //Left color nib; if no setting set, displays as grey
+                  Container(
+                    width: 10,
+                    color: hexToColor(settings['color'] ?? '#999999'),
                   ),
-                ),
+                  //spacer
+                  const SizedBox(width: 7.5),
+                  //If tile is not too short, displays emoji circle
+                  if (height > 25)
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: Colors.black.withValues(alpha: .2),
+                          radius: height * 3 / 7 - 5,
+                        ),
+                        Text(
+                          //If no emoji set in settings, displays default book emoji
+                          settings['emoji'] ?? '📚',
+                          style: TextStyle(
+                              fontSize: height * 3 / 7,
+                              color: colorScheme.onSurface),
+                        )
+                      ],
+                    ),
+                  //Text (with line skips) wrapped in FittedBox
+                  Container(
+                    margin: const EdgeInsets.only(left: 7.5),
+                    alignment: Alignment.centerLeft,
+                    width: mediaQuery.size.width - 135 - (height * 6 / 7 - 10),
+                    child: FittedBox(
+                      //If text overflows the tile, will shrink to fully include it
+                      fit: BoxFit.contain,
+                      //Displays the class name (if null, then bell name), line skip, then time range
+                      child: Text(
+                        '${(settings['name'] ?? bell) ?? ''}${height > 50 ? '\n' : ':     '}${times['start'].display()} - ${times['end'].display()}',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            color: colorScheme.onSurface),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ));
+            )));
   }
 
   //Builds the display for a day with no classes
@@ -738,8 +847,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                                       opacity += 0.15;
                                     }
                                   }
-                                  Color dotColor =
-                                      Colors.black.withValues(alpha: 0.05 + opacity);
+                                  Color dotColor = Colors.black
+                                      .withValues(alpha: 0.05 + opacity);
                                   Color textColor = Colors.black;
                                   if (dotDate == date) {
                                     dotColor = colorScheme.primary

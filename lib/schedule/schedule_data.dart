@@ -52,7 +52,6 @@ class ScheduleData {
 
       //The return schedule of this for loop
       Map<String, String> forSchedule = {};
-      print(instance);
       for (String part in scheduleParts) {
         //Ensures no junk strings make it into the list
           final RegExpMatch? match = regexp.firstMatch(part);
@@ -61,7 +60,6 @@ class ScheduleData {
             if(int.tryParse(title) != null){
               title = 'Flex $title';
             }
-            print(match.group(1));
             forSchedule[title] = '${match.group(2)!}-${match.group(3)!}';
           }
       }

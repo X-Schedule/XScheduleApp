@@ -8,7 +8,20 @@ Centralized class for various static(public) methods as well as object specific
  */
 
 class Schedule {
-  Schedule({required this.schedule, this.start, this.end, this.name = 'No Classes'});
+  Schedule(
+      {required this.schedule,
+      this.start,
+      this.end,
+      this.name = 'No Classes'}) {
+    for (String bell in schedule.keys) {
+      if (bell.toLowerCase().contains('flex')) {
+        firstFlex ??= bell;
+      } else {
+        firstBell ??= bell;
+
+      print(firstFlex);}
+    }
+  }
 
   final Map<String, String> schedule;
 
@@ -16,6 +29,9 @@ class Schedule {
 
   final DateTime? start;
   final DateTime? end;
+
+  String? firstBell;
+  String? firstFlex;
 
   //Empty schedule class; used for null safety
   static Schedule empty() {
@@ -45,12 +61,12 @@ class Schedule {
       if (times.length == 2) {
         Clock? startClock = Clock.parse(times[0]);
         //Converts early-PM hours into military time
-        if(startClock!.hours <= 3){
+        if (startClock!.hours <= 3) {
           startClock.add(deltaHours: 12);
         }
         Clock? endClock = Clock.parse(times[1]);
         //Converts early-PM hours into military time
-        if(endClock!.hours <= 3){
+        if (endClock!.hours <= 3) {
           endClock.add(deltaHours: 12);
         }
         return {'start': startClock, 'end': endClock};
@@ -60,23 +76,24 @@ class Schedule {
   }
 
   //Converts the start DateTime into a Clock
-  Clock? startClock(){
+  Clock? startClock() {
     //If start undefined, returns null
-    if(start != null){
+    if (start != null) {
       Clock startClock = Clock(hours: start!.hour, minutes: start!.minute);
-      if(startClock.hours <= 3){
+      if (startClock.hours <= 3) {
         startClock.add(deltaHours: 12);
       }
       return startClock;
     }
     return null;
   }
+
   //Converts the end DateTime into a Clock
-  Clock? endClock(){
+  Clock? endClock() {
     //If end undefined, returns null
-    if(end != null){
+    if (end != null) {
       Clock endClock = Clock(hours: end!.hour, minutes: end!.minute);
-      if(endClock.hours <= 3){
+      if (endClock.hours <= 3) {
         endClock.add(deltaHours: 12);
       }
       return endClock;
