@@ -5,7 +5,6 @@ import 'package:xschedule/display/themes.dart';
 import 'package:xschedule/global_variables/global_variables.dart';
 import 'package:xschedule/global_variables/supabase_db.dart';
 import 'package:xschedule/schedule/schedule_data.dart';
-import 'package:xschedule/schedule/schedule_settings/schedule_settings.dart';
 import 'package:xschedule/schedule/schedule_settings/schedule_settings_ai.dart';
 
 import 'display/home_page.dart';

@@ -1,4 +1,4 @@
-import 'package:html/dom.dart';
+
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:icalendar_parser/icalendar_parser.dart';
@@ -13,9 +13,6 @@ Primary function i sto get data via RSS
  */
 
 class ScheduleData {
-  //HTML Doc variable; temporarily defined when working with website
-  static Document? calDoc;
-
   static Map<DateTime, Schedule> schedule = {};
   static Map<DateTime, Map<String, dynamic>> dailyData = {};
   static Map<DateTime, List<Map<String, dynamic>>> coCurriculars = {};

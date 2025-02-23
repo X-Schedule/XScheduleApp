@@ -19,7 +19,6 @@ class ScheduleInfoDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final MediaQueryData mediaQuery = MediaQuery.of(context);
 
     //Gets the schedules and dailyData based on the given date
     Schedule schedule = ScheduleData.schedule[date] ?? Schedule.empty();

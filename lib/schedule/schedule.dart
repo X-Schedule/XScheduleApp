@@ -18,8 +18,7 @@ class Schedule {
         firstFlex ??= bell;
       } else {
         firstBell ??= bell;
-
-      print(firstFlex);}
+      }
     }
   }
 

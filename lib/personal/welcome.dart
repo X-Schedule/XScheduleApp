@@ -22,7 +22,7 @@ class Welcome extends StatelessWidget {
               ),
             ),
           ),
-          Container(color: colorScheme.primary.withOpacity(0.7)),
+          Container(color: colorScheme.primary.withValues(alpha: 0.7)),
           Align(
             alignment: Alignment.center,
             child: Container(

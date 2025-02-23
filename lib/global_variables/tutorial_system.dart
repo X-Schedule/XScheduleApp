@@ -45,21 +45,22 @@ class TutorialSystem {
 
   void refreshKeys() {
     generateKeys(tutorials, reference: keys);
+    finished = keys.isEmpty;
   }
 
-  void removeFinished(){
-    for(String tutorial in tutorials){
-      if((localStorage.getItem(tutorial) ?? '') == 'T'){
+  void removeFinished() {
+    for (String tutorial in tutorials) {
+      if ((localStorage.getItem(tutorial) ?? '') == 'T') {
         keys.remove(tutorial);
       }
     }
-    if(keys.isEmpty){
+    if (keys.isEmpty) {
       finished = true;
     }
   }
 
-  void clearStorage(){
-    for(String tutorial in tutorials){
+  void clearStorage() {
+    for (String tutorial in tutorials) {
       localStorage.removeItem(tutorial);
     }
   }
@@ -90,7 +91,7 @@ class TutorialSystem {
     }
   }
 
-  void finish(){
+  void finish() {
     finished = true;
   }
 }

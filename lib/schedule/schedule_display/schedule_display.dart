@@ -27,7 +27,7 @@ class ScheduleDisplay extends StatefulWidget {
   //Gets the current date (ignoring time)
   static DateTime initialDate =
       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
-  static DateTime displayDate = initialDate;
+  static DateTime? tutorialDate;
 
   //pageIndex of Schedule PageView
   static int pageIndex = 0;
@@ -82,11 +82,10 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
               while (ScheduleData.schedule.isEmpty) {
                 await Future.delayed(Duration(milliseconds: 100));
               }
+              await Future.delayed(const Duration(milliseconds: 250));
               if (!tutorialSystem.finished) {
                 int index = 0;
-                while (index <= 25 &&
-                    ScheduleDisplay.displayDate ==
-                        ScheduleDisplay.initialDate) {
+                while (index <= 25 && ScheduleDisplay.tutorialDate == null) {
                   if (_schedule(
                       GlobalMethods.addDay(ScheduleDisplay.initialDate, index),
                       tutorial: true)) {
@@ -102,13 +101,14 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                 }
 
                 if (index != 26) {
-                  ScheduleDisplay.pageIndex = index;
-                  ScheduleDisplay.displayDate =
-                      GlobalMethods.addDay(ScheduleDisplay.initialDate, index);
-                  _controller.animateToPage(initialPage + index,
-                      duration: const Duration(milliseconds: 500),
-                      curve: Curves.easeInOut);
-                  if (context.mounted) {
+                  if (ScheduleDisplay.tutorialDate == null) {
+                    ScheduleDisplay.pageIndex = index;
+                    ScheduleDisplay.tutorialDate = GlobalMethods.addDay(
+                        ScheduleDisplay.initialDate, index);
+                    _controller.animateToPage(initialPage + index,
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.easeInOut);
+                  } else if (context.mounted) {
                     tutorialSystem.showTutorials(context);
                   }
                 }
@@ -133,7 +133,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                             child: tutorialSystem.showcase(
                                 context: context,
                                 circular: true,
-                                message: "... or click this button to quickly navigate through the school days of the year.",
+                                message:
+                                    "... or click this button to quickly navigate through the school days of the year.",
                                 tutorial: 'tutorial_schedule_calendar',
                                 child: GlobalWidgets.iconCircle(
                                     icon: Icons.calendar_month,
@@ -154,7 +155,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                           ),
                           tutorialSystem.showcase(
                               context: context,
-                              message: "Up top, you'll find the date you're currently viewing. You can use the buttons or simple swiping gestures to flip between days.",
+                              message:
+                                  "Up top, you'll find the date you're currently viewing. You can use the buttons or simple swiping gestures to flip between days.",
                               tutorial: 'tutorial_schedule_date',
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -187,7 +189,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                             child: tutorialSystem.showcase(
                                 context: context,
                                 circular: true,
-                                message: "Tap this button to view important information about a school day, if available.",
+                                message:
+                                    "Tap this button to view important information about a school day, if available.",
                                 tutorial: 'tutorial_schedule_info',
                                 child: _buildInfoButton(context)),
                           ),
@@ -201,24 +204,29 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                       margin: EdgeInsets.symmetric(
                           horizontal: mediaQuery.size.width * .3),
                       height: 30,
-                      child: tutorialSystem.showcase(context: context, message: 'Lastly, if you every want to edit your class information, you can do so by clicking this button.', tutorial: 'tutorial_schedule_settings', child: ElevatedButton(
-                          onPressed: () {
-                            GlobalMethods.pushSwipePage(
-                                context,
-                                const ScheduleSettings(
-                                  backArrow: true,
-                                ));
-                          },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: colorScheme.secondary),
-                          child: Container(
-                            alignment: Alignment.center,
-                            width: mediaQuery.size.width * 3 / 5,
-                            child: Icon(
-                              Icons.settings,
-                              color: colorScheme.onSecondary,
-                            ),
-                          ))),
+                      child: tutorialSystem.showcase(
+                          context: context,
+                          message:
+                              'Lastly, if you every want to edit your class information, you can do so by clicking this button.',
+                          tutorial: 'tutorial_schedule_settings',
+                          child: ElevatedButton(
+                              onPressed: () {
+                                GlobalMethods.pushSwipePage(
+                                    context,
+                                    const ScheduleSettings(
+                                      backArrow: true,
+                                    ));
+                              },
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: colorScheme.secondary),
+                              child: Container(
+                                alignment: Alignment.center,
+                                width: mediaQuery.size.width * 3 / 5,
+                                child: Icon(
+                                  Icons.settings,
+                                  color: colorScheme.onSecondary,
+                                ),
+                              ))),
                     ),
                     const SizedBox(height: 5)
                   ],
@@ -349,8 +357,9 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     double minuteHeight = cardHeight / 430;
     return tutorialSystem.showcase(
         context: context,
-        message: "In this menu, you'll be able to see the schedule of any school day out of the year.",
-        tutorial: date == ScheduleDisplay.displayDate
+        message:
+            "In this menu, you'll be able to see the schedule of any school day out of the year.",
+        tutorial: date == ScheduleDisplay.tutorialDate
             ? 'tutorial_schedule'
             : 'no_tutorial',
         child: Padding(
@@ -447,7 +456,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
   }
 
   String _tutorial(final DateTime date, final String bell) {
-    if (date == ScheduleDisplay.displayDate) {
+    if (date == ScheduleDisplay.tutorialDate) {
       final Schedule schedule = ScheduleData.schedule[date] ?? Schedule.empty();
       if (bell == schedule.firstBell) {
         return 'tutorial_schedule_bell';
@@ -501,7 +510,9 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
             color: colorScheme.surfaceContainer,
             child: tutorialSystem.showcase(
               context: context,
-              message: bell == schedule.firstFlex ? 'Additionally, you can tap the Flex bell to view information about lunch, clubs, and more!' : 'Each individual bell is set to match the information you provided about your class schedule, and clicking on any bell will display more information about it.',
+              message: bell == schedule.firstFlex
+                  ? 'Additionally, you can tap the Flex bell to view information about lunch, clubs, and more!'
+                  : 'Each individual bell is set to match the information you provided about your class schedule, and clicking on any bell will display more information about it.',
               tutorial: _tutorial(date, bell),
               child: Row(
                 children: [

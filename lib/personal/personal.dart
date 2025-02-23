@@ -14,7 +14,6 @@ Personal Page:
 Currently a glorified settings page
 In the future, it will hopefully display more personal information at the digression of st x staff
  */
-
 class Personal extends StatelessWidget {
   const Personal({super.key});
 

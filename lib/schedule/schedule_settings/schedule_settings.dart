@@ -5,6 +5,7 @@ import 'package:color_hex/color_hex.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hsvcolor_picker/flutter_hsvcolor_picker.dart';
+import 'package:keyboard_avoider/keyboard_avoider.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:showcaseview/showcaseview.dart';
@@ -66,8 +67,9 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
     return ShowCaseWidget(onComplete: (_, __) {
       tutorialSystem.finish();
     }, builder: (context) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!tutorialSystem.finished) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await Future.delayed(const Duration(milliseconds: 250));
+        if (!tutorialSystem.finished && context.mounted) {
           tutorialSystem.showTutorials(context);
         }
       });
@@ -131,9 +133,10 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                   localStorage.setItem("scheduleSettings",
                       json.encode(ScheduleSettings.bellInfo));
                   localStorage.setItem("state", "logged");
-                  Navigator.pop(context);
-                  StreamSignal.updateStream(
-                      streamController: HomePage.homePageStream);
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => HomePage()),
+                      (_) => false);
                   StreamSignal.updateStream(
                       streamController: ScheduleDisplay.scheduleStream);
                 },
@@ -319,117 +322,121 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
     return StatefulBuilder(
         builder: (BuildContext context, StateSetter setLocalState) {
       //Aligns card in center
-      return Align(
-        alignment: Alignment.center,
-        child: Card(
-          child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: 200,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      //Solid Color circle
-                      CircleAvatar(
-                        backgroundColor:
-                            //Color in variable type "HSVColor"; needs to be converted
-                            ScheduleSettings.colors[bell]!.toColor(),
-                        radius: 95,
-                      ),
-                      WheelPicker(
-                        showPalette: false,
-                        color: ScheduleSettings.colors[bell]!,
-                        onChanged: (HSVColor value) {
-                          setLocalState(() {
-                            ScheduleSettings.colors[bell] = value;
-                          });
-                        },
-                      ),
-                      //Emoji Picker
-                      Container(
-                        width: 125,
-                        height: 125,
+      return KeyboardAvoider(
+          autoScroll: true,
+          child: Align(
+            alignment: Alignment.center,
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 200,
+                      child: Stack(
                         alignment: Alignment.center,
-                        margin: const EdgeInsets.only(bottom: 10),
-                        child: IntrinsicWidth(
-                          child: TextField(
-                            controller: ScheduleSettings.emojis[bell],
-                            decoration: const InputDecoration(
-                              isDense: true,
-                              border: InputBorder.none,
-                              // Removes the underline
-                              contentPadding: EdgeInsets.symmetric(
-                                  vertical: 10.0), // Optional: adjust padding
-                            ),
-                            style: TextStyle(
-                                fontSize: 120, // Large font size
-                                color: colorScheme.onSurface),
-                            onChanged: (String text) {
-                              //Ensured no empty values
-                              if (text.isEmpty) {
-                                text = '_';
-                              }
-                              //Ensures no values greater than one character; will use 2nd char so that you can quickly type
-                              //Use characters to ensure emojis work
-                              if (text.characters.length > 1) {
-                                text = text.characters.last;
-                              }
+                        children: [
+                          //Solid Color circle
+                          CircleAvatar(
+                            backgroundColor:
+                                //Color in variable type "HSVColor"; needs to be converted
+                                ScheduleSettings.colors[bell]!.toColor(),
+                            radius: 95,
+                          ),
+                          WheelPicker(
+                            showPalette: false,
+                            color: ScheduleSettings.colors[bell]!,
+                            onChanged: (HSVColor value) {
                               setLocalState(() {
-                                ScheduleSettings.emojis[bell]!.text = text;
+                                ScheduleSettings.colors[bell] = value;
                               });
                             },
                           ),
-                        ),
+                          //Emoji Picker
+                          Container(
+                            width: 125,
+                            height: 125,
+                            alignment: Alignment.center,
+                            margin: const EdgeInsets.only(bottom: 10),
+                            child: IntrinsicWidth(
+                              child: TextField(
+                                controller: ScheduleSettings.emojis[bell],
+                                decoration: const InputDecoration(
+                                  isDense: true,
+                                  border: InputBorder.none,
+                                  // Removes the underline
+                                  contentPadding: EdgeInsets.symmetric(
+                                      vertical:
+                                          10.0), // Optional: adjust padding
+                                ),
+                                style: TextStyle(
+                                    fontSize: 120, // Large font size
+                                    color: colorScheme.onSurface),
+                                onChanged: (String text) {
+                                  //Ensured no empty values
+                                  if (text.isEmpty) {
+                                    text = '_';
+                                  }
+                                  //Ensures no values greater than one character; will use 2nd char so that you can quickly type
+                                  //Use characters to ensure emojis work
+                                  if (text.characters.length > 1) {
+                                    text = text.characters.last;
+                                  }
+                                  setLocalState(() {
+                                    ScheduleSettings.emojis[bell]!.text = text;
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 15),
+                    //Column of text forms
+                    _buildTextForm(
+                        context, ScheduleSettings.names[bell]!, "Bell Name"),
+                    _buildTextForm(
+                        context, ScheduleSettings.teachers[bell]!, "Teacher"),
+                    _buildTextForm(
+                        context, ScheduleSettings.locations[bell]!, "Location"),
+                    //Submits
+                    ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            //Sets global value to correspond to new variables
+                            ScheduleSettings.bellInfo[bell] = {
+                              'name': ScheduleSettings.names[bell]!.text,
+                              'teacher': ScheduleSettings.teachers[bell]!.text,
+                              'location':
+                                  ScheduleSettings.locations[bell]!.text,
+                              'emoji': ScheduleSettings.emojis[bell]!.text,
+                              'color': colorToHex(
+                                      ScheduleSettings.colors[bell]!.toColor())
+                                  .hex
+                            };
+                          });
+                          //Pops popup
+                          Navigator.pop(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green),
+                        child: Container(
+                          alignment: Alignment.center,
+                          width: MediaQuery.of(context).size.width * 3 / 5,
+                          child: Icon(
+                            Icons.check,
+                            color: colorScheme.onPrimary,
+                          ),
+                        )),
+                  ],
                 ),
-                const SizedBox(height: 15),
-                //Column of text forms
-                _buildTextForm(
-                    context, ScheduleSettings.names[bell]!, "Bell Name"),
-                _buildTextForm(
-                    context, ScheduleSettings.teachers[bell]!, "Teacher"),
-                _buildTextForm(
-                    context, ScheduleSettings.locations[bell]!, "Location"),
-                //Submits
-                ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        //Sets global value to correspond to new variables
-                        ScheduleSettings.bellInfo[bell] = {
-                          'name': ScheduleSettings.names[bell]!.text,
-                          'teacher': ScheduleSettings.teachers[bell]!.text,
-                          'location': ScheduleSettings.locations[bell]!.text,
-                          'emoji': ScheduleSettings.emojis[bell]!.text,
-                          'color': colorToHex(
-                                  ScheduleSettings.colors[bell]!.toColor())
-                              .hex
-                        };
-                      });
-                      //Pops popup
-                      Navigator.pop(context);
-                    },
-                    style:
-                        ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                    child: Container(
-                      alignment: Alignment.center,
-                      width: MediaQuery.of(context).size.width * 3 / 5,
-                      child: Icon(
-                        Icons.check,
-                        color: colorScheme.onPrimary,
-                      ),
-                    )),
-              ],
+              ),
             ),
-          ),
-        ),
-      );
+          ));
     });
   }
 
