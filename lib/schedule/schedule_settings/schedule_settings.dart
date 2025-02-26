@@ -53,7 +53,8 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
   static final TutorialSystem tutorialSystem = TutorialSystem({
     'tutorial_settings',
     'tutorial_settings_button',
-    'tutorial_settings_ai'
+    'tutorial_settings_ai',
+    'tutorial_settings_complete'
   });
 
   @override
@@ -64,13 +65,12 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
     tutorialSystem.refreshKeys();
     tutorialSystem.removeFinished();
 
-    return ShowCaseWidget(onComplete: (_, __) {
-      tutorialSystem.finish();
-    }, builder: (context) {
+    return ShowCaseWidget(builder: (context) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await Future.delayed(const Duration(milliseconds: 250));
         if (!tutorialSystem.finished && context.mounted) {
           tutorialSystem.showTutorials(context);
+          tutorialSystem.finish();
         }
       });
 
@@ -107,7 +107,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
               context: context,
               tutorial: 'tutorial_settings',
               message:
-                  "In this menu, you'll be able to customize your schedule to contain the classes you have.",
+                  "In this menu, you'll be able to customize your schedule to match the classes you have.",
               child: FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
@@ -128,28 +128,34 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
             height: 40,
             margin: EdgeInsets.symmetric(
                 vertical: 20, horizontal: mediaQuery.size.width * .325),
-            child: ElevatedButton(
-                onPressed: () {
-                  localStorage.setItem("scheduleSettings",
-                      json.encode(ScheduleSettings.bellInfo));
-                  localStorage.setItem("state", "logged");
-                  Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (_) => HomePage()),
-                      (_) => false);
-                  StreamSignal.updateStream(
-                      streamController: ScheduleDisplay.scheduleStream);
-                },
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: colorScheme.primary),
-                child: Container(
-                  alignment: Alignment.center,
-                  width: mediaQuery.size.width * 3 / 5,
-                  child: Icon(
-                    Icons.check,
-                    color: colorScheme.onPrimary,
-                  ),
-                )),
+            child: tutorialSystem.showcase(
+                context: context,
+                message:
+                    "Once you're satisfied with your schedule, tap the button down here to move on.",
+                tutorial: 'tutorial_settings_complete',
+                child: ElevatedButton(
+                    onPressed: () {
+                      localStorage.setItem("scheduleSettings",
+                          json.encode(ScheduleSettings.bellInfo));
+                      localStorage.setItem("state", "logged");
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (_) => HomePage()),
+                          (_) => false);
+                      StreamSignal.updateStream(
+                          streamController: ScheduleDisplay.scheduleStream);
+                    },
+                    style: ElevatedButton.styleFrom(
+                        overlayColor: colorScheme.onPrimary,
+                        backgroundColor: colorScheme.primary),
+                    child: Container(
+                      alignment: Alignment.center,
+                      width: mediaQuery.size.width * 3 / 5,
+                      child: Icon(
+                        Icons.check,
+                        color: colorScheme.onPrimary,
+                      ),
+                    ))),
           ),
           //Body is a scroll view of seperate tiles
           body: SingleChildScrollView(
@@ -169,6 +175,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                 _buildBellTile(context, 'F'),
                 _buildBellTile(context, 'G'),
                 _buildBellTile(context, 'H'),
+                _buildBellTile(context, 'HR'),
                 //So that with the bottom bar, you can still scorll to view last item
                 const SizedBox(height: 60)
               ],
@@ -185,11 +192,12 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
     ScheduleSettings.colors[bell] ??= HSVColor.fromColor(
         hexToColor(ScheduleSettings.bellInfo[bell]!['color']!));
 
-    ScheduleSettings.bellInfo[bell]!['emoji'] ??= bell;
-    ScheduleSettings.emojis[bell] ??=
-        TextEditingController(text: ScheduleSettings.bellInfo[bell]!['emoji']);
+    ScheduleSettings.bellInfo[bell]!['emoji'] ??= bell.replaceAll('HR', '📚');
+    ScheduleSettings.emojis[bell] ??= TextEditingController(
+        text: ScheduleSettings.bellInfo[bell]!['emoji'].replaceAll('HR', '📚'));
 
-    ScheduleSettings.bellInfo[bell]!['name'] ??= '$bell Bell';
+    ScheduleSettings.bellInfo[bell]!['name'] ??=
+        '$bell Bell'.replaceAll('HR Bell', 'Homeroom');
     ScheduleSettings.names[bell] ??=
         TextEditingController(text: ScheduleSettings.bellInfo[bell]!['name']);
 
@@ -216,12 +224,13 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
       margin: const EdgeInsets.all(10),
       width: mediaQuery.size.width * .95,
       height: 100,
-      child: GestureDetector(
-        onTap: () {
-          GlobalMethods.showPopup(context, _buildBellSettings(bell));
-        },
-        child: Card(
-          color: colorScheme.surface,
+      child: Card(
+        color: colorScheme.surface,
+        child: InkWell(
+          highlightColor: colorScheme.onPrimary,
+          onTap: () {
+            GlobalMethods.showPopup(context, _buildBellSettings(bell));
+          },
           child: Row(
             children: [
               //Left color nib w/ rounded edges
@@ -318,6 +327,13 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
   Widget _buildBellSettings(String bell) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
+    String hint = bell;
+    if (hint.length == 1) {
+      hint = '$hint Bell';
+    } else if (hint == 'HR') {
+      hint = 'Homeroom';
+    }
+
     //Allows for "setState" to be called, and only effect this popup
     return StatefulBuilder(
         builder: (BuildContext context, StateSetter setLocalState) {
@@ -328,12 +344,19 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
             alignment: Alignment.center,
             child: Card(
               child: Padding(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(8),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Text(hint,
+                            style: TextStyle(
+                                fontSize: 20,
+                                fontFamily: 'Exo2',
+                                color: colorScheme.onSurface.withAlpha(128)))),
                     SizedBox(
                       width: 200,
                       child: Stack(
@@ -395,7 +418,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 15),
+                    const SizedBox(height: 16),
                     //Column of text forms
                     _buildTextForm(
                         context, ScheduleSettings.names[bell]!, "Bell Name"),
@@ -404,34 +427,39 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                     _buildTextForm(
                         context, ScheduleSettings.locations[bell]!, "Location"),
                     //Submits
-                    ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            //Sets global value to correspond to new variables
-                            ScheduleSettings.bellInfo[bell] = {
-                              'name': ScheduleSettings.names[bell]!.text,
-                              'teacher': ScheduleSettings.teachers[bell]!.text,
-                              'location':
-                                  ScheduleSettings.locations[bell]!.text,
-                              'emoji': ScheduleSettings.emojis[bell]!.text,
-                              'color': colorToHex(
-                                      ScheduleSettings.colors[bell]!.toColor())
-                                  .hex
-                            };
-                          });
-                          //Pops popup
-                          Navigator.pop(context);
-                        },
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green),
-                        child: Container(
-                          alignment: Alignment.center,
-                          width: MediaQuery.of(context).size.width * 3 / 5,
-                          child: Icon(
-                            Icons.check,
-                            color: colorScheme.onPrimary,
-                          ),
-                        )),
+                    Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                //Sets global value to correspond to new variables
+                                ScheduleSettings.bellInfo[bell] = {
+                                  'name': ScheduleSettings.names[bell]!.text,
+                                  'teacher':
+                                      ScheduleSettings.teachers[bell]!.text,
+                                  'location':
+                                      ScheduleSettings.locations[bell]!.text,
+                                  'emoji': ScheduleSettings.emojis[bell]!.text,
+                                  'color': colorToHex(ScheduleSettings
+                                          .colors[bell]!
+                                          .toColor())
+                                      .hex
+                                };
+                              });
+                              //Pops popup
+                              Navigator.pop(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                                overlayColor: colorScheme.onPrimary,
+                                backgroundColor: Colors.green),
+                            child: Container(
+                              alignment: Alignment.center,
+                              width: MediaQuery.of(context).size.width * 3 / 5,
+                              child: Icon(
+                                Icons.check,
+                                color: colorScheme.onPrimary,
+                              ),
+                            ))),
                   ],
                 ),
               ),
@@ -445,7 +473,6 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
       BuildContext context, TextEditingController controller, String display) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
-
     double size = mediaQuery.size.width * 5 / 6;
     return Container(
       margin: const EdgeInsets.only(top: 5),
@@ -617,6 +644,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
+                        overlayColor: colorScheme.onPrimary,
                         backgroundColor: uploaded
                             ? colorScheme.primary
                             : colorScheme.secondary,

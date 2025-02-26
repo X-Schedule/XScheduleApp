@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:showcaseview/showcaseview.dart';
@@ -27,19 +28,52 @@ class TutorialSystem {
       required final String message,
       required final String tutorial,
       required final Widget child,
+      final bool dense = false,
       final bool circular = false}) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
     return Showcase(
         key: key(tutorial),
         description: message,
+        onToolTipClick: simulateTap,
+        toolTipSlideEndDistance: dense ? 3 : 7,
+        onBarrierClick: () {
+          if (tutorial != tutorials.lastOrNull) {
+            ShowCaseWidget.of(context).next();
+          }
+        },
         descTextStyle: TextStyle(
-            color: colorScheme.onPrimary, fontSize: 17, fontFamily: 'Exo2'),
+            color: colorScheme.onPrimary,
+            fontSize: dense ? 15 : 17,
+            height: dense ? 1 : null,
+            fontFamily: 'Exo2'),
         tooltipBackgroundColor: colorScheme.primary,
         targetShapeBorder: circular
             ? CircleBorder()
             : RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(8)),
               ),
+        tooltipActionConfig: TooltipActionConfig(
+            alignment: MainAxisAlignment.end, gapBetweenContentAndAction: 0),
+        tooltipActions: [
+          TooltipActionButton.custom(
+              button: ElevatedButton(
+                  onPressed: () async {
+                    await Future.delayed(const Duration(milliseconds: 50));
+                    simulateTap();
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: colorScheme.primary,
+                      overlayColor: colorScheme.onPrimary),
+                  child: Text(
+                    "Next",
+                    style: TextStyle(
+                        color: colorScheme.onPrimary,
+                        fontSize: dense ? 15 : 17,
+                        height: dense ? 1 : null,
+                        fontFamily: 'Exo2'),
+                  )))
+        ],
         child: child);
   }
 
@@ -87,8 +121,23 @@ class TutorialSystem {
     }
 
     if (tutorialKeys.isNotEmpty) {
+      print(showTutorials);
+      print(tutorialKeys.length);
       ShowCaseWidget.of(context).startShowCase(tutorialKeys);
     }
+  }
+
+  void simulateTap() {
+    GestureBinding.instance.handlePointerEvent(
+      PointerDownEvent(
+        position: Offset.zero, // Adjust if needed
+      ),
+    );
+    GestureBinding.instance.handlePointerEvent(
+      PointerUpEvent(
+        position: Offset.zero,
+      ),
+    );
   }
 
   void finish() {

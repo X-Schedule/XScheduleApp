@@ -55,7 +55,7 @@ class GlobalMethods {
     }));
   }
 
-  static void showPopup(BuildContext context, Widget widget) {
+  static void showPopup(final BuildContext context, final Widget widget, {Offset? begin}) {
     //Pushes the popup to the app navigator
     Navigator.of(context).push(PageRouteBuilder(
       //See-through 'page'
@@ -67,9 +67,9 @@ class GlobalMethods {
       //Manages animation
       transitionsBuilder: (context, a1, a2, child) {
         //Page begins 1 page to the left of the visible screen; slides onto screen
-        const begin = Offset(-1.0, 0.0);
-        const end = Offset.zero;
-        const curve = Curves.easeInOut;
+        begin ??= Offset(-1.0, 0.0);
+        const Offset end = Offset.zero;
+        const Curve curve = Curves.easeInOut;
 
         //Animation 'Tween' which manages popup movement
         var slideTween =
@@ -86,6 +86,16 @@ class GlobalMethods {
               child: GestureDetector(
                 onTap: () {
                   if (Navigator.canPop(context)) {
+                    Navigator.of(context).pop();
+                  }
+                },
+                onHorizontalDragEnd: (detail){
+                  if(detail.primaryVelocity!.sign == begin!.dx.sign){
+                    Navigator.of(context).pop();
+                  }
+                },
+                onVerticalDragEnd: (detail){
+                  if(detail.primaryVelocity!.sign == begin!.dy.sign){
                     Navigator.of(context).pop();
                   }
                 },

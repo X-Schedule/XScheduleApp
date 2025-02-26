@@ -99,17 +99,17 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                   }
                   index++;
                 }
-
                 if (index != 26) {
-                  if (ScheduleDisplay.tutorialDate == null) {
+                  ScheduleDisplay.tutorialDate =
+                      GlobalMethods.addDay(ScheduleDisplay.initialDate, index);
+                  if (index != ScheduleDisplay.pageIndex) {
                     ScheduleDisplay.pageIndex = index;
-                    ScheduleDisplay.tutorialDate = GlobalMethods.addDay(
-                        ScheduleDisplay.initialDate, index);
                     _controller.animateToPage(initialPage + index,
-                        duration: const Duration(milliseconds: 500),
+                        duration: const Duration(milliseconds: 250),
                         curve: Curves.easeInOut);
                   } else if (context.mounted) {
                     tutorialSystem.showTutorials(context);
+                    tutorialSystem.finish();
                   }
                 }
               }
@@ -218,6 +218,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                                     ));
                               },
                               style: ElevatedButton.styleFrom(
+                                  overlayColor: colorScheme.onPrimary,
                                   backgroundColor: colorScheme.secondary),
                               child: Container(
                                 alignment: Alignment.center,
@@ -279,21 +280,26 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
           //Schedule card wrapped in gestureDetector
           return GestureDetector(
             onLongPress: () {
-              setState(() {
-                _controller.animateToPage(
-                    (_controller.page! - ScheduleDisplay.pageIndex).floor(),
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeInOut);
-                ScheduleDisplay.pageIndex = 0;
-              });
+              _controller.animateToPage(
+                  (_controller.page! - ScheduleDisplay.pageIndex).floor(),
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOut);
+              ScheduleDisplay.pageIndex = 0;
             },
             onVerticalDragEnd: (detail) {
-              _controller.animateToPage(
-                  (_controller.page! - (detail.primaryVelocity!).sign).floor(),
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.easeInOut);
-              ScheduleDisplay.pageIndex +=
-                  (detail.primaryVelocity!).sign.floor();
+              if (detail.primaryVelocity! < 0) {
+                _controller.animateToPage((_controller.page! + 1).floor(),
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeInOut);
+                ScheduleDisplay.pageIndex++;
+              } else {
+                GlobalMethods.showPopup(
+                    context,
+                    _buildCalendarNav(
+                        context,
+                        GlobalMethods.addDay(ScheduleDisplay.initialDate,
+                            ScheduleDisplay.pageIndex)), begin: Offset(0, -1.0));
+              }
             },
             child: Container(
               margin: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
