@@ -10,11 +10,11 @@ import 'package:localstorage/localstorage.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:xschedule/display/home_page.dart';
-import 'package:xschedule/global_variables/static_content/global_widgets.dart';
 import 'package:xschedule/global_variables/dynamic_content/stream_signal.dart';
 import 'package:xschedule/global_variables/dynamic_content/tutorial_system.dart';
-import 'package:xschedule/schedule/schedule_display/schedule_display.dart';
+import 'package:xschedule/global_variables/static_content/global_widgets.dart';
 import 'package:xschedule/schedule/schedule_data/schedule_settings_ai.dart';
+import 'package:xschedule/schedule/schedule_display/schedule_display.dart';
 
 import '../../global_variables/static_content/global_methods.dart';
 
@@ -54,6 +54,29 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
   final Map<String, FocusNode> locationFocus = {};
 
   File? imageFile;
+
+  static const List<String> hexColorOptions = [
+    '#ff0000',
+    '#ff6600',
+    '#ffbb00',
+    '#ffff00',
+    '#88ff00',
+    '#00ff00',
+    '#00bb00',
+    '#00bb88',
+    '#00eeff',
+    '#0000ff',
+    '#0000aa',
+    '#8800ff',
+    '#dd00ff',
+    '#ff00aa',
+    '#ff8888',
+    '#ffffff',
+    '#bbbbbb',
+    '#884400',
+    '#666666',
+    '#000000'
+  ];
 
   static final TutorialSystem tutorialSystem = TutorialSystem({
     'tutorial_settings',
@@ -381,7 +404,8 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                             color: ScheduleSettings.colors[bell]!,
                             onChanged: (HSVColor value) {
                               setLocalState(() {
-                                ScheduleSettings.colors[bell] = value.withValue(1).withSaturation(1);
+                                ScheduleSettings.colors[bell] =
+                                    value.withValue(1).withSaturation(1);
                               });
                             },
                           ),
@@ -430,6 +454,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                         ],
                       ),
                     ),
+                    _buildColorSelection(context, bell, setLocalState, hexColorOptions),
                     const SizedBox(height: 16),
                     //Column of text forms
                     _buildTextForm(
@@ -481,6 +506,72 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
             ),
           ));
     });
+  }
+
+  Widget _buildColorSelection(BuildContext context, String bell,
+      StateSetter setState, List<String> hexColors) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final MediaQueryData mediaQuery = MediaQuery.of(context);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      width: mediaQuery.size.width * .75,
+      child: Stack(
+        alignment: Alignment.centerLeft,
+        children: [
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: List<Widget>.generate(hexColors.length, (i) {
+                return InkWell(
+                  onTap: () {
+                    setState(() {
+                      ScheduleSettings.colors[bell] =
+                          HSVColor.fromColor(hexToColor(hexColors[i]));
+                    });
+                  },
+                  child: Container(
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    width: 30,
+                    height: 30,
+                    decoration: BoxDecoration(
+                        color: hexToColor(hexColors[i]),
+                        borderRadius: BorderRadius.circular(5),
+                        boxShadow: [
+                          BoxShadow(color: colorScheme.shadow, blurRadius: 1)
+                        ]),
+                  ),
+                );
+              }),
+            ),
+          ),
+          IgnorePointer(
+              child: Container(
+                width: 10,
+                  height: 46,
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(colors: [
+            colorScheme.surface,
+            colorScheme.surface.withAlpha(0),
+          ], begin: Alignment.centerLeft, end: Alignment.centerRight)))),
+          Align(
+            alignment: Alignment.centerRight,
+            child: IgnorePointer(
+                child: Container(
+                  width: 10,
+                    height: 46,
+                    decoration: BoxDecoration(
+                        gradient: LinearGradient(colors: [
+              colorScheme.surface,
+              colorScheme.surface.withAlpha(0),
+            ], end: Alignment.centerLeft, begin: Alignment.centerRight)))),
+          )
+        ],
+      ),
+    );
   }
 
   //The text form displayed in the settings page

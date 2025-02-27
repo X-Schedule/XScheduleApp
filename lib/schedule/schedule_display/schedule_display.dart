@@ -47,7 +47,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
   final PageController _controller =
       PageController(initialPage: initialPage + ScheduleDisplay.pageIndex);
 
-  final TutorialSystem tutorialSystem = TutorialSystem({
+  static final TutorialSystem tutorialSystem = TutorialSystem({
     'tutorial_schedule',
     'tutorial_schedule_bell',
     'tutorial_schedule_flex',
