@@ -14,7 +14,7 @@ class GlobalWidgets {
         double padding = 5,
       Color? color,
       Color? iconColor}) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
       child: Stack(
         alignment: Alignment.center,

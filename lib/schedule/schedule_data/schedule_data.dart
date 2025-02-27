@@ -2,8 +2,8 @@
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:icalendar_parser/icalendar_parser.dart';
-import 'package:xschedule/global_variables/supabase_db.dart';
-import 'package:xschedule/schedule/schedule.dart';
+import 'package:xschedule/global_variables/dynamic_content/supabase_db.dart';
+import 'package:xschedule/schedule/schedule_data/schedule.dart';
 
 /*
 ScheduleData:

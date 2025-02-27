@@ -3,7 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:icon_decoration/icon_decoration.dart';
 import 'package:localstorage/localstorage.dart';
-import 'package:xschedule/global_variables/stream_signal.dart';
+import 'package:xschedule/global_variables/dynamic_content/stream_signal.dart';
+import 'package:xschedule/global_variables/static_content/static_load.dart';
 import 'package:xschedule/personal/welcome.dart';
 import 'package:xschedule/personal/personal.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_display.dart';
@@ -28,9 +29,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   //Pages available to scroll to using PageView
-  List<Widget> pages = [
-    const ScheduleDisplay(),
-    const Personal(),
+  static const List<Widget> pages = [
+    ScheduleDisplay(),
+    Personal(),
   ];
 
   //Controller of the PageView; allows access to variables and methods
@@ -55,9 +56,6 @@ class _HomePageState extends State<HomePage> {
     return StreamBuilder(
         stream: HomePage.homePageStream.stream,
         builder: (context, snapshot) {
-          if (localStorage.getItem("state") != "logged") {
-            return const Welcome();
-          }
           return Scaffold(
             backgroundColor: colorScheme.primaryContainer,
             bottomNavigationBar: _buildNavBar(context),

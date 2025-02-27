@@ -37,8 +37,9 @@ class TutorialSystem {
         description: message,
         onToolTipClick: simulateTap,
         toolTipSlideEndDistance: dense ? 3 : 7,
-        onBarrierClick: () {
-          if (tutorial != tutorials.lastOrNull) {
+        onBarrierClick: () async {
+          await Future.delayed(const Duration(milliseconds: 100));
+          if (tutorial != tutorials.lastOrNull && context.mounted) {
             ShowCaseWidget.of(context).next();
           }
         },
@@ -121,8 +122,6 @@ class TutorialSystem {
     }
 
     if (tutorialKeys.isNotEmpty) {
-      print(showTutorials);
-      print(tutorialKeys.length);
       ShowCaseWidget.of(context).startShowCase(tutorialKeys);
     }
   }

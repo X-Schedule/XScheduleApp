@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:xschedule/display/splash_page.dart';
 import 'package:xschedule/display/themes.dart';
-import 'package:xschedule/global_variables/global_variables.dart';
-import 'package:xschedule/global_variables/supabase_db.dart';
-import 'package:xschedule/schedule/schedule_data.dart';
-import 'package:xschedule/schedule/schedule_settings/schedule_settings_ai.dart';
+import 'package:xschedule/global_variables/static_content/global_variables.dart';
+import 'package:xschedule/global_variables/dynamic_content/supabase_db.dart';
+import 'package:xschedule/schedule/schedule_data/schedule_data.dart';
+import 'package:xschedule/schedule/schedule_data/schedule_settings_ai.dart';
 
 import 'display/home_page.dart';
 
@@ -29,7 +30,7 @@ Future<void> main() async {
   GlobalVariables.packageInfo = await PackageInfo.fromPlatform();
 
   //Fetches data from supabase asynchronously on startup
-  DateTime now = DateTime.now();
+  final DateTime now = DateTime.now();
   ScheduleData.addDailyData(
       DateTime(now.year, now.month, now.day).subtract(const Duration(days: 50)),
       DateTime(now.year, now.month, now.day).add(const Duration(days: 50)));
@@ -57,7 +58,7 @@ class XScheduleApp extends StatelessWidget {
       home: const DefaultTextStyle(
         style: TextStyle(
             color: Colors.black, fontSize: 25, decoration: null),
-        child: HomePage(),
+        child: SplashPage(),
       ),
     );
   }

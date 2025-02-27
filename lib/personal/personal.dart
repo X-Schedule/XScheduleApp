@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:xschedule/display/home_page.dart';
-import 'package:xschedule/global_variables/global_variables.dart';
-import 'package:xschedule/global_variables/global_widgets.dart';
-import 'package:xschedule/global_variables/stream_signal.dart';
+import 'package:xschedule/global_variables/static_content/global_variables.dart';
+import 'package:xschedule/global_variables/static_content/global_widgets.dart';
+import 'package:xschedule/global_variables/dynamic_content/stream_signal.dart';
 
-import '../global_variables/global_methods.dart';
+import '../global_variables/static_content/global_methods.dart';
 import '../schedule/schedule_settings/schedule_settings.dart';
 
 /*

@@ -5,8 +5,8 @@ Custom Class to construct custom 'Clock' Objects
 Clock objects allow for more efficient calculations when handling time
  */
 
-import 'global_methods.dart';
-import 'global_variables.dart';
+import '../static_content/global_methods.dart';
+import '../static_content/global_variables.dart';
 
 class Clock {
   //Constructor

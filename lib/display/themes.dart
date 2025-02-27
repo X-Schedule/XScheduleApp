@@ -8,7 +8,7 @@ Using Flutter themes allows for easier adjustments to global colors and a more p
  */
 
 class Themes {
-  static ThemeData blueTheme = ThemeData(
+  static final ThemeData blueTheme = ThemeData(
       colorScheme: const ColorScheme(
     brightness: Brightness.light,
     primary: Color(0xFF448AFF),

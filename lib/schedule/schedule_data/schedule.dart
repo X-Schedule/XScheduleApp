@@ -1,4 +1,4 @@
-import '../global_variables/clock.dart';
+import '../../global_variables/dynamic_content/clock.dart';
 
 /*
 Schedule:

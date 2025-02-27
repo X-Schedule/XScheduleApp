@@ -10,13 +10,13 @@ import 'package:localstorage/localstorage.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:xschedule/display/home_page.dart';
-import 'package:xschedule/global_variables/global_widgets.dart';
-import 'package:xschedule/global_variables/stream_signal.dart';
-import 'package:xschedule/global_variables/tutorial_system.dart';
+import 'package:xschedule/global_variables/static_content/global_widgets.dart';
+import 'package:xschedule/global_variables/dynamic_content/stream_signal.dart';
+import 'package:xschedule/global_variables/dynamic_content/tutorial_system.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_display.dart';
-import 'package:xschedule/schedule/schedule_settings/schedule_settings_ai.dart';
+import 'package:xschedule/schedule/schedule_data/schedule_settings_ai.dart';
 
-import '../../global_variables/global_methods.dart';
+import '../../global_variables/static_content/global_methods.dart';
 
 /*
 Schedule Settings:
@@ -47,6 +47,11 @@ class ScheduleSettings extends StatefulWidget {
 
 class _ScheduleSettingsState extends State<ScheduleSettings> {
   final Color pickerColor = Colors.blue;
+
+  final Map<String, FocusNode> emojiFocus = {};
+  final Map<String, FocusNode> nameFocus = {};
+  final Map<String, FocusNode> teacherFocus = {};
+  final Map<String, FocusNode> locationFocus = {};
 
   File? imageFile;
 
@@ -185,7 +190,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
   }
 
   //Ensures no bell values are null
-  void _defineBell(String bell) {
+  void _defineBell(final String bell) {
     // ??= means if null, then define as this value
     ScheduleSettings.bellInfo[bell] ??= {};
     ScheduleSettings.bellInfo[bell]!['color'] ??= "#006aff";
@@ -195,19 +200,23 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
     ScheduleSettings.bellInfo[bell]!['emoji'] ??= bell.replaceAll('HR', '📚');
     ScheduleSettings.emojis[bell] ??= TextEditingController(
         text: ScheduleSettings.bellInfo[bell]!['emoji'].replaceAll('HR', '📚'));
+    emojiFocus[bell] ??= FocusNode();
 
     ScheduleSettings.bellInfo[bell]!['name'] ??=
         '$bell Bell'.replaceAll('HR Bell', 'Homeroom');
     ScheduleSettings.names[bell] ??=
         TextEditingController(text: ScheduleSettings.bellInfo[bell]!['name']);
+    nameFocus[bell] ??= FocusNode();
 
     ScheduleSettings.bellInfo[bell]!['teacher'] ??= '';
     ScheduleSettings.teachers[bell] ??= TextEditingController(
         text: ScheduleSettings.bellInfo[bell]!['teacher']);
+    teacherFocus[bell] ??= FocusNode();
 
     ScheduleSettings.bellInfo[bell]!['location'] ??= '';
     ScheduleSettings.locations[bell] ??= TextEditingController(
         text: ScheduleSettings.bellInfo[bell]!['location']);
+    locationFocus[bell] ??= FocusNode();
   }
 
   //Builds the tiles displayed in the scroll view
@@ -350,13 +359,11 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Text(hint,
-                            style: TextStyle(
-                                fontSize: 20,
-                                fontFamily: 'Exo2',
-                                color: colorScheme.onSurface.withAlpha(128)))),
+                    Text(hint,
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontFamily: 'Exo2',
+                            color: colorScheme.onSurface.withAlpha(128))),
                     SizedBox(
                       width: 200,
                       child: Stack(
@@ -374,7 +381,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                             color: ScheduleSettings.colors[bell]!,
                             onChanged: (HSVColor value) {
                               setLocalState(() {
-                                ScheduleSettings.colors[bell] = value;
+                                ScheduleSettings.colors[bell] = value.withValue(1).withSaturation(1);
                               });
                             },
                           ),
@@ -387,6 +394,8 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                             child: IntrinsicWidth(
                               child: TextField(
                                 controller: ScheduleSettings.emojis[bell],
+                                focusNode: emojiFocus[bell],
+                                showCursor: false,
                                 decoration: const InputDecoration(
                                   isDense: true,
                                   border: InputBorder.none,
@@ -398,6 +407,9 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                                 style: TextStyle(
                                     fontSize: 120, // Large font size
                                     color: colorScheme.onSurface),
+                                onTapOutside: (_) {
+                                  emojiFocus[bell]?.unfocus();
+                                },
                                 onChanged: (String text) {
                                   //Ensured no empty values
                                   if (text.isEmpty) {
@@ -421,11 +433,14 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                     const SizedBox(height: 16),
                     //Column of text forms
                     _buildTextForm(
-                        context, ScheduleSettings.names[bell]!, "Bell Name"),
+                        context, ScheduleSettings.names[bell]!, "Bell Name",
+                        focusNode: nameFocus[bell]),
                     _buildTextForm(
-                        context, ScheduleSettings.teachers[bell]!, "Teacher"),
+                        context, ScheduleSettings.teachers[bell]!, "Teacher",
+                        focusNode: teacherFocus[bell]),
                     _buildTextForm(
-                        context, ScheduleSettings.locations[bell]!, "Location"),
+                        context, ScheduleSettings.locations[bell]!, "Location",
+                        focusNode: locationFocus[bell]),
                     //Submits
                     Padding(
                         padding: const EdgeInsets.only(top: 8),
@@ -470,7 +485,8 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
 
   //The text form displayed in the settings page
   Widget _buildTextForm(
-      BuildContext context, TextEditingController controller, String display) {
+      BuildContext context, TextEditingController controller, String display,
+      {FocusNode? focusNode}) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
     double size = mediaQuery.size.width * 5 / 6;
@@ -480,6 +496,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
       width: size,
       child: TextFormField(
         keyboardType: TextInputType.text,
+        focusNode: focusNode,
         controller: controller,
         maxLength: 50,
         maxLines: 1,
@@ -534,7 +551,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Padding(
-                  padding: const EdgeInsets.only(left: 10, right: 10, top: 5),
+                  padding: const EdgeInsets.only(left: 16, right: 16, top: 5),
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Text(
