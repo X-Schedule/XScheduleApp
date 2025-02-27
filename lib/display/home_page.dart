@@ -56,6 +56,9 @@ class _HomePageState extends State<HomePage> {
     return StreamBuilder(
         stream: HomePage.homePageStream.stream,
         builder: (context, snapshot) {
+          if (localStorage.getItem("state") != "logged") {
+            return const Welcome();
+          }
           return Scaffold(
             backgroundColor: colorScheme.primaryContainer,
             bottomNavigationBar: _buildNavBar(context),
