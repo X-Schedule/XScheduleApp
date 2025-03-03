@@ -13,6 +13,7 @@ import 'package:xschedule/display/home_page.dart';
 import 'package:xschedule/global_variables/dynamic_content/stream_signal.dart';
 import 'package:xschedule/global_variables/dynamic_content/tutorial_system.dart';
 import 'package:xschedule/global_variables/static_content/global_widgets.dart';
+import 'package:xschedule/main.dart';
 import 'package:xschedule/schedule/schedule_data/schedule_settings_ai.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_display.dart';
 
@@ -303,41 +304,49 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                       alignment: Alignment.centerLeft,
                       padding: const EdgeInsets.only(left: 5),
                       //FittedBox to ensure text doesn't overflow card
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Column(
+                      child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             //Displays class name, bell name, or nothing (if null)
-                            Text(
-                              settings['name']!,
-                              style: TextStyle(
-                                  height: 0.9,
-                                  fontSize: 25,
-                                  overflow: TextOverflow.ellipsis,
-                                  //bold
-                                  fontWeight: FontWeight.w600,
-                                  color: colorScheme.onSurface),
-                            ),
-                            Text(
-                              settings['teacher']!,
-                              style: TextStyle(
-                                  fontSize: 18,
-                                  overflow: TextOverflow.ellipsis,
-                                  fontWeight: FontWeight.w500,
-                                  color: colorScheme.onSurface),
-                            ),
-                            Text(
-                              settings['location']!,
-                              style: TextStyle(
-                                  fontSize: 18,
-                                  overflow: TextOverflow.ellipsis,
-                                  fontWeight: FontWeight.w500,
-                                  color: colorScheme.onSurface),
-                            ),
+                            Expanded(child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                settings['name']!,
+                                style: TextStyle(
+                                    height: 1,
+                                    fontSize: 25,
+                                    overflow: TextOverflow.ellipsis,
+                                    //bold
+                                    fontWeight: FontWeight.w600,
+                                    color: colorScheme.onSurface),
+                              ),
+                            )),
+                            Expanded(child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                settings['teacher']!,
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    height: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    fontWeight: FontWeight.w500,
+                                    color: colorScheme.onSurface),
+                              ),
+                            )),
+                            Expanded(child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                settings['location']!,
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    height: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    fontWeight: FontWeight.w500,
+                                    color: colorScheme.onSurface),
+                              ),
+                            )),
                           ],
                         ),
-                      ),
                     ),
                     Container(
                       alignment: Alignment.center,
@@ -454,7 +463,8 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                         ],
                       ),
                     ),
-                    _buildColorSelection(context, bell, setLocalState, hexColorOptions),
+                    _buildColorSelection(
+                        context, bell, setLocalState, hexColorOptions),
                     const SizedBox(height: 16),
                     //Column of text forms
                     _buildTextForm(
@@ -550,24 +560,30 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
           ),
           IgnorePointer(
               child: Container(
-                width: 10,
+                  width: 10,
                   height: 46,
                   decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: [
-            colorScheme.surface,
-            colorScheme.surface.withAlpha(0),
-          ], begin: Alignment.centerLeft, end: Alignment.centerRight)))),
+                      gradient: LinearGradient(
+                          colors: [
+                        colorScheme.surface,
+                        colorScheme.surface.withAlpha(0),
+                      ],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight)))),
           Align(
             alignment: Alignment.centerRight,
             child: IgnorePointer(
                 child: Container(
-                  width: 10,
+                    width: 10,
                     height: 46,
                     decoration: BoxDecoration(
-                        gradient: LinearGradient(colors: [
-              colorScheme.surface,
-              colorScheme.surface.withAlpha(0),
-            ], end: Alignment.centerLeft, begin: Alignment.centerRight)))),
+                        gradient: LinearGradient(
+                            colors: [
+                          colorScheme.surface,
+                          colorScheme.surface.withAlpha(0),
+                        ],
+                            end: Alignment.centerLeft,
+                            begin: Alignment.centerRight)))),
           )
         ],
       ),
@@ -723,10 +739,18 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                           isLoading = true;
                         });
                         if (await imageFile!.exists()) {
-                          final Map<String, dynamic>? aiScan =
+                          final Map<String, dynamic> aiScan =
                               await ScheduleSettingsAI.scanSchedule(
                                   imageFile!.path);
-                          if (aiScan != null && context.mounted) {
+                          if (context.mounted) {
+                            if (aiScan['error'] != null) {
+                              context.showSnackBar(
+                                  'Request Failed: Error Code ${aiScan['error']}', isError: true);
+                              setLocalState(() {
+                                isLoading = false;
+                              });
+                              return;
+                            }
                             setState(() {
                               ScheduleSettings.bellInfo = aiScan;
 
@@ -743,10 +767,6 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                             });
                             //Pops popup
                             Navigator.pop(context);
-                          } else {
-                            setLocalState(() {
-                              isLoading = false;
-                            });
                           }
                         }
                       }

@@ -59,7 +59,7 @@ class ScheduleSettingsAI {
 
   //Runs an http.post request to OpenAI servers
   static Future<Response> postSchedule(String filePath) async {
-    final String base64Image = (await imageToBase64(filePath))!;
+    final String? base64Image = await imageToBase64(filePath);
 
     final Response response = await http.post(
       Uri.parse(apiUrl),
@@ -88,19 +88,34 @@ class ScheduleSettingsAI {
   }
 
   //Fully scans a provided schedule image using OpenAI
-  static Future<Map<String, dynamic>?> scanSchedule(
+  static Future<Map<String, dynamic>> scanSchedule(
       String filePath) async {
-    final Response response = await postSchedule(filePath);
+    late Response response;
+    try {
+      response = await postSchedule(filePath);
+    } catch (_){
+      return {
+        'error': 513
+      };
+    }
 
     if (response.statusCode == 200) {
       final String decodedResponse = utf8.decode(response.bodyBytes).replaceAll('```', '').replaceAll('json', '').replaceAll(r'\n', '');
-      final Map<String, dynamic> body = jsonDecode(decodedResponse);
+      try {
+        final Map<String, dynamic> body = jsonDecode(decodedResponse);
 
-      List<dynamic> choices = body['choices'] ?? [];
-      if (choices.isNotEmpty) {
-        return jsonDecode(choices.first['message']['content']);
+        List<dynamic> choices = body['choices'] ?? [];
+        if (choices.isNotEmpty) {
+          return jsonDecode(choices.first['message']['content']);
+        }
+      } catch (e){
+        return {
+          'error': 415
+        };
       }
     }
-    return null;
+    return {
+      'error': response.statusCode
+    };
   }
 }

@@ -68,16 +68,9 @@ class GlobalWidgets {
 
     return Align(
       alignment: Alignment.center,
-      child: GestureDetector(
-        onHorizontalDragEnd: (detail) {
-          if (detail.primaryVelocity! < 0) {
-            Navigator.pop(context);
-          }
-        },
-        child: Card(
-          color: colorScheme.surface,
-          child: child,
-        ),
+      child: Card(
+        color: colorScheme.surface,
+        child: child,
       ),
     );
   }

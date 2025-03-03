@@ -55,7 +55,7 @@ class GlobalMethods {
     }));
   }
 
-  static void showPopup(final BuildContext context, final Widget widget, {Offset? begin}) {
+  static void showPopup(BuildContext context, Widget widget, {Offset? begin}) {
     //Pushes the popup to the app navigator
     Navigator.of(context).push(PageRouteBuilder(
       //See-through 'page'

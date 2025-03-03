@@ -3,12 +3,11 @@ import 'package:localstorage/localstorage.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:xschedule/display/splash_page.dart';
 import 'package:xschedule/display/themes.dart';
-import 'package:xschedule/global_variables/static_content/global_variables.dart';
 import 'package:xschedule/global_variables/dynamic_content/supabase_db.dart';
+import 'package:xschedule/global_variables/static_content/global_variables.dart';
+import 'package:xschedule/personal/credits.dart';
 import 'package:xschedule/schedule/schedule_data/schedule_data.dart';
 import 'package:xschedule/schedule/schedule_data/schedule_settings_ai.dart';
-
-import 'display/home_page.dart';
 
 /*
 Main:
@@ -26,6 +25,7 @@ Future<void> main() async {
 
   //Reads the json data for openAI communication
   await ScheduleSettingsAI.loadOpenAIJson();
+  Credits.loadCreditsAIJson();
 
   GlobalVariables.packageInfo = await PackageInfo.fromPlatform();
 
@@ -56,9 +56,29 @@ class XScheduleApp extends StatelessWidget {
       title: 'X-Schedule',
       //HomePage Wrapped in DefaultTextStyle so that we don't need to specify EVERY TIME we display text
       home: const DefaultTextStyle(
-        style: TextStyle(
-            color: Colors.black, fontSize: 25, decoration: null),
+        style: TextStyle(color: Colors.black, fontSize: 25, decoration: null),
         child: SplashPage(),
+      ),
+    );
+  }
+}
+
+//Globally attaches showSnackBar() to BuildContext variables
+extension ContextExtension on BuildContext {
+  void showSnackBar(String message,
+      {bool isError = false, bool floating = true}) {
+    ScaffoldMessenger.of(this).showSnackBar(
+      SnackBar(
+        content: Text(message,
+            overflow: TextOverflow.fade,
+            style: TextStyle(
+                color: isError
+                    ? Theme.of(this).colorScheme.onError
+                    : Theme.of(this).snackBarTheme.actionTextColor)),
+        behavior: floating ? SnackBarBehavior.floating : null,
+        backgroundColor: isError
+            ? Theme.of(this).colorScheme.error
+            : Theme.of(this).snackBarTheme.backgroundColor,
       ),
     );
   }

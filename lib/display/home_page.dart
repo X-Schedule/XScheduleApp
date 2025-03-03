@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:icon_decoration/icon_decoration.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:xschedule/global_variables/dynamic_content/stream_signal.dart';
-import 'package:xschedule/global_variables/static_content/static_load.dart';
 import 'package:xschedule/personal/welcome.dart';
 import 'package:xschedule/personal/personal.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_display.dart';

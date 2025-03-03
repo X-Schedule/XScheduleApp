@@ -57,12 +57,12 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     'tutorial_schedule_settings'
   });
 
-  late Timer timer;
+  Timer? timer;
 
   @override
   void dispose() {
     super.dispose();
-    timer.cancel();
+    timer?.cancel();
   }
 
   @override

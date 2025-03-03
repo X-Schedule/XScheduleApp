@@ -24,7 +24,7 @@ class Themes {
     onSurface: Color(0xFF000000),
     surfaceContainer: Color(0xFFC9C9C9),
     //Hides all error shit
-    error: Colors.transparent,
-    onError: Colors.transparent,
+    error: Color(0xFF550312),
+    onError: Color(0xFFE1E1E1),
   ));
 }
