@@ -65,6 +65,45 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     timer?.cancel();
   }
 
+  Future<void> _showTutorial(BuildContext context) async {
+    while (ScheduleData.schedule.isEmpty) {
+      await Future.delayed(Duration(milliseconds: 100));
+    }
+    await Future.delayed(const Duration(milliseconds: 250));
+    if (!tutorialSystem.finished) {
+      int index = 0;
+      if (ScheduleDisplay.tutorialDate == null) {
+        while (index <= 25 && ScheduleDisplay.tutorialDate == null) {
+          if (_schedule(
+              GlobalMethods.addDay(ScheduleDisplay.initialDate, index),
+              tutorial: true)) {
+            break;
+          }
+          if (_schedule(
+              GlobalMethods.addDay(ScheduleDisplay.initialDate, -index),
+              tutorial: true)) {
+            index = -index;
+            break;
+          }
+          index++;
+        }
+      }
+      if (index != 26) {
+        ScheduleDisplay.tutorialDate =
+            GlobalMethods.addDay(ScheduleDisplay.initialDate, index);
+        if (index != ScheduleDisplay.pageIndex) {
+          ScheduleDisplay.pageIndex = index;
+          _controller.animateToPage(initialPage + index,
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeInOut);
+        } else if (context.mounted) {
+          tutorialSystem.showTutorials(context);
+          tutorialSystem.finish();
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
@@ -87,40 +126,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
             tutorialSystem.finish();
           }, builder: (context) {
             WidgetsBinding.instance.addPostFrameCallback((_) async {
-              while (ScheduleData.schedule.isEmpty) {
-                await Future.delayed(Duration(milliseconds: 100));
-              }
-              await Future.delayed(const Duration(milliseconds: 250));
-              if (!tutorialSystem.finished) {
-                int index = 0;
-                while (index <= 25 && ScheduleDisplay.tutorialDate == null) {
-                  if (_schedule(
-                      GlobalMethods.addDay(ScheduleDisplay.initialDate, index),
-                      tutorial: true)) {
-                    break;
-                  }
-                  if (_schedule(
-                      GlobalMethods.addDay(ScheduleDisplay.initialDate, -index),
-                      tutorial: true)) {
-                    index = -index;
-                    break;
-                  }
-                  index++;
-                }
-                if (index != 26) {
-                  ScheduleDisplay.tutorialDate =
-                      GlobalMethods.addDay(ScheduleDisplay.initialDate, index);
-                  if (index != ScheduleDisplay.pageIndex) {
-                    ScheduleDisplay.pageIndex = index;
-                    _controller.animateToPage(initialPage + index,
-                        duration: const Duration(milliseconds: 250),
-                        curve: Curves.easeInOut);
-                  } else if (context.mounted) {
-                    tutorialSystem.showTutorials(context);
-                    tutorialSystem.finish();
-                  }
-                }
-              }
+              await _showTutorial(context);
             });
             return Scaffold(
                 backgroundColor: colorScheme.primaryContainer,
