@@ -48,13 +48,20 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
       PageController(initialPage: initialPage + ScheduleDisplay.pageIndex);
 
   static final TutorialSystem tutorialSystem = TutorialSystem({
-    'tutorial_schedule',
-    'tutorial_schedule_bell',
-    'tutorial_schedule_flex',
-    'tutorial_schedule_date',
-    'tutorial_schedule_calendar',
-    'tutorial_schedule_info',
-    'tutorial_schedule_settings'
+    'tutorial_schedule':
+        "In this menu, you'll be able to see the schedule of any school day out of the year.",
+    'tutorial_schedule_bell':
+        'Each individual bell is set to match the information you provided about your class schedule, and clicking on any bell will display more information about it.',
+    'tutorial_schedule_flex':
+        'Additionally, you can tap the Flex bell to view information about lunch, clubs, and more!',
+    'tutorial_schedule_date':
+        "Up top, you'll find the date you're currently viewing. You can use the buttons or simple swiping gestures to flip between days.",
+    'tutorial_schedule_calendar':
+        "... or click this button to quickly navigate through the school days of the year.",
+    'tutorial_schedule_info':
+        "Tap this button to view important information about a school day, if available.",
+    'tutorial_schedule_settings':
+        'Lastly, if you every want to edit your class information, you can do so by clicking this button.'
   });
 
   Timer? timer;
@@ -87,19 +94,20 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
           }
           index++;
         }
-      }
-      if (index != 26) {
+        if (index == 26) {
+          return;
+        }
         ScheduleDisplay.tutorialDate =
             GlobalMethods.addDay(ScheduleDisplay.initialDate, index);
-        if (index != ScheduleDisplay.pageIndex) {
-          ScheduleDisplay.pageIndex = index;
-          _controller.animateToPage(initialPage + index,
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeInOut);
-        } else if (context.mounted) {
-          tutorialSystem.showTutorials(context);
-          tutorialSystem.finish();
-        }
+      }
+      if (index != ScheduleDisplay.pageIndex && index != 0) {
+        ScheduleDisplay.pageIndex = index;
+        _controller.animateToPage(initialPage + index,
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeInOut);
+      } else if (context.mounted) {
+        tutorialSystem.showTutorials(context);
+        tutorialSystem.finish();
       }
     }
   }
@@ -147,8 +155,6 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                             child: tutorialSystem.showcase(
                                 context: context,
                                 circular: true,
-                                message:
-                                    "... or click this button to quickly navigate through the school days of the year.",
                                 tutorial: 'tutorial_schedule_calendar',
                                 child: GlobalWidgets.iconCircle(
                                     icon: Icons.calendar_month,
@@ -169,8 +175,6 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                           ),
                           tutorialSystem.showcase(
                               context: context,
-                              message:
-                                  "Up top, you'll find the date you're currently viewing. You can use the buttons or simple swiping gestures to flip between days.",
                               tutorial: 'tutorial_schedule_date',
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -203,8 +207,6 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                             child: tutorialSystem.showcase(
                                 context: context,
                                 circular: true,
-                                message:
-                                    "Tap this button to view important information about a school day, if available.",
                                 tutorial: 'tutorial_schedule_info',
                                 child: _buildInfoButton(context)),
                           ),
@@ -220,8 +222,6 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                       height: 30,
                       child: tutorialSystem.showcase(
                           context: context,
-                          message:
-                              'Lastly, if you every want to edit your class information, you can do so by clicking this button.',
                           tutorial: 'tutorial_schedule_settings',
                           child: ElevatedButton(
                               onPressed: () {
@@ -378,8 +378,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     double minuteHeight = cardHeight / 430;
     return tutorialSystem.showcase(
         context: context,
-        message:
-            "In this menu, you'll be able to see the schedule of any school day out of the year.",
+        uniqueNull: true,
         tutorial: date == ScheduleDisplay.tutorialDate
             ? 'tutorial_schedule'
             : 'no_tutorial',
@@ -510,7 +509,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     //Gets Map from schedule_settings.dart
     final Map settings = ScheduleSettings.bellInfo[bell] ?? {};
     final Color color = hexToColor(settings['color'] ?? '#909090');
-    
+
     bool activities = bell.toLowerCase().contains("flex");
 
     Map times = schedule.clockMap(bell) ?? {};
@@ -541,10 +540,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
             color: color.withAlpha(40),
             child: tutorialSystem.showcase(
               context: context,
-              message: bell == schedule.firstFlex
-                  ? 'Additionally, you can tap the Flex bell to view information about lunch, clubs, and more!'
-                  : 'Each individual bell is set to match the information you provided about your class schedule, and clicking on any bell will display more information about it.',
               tutorial: _tutorial(date, bell),
+              uniqueNull: true,
               child: Row(
                 children: [
                   //Left color nib; if no setting set, displays as grey

@@ -5,11 +5,11 @@ import 'package:showcaseview/showcaseview.dart';
 
 class TutorialSystem {
   TutorialSystem(this.tutorials) {
-    generateKeys(tutorials, reference: keys);
+    generateKeys(tutorials.keys.toSet(), reference: keys);
     finished = keys.isEmpty;
   }
 
-  final Set<String> tutorials;
+  final Map<String, String> tutorials;
   final Map<String, GlobalKey> keys = {};
 
   bool finished = false;
@@ -24,22 +24,24 @@ class TutorialSystem {
   }
 
   Showcase showcase(
-      {required final BuildContext context,
-      required final String message,
-      required final String tutorial,
-      required final Widget child,
-      final bool dense = false,
-      final bool circular = false}) {
+      {required BuildContext context,
+      required String tutorial,
+      required Widget child,
+      bool dense = false,
+      bool uniqueNull = false,
+      bool circular = false,
+      EdgeInsets? targetPadding}) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Showcase(
-        key: key(tutorial),
-        description: message,
+        key: key(tutorial, uniqueNull: uniqueNull),
+        description: tutorials[tutorial],
         onToolTipClick: simulateTap,
         toolTipSlideEndDistance: dense ? 3 : 7,
+        targetPadding: targetPadding ?? EdgeInsets.zero,
         onBarrierClick: () async {
           await Future.delayed(const Duration(milliseconds: 100));
-          if (tutorial != tutorials.lastOrNull && context.mounted) {
+          if (tutorial != tutorials.keys.lastOrNull && context.mounted) {
             ShowCaseWidget.of(context).next();
           }
         },
@@ -79,12 +81,12 @@ class TutorialSystem {
   }
 
   void refreshKeys() {
-    generateKeys(tutorials, reference: keys);
+    generateKeys(tutorials.keys.toSet(), reference: keys);
     finished = keys.isEmpty;
   }
 
   void removeFinished() {
-    for (String tutorial in tutorials) {
+    for (String tutorial in tutorials.keys) {
       if ((localStorage.getItem(tutorial) ?? '') == 'T') {
         keys.remove(tutorial);
       }
@@ -95,12 +97,15 @@ class TutorialSystem {
   }
 
   void clearStorage() {
-    for (String tutorial in tutorials) {
+    for (String tutorial in tutorials.keys) {
       localStorage.removeItem(tutorial);
     }
   }
 
-  GlobalKey key(String tutorial) {
+  GlobalKey key(String tutorial, {bool uniqueNull = false}) {
+    if (!uniqueNull) {
+      keys[tutorial] ??= GlobalKey();
+    }
     return keys[tutorial] ?? GlobalKey();
   }
 
@@ -108,17 +113,15 @@ class TutorialSystem {
       {final bool storeCompletion = true}) {
     final Set<String> showTutorials = {};
     if (storeCompletion) {
-      showTutorials.addAll(tutorials
+      showTutorials.addAll(tutorials.keys
           .where((element) => (localStorage.getItem(element) ?? '').isEmpty));
     } else {
-      showTutorials.addAll(tutorials);
+      showTutorials.addAll(tutorials.keys);
     }
     final List<GlobalKey> tutorialKeys = [];
     for (String tutorial in showTutorials) {
-      if (storeCompletion) {
-        localStorage.setItem(tutorial, 'T');
-      }
-      tutorialKeys.add(keys[tutorial]!);
+      localStorage.setItem(tutorial, 'T');
+      tutorialKeys.add(key(tutorial));
     }
 
     if (tutorialKeys.isNotEmpty) {

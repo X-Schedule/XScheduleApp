@@ -80,10 +80,38 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
   ];
 
   static final TutorialSystem tutorialSystem = TutorialSystem({
-    'tutorial_settings',
-    'tutorial_settings_button',
-    'tutorial_settings_ai',
-    'tutorial_settings_complete'
+    'tutorial_settings':
+        "In this menu, you'll be able to customize your schedule to match the classes you have.",
+    'tutorial_settings_button':
+        "Click on any individual bell to change its name, information, and appearance.",
+    'tutorial_settings_ai':
+        "... or try uploading a picture of your schedule to let AI interpret it for you!",
+    'tutorial_settings_complete':
+        "Once you're satisfied with your schedule, tap the button down here to move on."
+  });
+
+  static const Map<String, String> bellTutorials = {
+    'tutorial_settings_bell':
+        "In this menu, you'll be able to customize any individual bell on your schedule.",
+    'tutorial_settings_bell_color_wheel':
+        "You can give each bell a distinctive color using the color wheel.",
+    'tutorial_settings_bell_color_row':
+        "...or by selecting one from the available options.",
+    'tutorial_settings_bell_icon':
+        "Additionally, you can select an icon to represent each bell.",
+    'tutorial_settings_bell_info':
+        "As well, you can input the information about your class so that you can remember it later.",
+    'tutorial_settings_bell_alternate':
+        '...and if your class changes daily, you can add an "alternate" class for the bell.',
+    'tutorial_settings_bell_complete':
+        "When you've finished customizing the bell, press this button to save your changes and exit.",
+    'tutorial_settings_bell_help':
+        'If you ever need help, press this button here.'
+  };
+  static final TutorialSystem bellTutorialSystem = TutorialSystem({
+    'tutorial_settings_bell': bellTutorials['tutorial_settings_bell']!,
+    'tutorial_settings_bell_help':
+        bellTutorials['tutorial_settings_bell_help']!,
   });
 
   @override
@@ -117,8 +145,6 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                     context: context,
                     circular: true,
                     tutorial: 'tutorial_settings_ai',
-                    message:
-                        "... or try uploading a picture of your schedule to let AI interpret it for you!",
                     child: IconButton(
                       icon: Icon(
                         Icons.camera_outlined,
@@ -135,8 +161,6 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
             title: tutorialSystem.showcase(
               context: context,
               tutorial: 'tutorial_settings',
-              message:
-                  "In this menu, you'll be able to customize your schedule to match the classes you have.",
               child: FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
@@ -159,8 +183,6 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                 vertical: 20, horizontal: mediaQuery.size.width * .325),
             child: tutorialSystem.showcase(
                 context: context,
-                message:
-                    "Once you're satisfied with your schedule, tap the button down here to move on.",
                 tutorial: 'tutorial_settings_complete',
                 child: ElevatedButton(
                     onPressed: () {
@@ -194,8 +216,6 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                 tutorialSystem.showcase(
                     context: context,
                     tutorial: 'tutorial_settings_button',
-                    message:
-                        "Click on any individual bell to change its name, information, and appearance.",
                     child: _buildBellTile(context, 'A')),
                 _buildBellTile(context, 'B'),
                 _buildBellTile(context, 'C'),
@@ -305,48 +325,51 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                       padding: const EdgeInsets.only(left: 5),
                       //FittedBox to ensure text doesn't overflow card
                       child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            //Displays class name, bell name, or nothing (if null)
-                            Expanded(child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                settings['name']!,
-                                style: TextStyle(
-                                    height: 1,
-                                    fontSize: 25,
-                                    overflow: TextOverflow.ellipsis,
-                                    //bold
-                                    fontWeight: FontWeight.w600,
-                                    color: colorScheme.onSurface),
-                              ),
-                            )),
-                            Expanded(child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                settings['teacher']!,
-                                style: TextStyle(
-                                    fontSize: 18,
-                                    height: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    fontWeight: FontWeight.w500,
-                                    color: colorScheme.onSurface),
-                              ),
-                            )),
-                            Expanded(child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                settings['location']!,
-                                style: TextStyle(
-                                    fontSize: 18,
-                                    height: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    fontWeight: FontWeight.w500,
-                                    color: colorScheme.onSurface),
-                              ),
-                            )),
-                          ],
-                        ),
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          //Displays class name, bell name, or nothing (if null)
+                          Expanded(
+                              child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              settings['name']!,
+                              style: TextStyle(
+                                  height: 1,
+                                  fontSize: 25,
+                                  overflow: TextOverflow.ellipsis,
+                                  //bold
+                                  fontWeight: FontWeight.w600,
+                                  color: colorScheme.onSurface),
+                            ),
+                          )),
+                          Expanded(
+                              child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              settings['teacher']!,
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  height: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  fontWeight: FontWeight.w500,
+                                  color: colorScheme.onSurface),
+                            ),
+                          )),
+                          Expanded(
+                              child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              settings['location']!,
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  height: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  fontWeight: FontWeight.w500,
+                                  color: colorScheme.onSurface),
+                            ),
+                          )),
+                        ],
+                      ),
                     ),
                     Container(
                       alignment: Alignment.center,
@@ -367,6 +390,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
   //Builds the setting popup
   Widget _buildBellSettings(String bell) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final MediaQueryData mediaQuery = MediaQuery.of(context);
 
     String hint = bell;
     if (hint.length == 1) {
@@ -375,6 +399,8 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
       hint = 'Homeroom';
     }
 
+    bellTutorialSystem.refreshKeys();
+
     //Allows for "setState" to be called, and only effect this popup
     return StatefulBuilder(
         builder: (BuildContext context, StateSetter setLocalState) {
@@ -382,139 +408,230 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
       return KeyboardAvoider(
           autoScroll: true,
           child: Align(
-            alignment: Alignment.center,
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(hint,
-                        style: TextStyle(
-                            fontSize: 20,
-                            fontFamily: 'Exo2',
-                            color: colorScheme.onSurface.withAlpha(128))),
-                    SizedBox(
-                      width: 200,
-                      child: Stack(
-                        alignment: Alignment.center,
+              alignment: Alignment.center,
+              child: ShowCaseWidget(onFinish: () {
+                bellTutorialSystem.finish();
+              }, builder: (context) {
+                if (!bellTutorialSystem.finished) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    bellTutorialSystem.showTutorials(context);
+                  });
+                }
+                return bellTutorialSystem.showcase(
+                  context: context,
+                  tutorial: 'tutorial_settings_bell',
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          //Solid Color circle
-                          CircleAvatar(
-                            backgroundColor:
-                                //Color in variable type "HSVColor"; needs to be converted
-                                ScheduleSettings.colors[bell]!.toColor(),
-                            radius: 95,
-                          ),
-                          WheelPicker(
-                            showPalette: false,
-                            color: ScheduleSettings.colors[bell]!,
-                            onChanged: (HSVColor value) {
-                              setLocalState(() {
-                                ScheduleSettings.colors[bell] =
-                                    value.withValue(1).withSaturation(1);
-                              });
-                            },
-                          ),
-                          //Emoji Picker
-                          Container(
-                            width: 125,
-                            height: 125,
-                            alignment: Alignment.center,
-                            margin: const EdgeInsets.only(bottom: 10),
-                            child: IntrinsicWidth(
-                              child: TextField(
-                                controller: ScheduleSettings.emojis[bell],
-                                focusNode: emojiFocus[bell],
-                                showCursor: false,
-                                decoration: const InputDecoration(
-                                  isDense: true,
-                                  border: InputBorder.none,
-                                  // Removes the underline
-                                  contentPadding: EdgeInsets.symmetric(
-                                      vertical:
-                                          10.0), // Optional: adjust padding
+                          SizedBox(
+                              width: mediaQuery.size.width * .9,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  bellTutorialSystem.showcase(
+                                    context: context,
+                                    tutorial: "tutorial_settings_bell_help",
+                                    circular: true,
+                                    child: IconButton(
+                                        onPressed: () {
+                                          bellTutorialSystem.tutorials
+                                              .addAll(bellTutorials);
+                                          bellTutorialSystem.showTutorials(
+                                              context,
+                                              storeCompletion: false);
+                                        },
+                                        icon: Icon(Icons.help_outline_rounded,
+                                            size: 30,
+                                            color: colorScheme.onSurface)),
+                                  ),
+                                  Text(hint,
+                                      style: TextStyle(
+                                          fontSize: 25,
+                                          height: 1,
+                                          fontFamily: 'Exo2',
+                                          color: colorScheme.onSurface
+                                              .withAlpha(128))),
+                                  bellTutorialSystem.showcase(
+                                    context: context,
+                                    tutorial:
+                                        "tutorial_settings_bell_alternate",
+                                    circular: true,
+                                    child: IconButton(
+                                        onPressed: () {},
+                                        icon: Icon(Icons.tune,
+                                            size: 30,
+                                            color: colorScheme.onSurface)),
+                                  )
+                                ],
+                              )),
+                          bellTutorialSystem.showcase(
+                              context: context,
+                              tutorial: 'tutorial_settings_bell_color_wheel',
+                              child: SizedBox(
+                                width: 200,
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    //Solid Color circle
+                                    CircleAvatar(
+                                      backgroundColor:
+                                          //Color in variable type "HSVColor"; needs to be converted
+                                          ScheduleSettings.colors[bell]!
+                                              .toColor(),
+                                      radius: 95,
+                                    ),
+                                    WheelPicker(
+                                      showPalette: false,
+                                      color: ScheduleSettings.colors[bell]!,
+                                      onChanged: (HSVColor value) {
+                                        setLocalState(() {
+                                          ScheduleSettings.colors[bell] = value
+                                              .withValue(1)
+                                              .withSaturation(1);
+                                        });
+                                      },
+                                    ),
+                                    bellTutorialSystem.showcase(
+                                        context: context,
+                                        tutorial: 'tutorial_settings_bell_icon',
+                                        circular: true,
+                                        child: Container(
+                                          width: 125,
+                                          height: 125,
+                                          alignment: Alignment.center,
+                                          margin:
+                                              const EdgeInsets.only(bottom: 10),
+                                          child: IntrinsicWidth(
+                                            child: TextField(
+                                              controller:
+                                                  ScheduleSettings.emojis[bell],
+                                              enableInteractiveSelection: false,
+                                              focusNode: emojiFocus[bell],
+                                              showCursor: false,
+                                              decoration: const InputDecoration(
+                                                isDense: true,
+                                                border: InputBorder.none,
+                                                // Removes the underline
+                                                contentPadding:
+                                                    EdgeInsets.symmetric(
+                                                        vertical:
+                                                            10.0), // Optional: adjust padding
+                                              ),
+                                              style: TextStyle(
+                                                  fontSize: 120,
+                                                  // Large font size
+                                                  color: colorScheme.onSurface),
+                                              onTapOutside: (_) {
+                                                emojiFocus[bell]?.unfocus();
+                                              },
+                                              onChanged: (String text) {
+                                                //Ensured no empty values
+                                                if (text.isEmpty) {
+                                                  text = '_';
+                                                }
+                                                //Ensures no values greater than one character; will use 2nd char so that you can quickly type
+                                                //Use characters to ensure emojis work
+                                                if (text.characters.length >
+                                                    1) {
+                                                  text = text.characters.last;
+                                                }
+                                                setLocalState(() {
+                                                  ScheduleSettings.emojis[bell]!
+                                                      .text = text;
+                                                });
+                                              },
+                                            ),
+                                          ),
+                                        ))
+                                  ],
                                 ),
-                                style: TextStyle(
-                                    fontSize: 120, // Large font size
-                                    color: colorScheme.onSurface),
-                                onTapOutside: (_) {
-                                  emojiFocus[bell]?.unfocus();
-                                },
-                                onChanged: (String text) {
-                                  //Ensured no empty values
-                                  if (text.isEmpty) {
-                                    text = '_';
-                                  }
-                                  //Ensures no values greater than one character; will use 2nd char so that you can quickly type
-                                  //Use characters to ensure emojis work
-                                  if (text.characters.length > 1) {
-                                    text = text.characters.last;
-                                  }
-                                  setLocalState(() {
-                                    ScheduleSettings.emojis[bell]!.text = text;
-                                  });
-                                },
-                              ),
-                            ),
+                              )),
+                          bellTutorialSystem.showcase(
+                            context: context,
+                            tutorial: 'tutorial_settings_bell_color_row',
+                            child: _buildColorSelection(
+                                context, bell, setLocalState, hexColorOptions),
                           ),
+                          const SizedBox(height: 16),
+                          //Column of text forms
+                          bellTutorialSystem.showcase(
+                              context: context,
+                              tutorial: 'tutorial_settings_bell_info',
+                              targetPadding: const EdgeInsets.all(8),
+                              child: Column(
+                                children: [
+                                  _buildTextForm(
+                                      context,
+                                      ScheduleSettings.names[bell]!,
+                                      "Bell Name",
+                                      focusNode: nameFocus[bell]),
+                                  _buildTextForm(
+                                      context,
+                                      ScheduleSettings.teachers[bell]!,
+                                      "Teacher",
+                                      focusNode: teacherFocus[bell]),
+                                  _buildTextForm(
+                                      context,
+                                      ScheduleSettings.locations[bell]!,
+                                      "Location",
+                                      focusNode: locationFocus[bell]),
+                                ],
+                              )),
+                          //Submits
+                          Padding(
+                              padding: const EdgeInsets.only(top: 8),
+                              child: bellTutorialSystem.showcase(
+                                  context: context,
+                                  tutorial: 'tutorial_settings_bell_complete',
+                                  child: ElevatedButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          //Sets global value to correspond to new variables
+                                          ScheduleSettings.bellInfo[bell] = {
+                                            'name': ScheduleSettings
+                                                .names[bell]!.text,
+                                            'teacher': ScheduleSettings
+                                                .teachers[bell]!.text,
+                                            'location': ScheduleSettings
+                                                .locations[bell]!.text,
+                                            'emoji': ScheduleSettings
+                                                .emojis[bell]!.text,
+                                            'color': colorToHex(ScheduleSettings
+                                                    .colors[bell]!
+                                                    .toColor())
+                                                .hex
+                                          };
+                                        });
+                                        //Pops popup
+                                        Navigator.pop(context);
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                          overlayColor: colorScheme.onPrimary,
+                                          backgroundColor: Colors.green),
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                3 /
+                                                5,
+                                        child: Icon(
+                                          Icons.check,
+                                          color: colorScheme.onPrimary,
+                                        ),
+                                      )))),
                         ],
                       ),
                     ),
-                    _buildColorSelection(
-                        context, bell, setLocalState, hexColorOptions),
-                    const SizedBox(height: 16),
-                    //Column of text forms
-                    _buildTextForm(
-                        context, ScheduleSettings.names[bell]!, "Bell Name",
-                        focusNode: nameFocus[bell]),
-                    _buildTextForm(
-                        context, ScheduleSettings.teachers[bell]!, "Teacher",
-                        focusNode: teacherFocus[bell]),
-                    _buildTextForm(
-                        context, ScheduleSettings.locations[bell]!, "Location",
-                        focusNode: locationFocus[bell]),
-                    //Submits
-                    Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: ElevatedButton(
-                            onPressed: () {
-                              setState(() {
-                                //Sets global value to correspond to new variables
-                                ScheduleSettings.bellInfo[bell] = {
-                                  'name': ScheduleSettings.names[bell]!.text,
-                                  'teacher':
-                                      ScheduleSettings.teachers[bell]!.text,
-                                  'location':
-                                      ScheduleSettings.locations[bell]!.text,
-                                  'emoji': ScheduleSettings.emojis[bell]!.text,
-                                  'color': colorToHex(ScheduleSettings
-                                          .colors[bell]!
-                                          .toColor())
-                                      .hex
-                                };
-                              });
-                              //Pops popup
-                              Navigator.pop(context);
-                            },
-                            style: ElevatedButton.styleFrom(
-                                overlayColor: colorScheme.onPrimary,
-                                backgroundColor: Colors.green),
-                            child: Container(
-                              alignment: Alignment.center,
-                              width: MediaQuery.of(context).size.width * 3 / 5,
-                              child: Icon(
-                                Icons.check,
-                                color: colorScheme.onPrimary,
-                              ),
-                            ))),
-                  ],
-                ),
-              ),
-            ),
-          ));
+                  ),
+                );
+              })));
     });
   }
 
@@ -523,70 +640,102 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      width: mediaQuery.size.width * .75,
-      child: Stack(
-        alignment: Alignment.centerLeft,
-        children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: List<Widget>.generate(hexColors.length, (i) {
-                return InkWell(
-                  onTap: () {
-                    setState(() {
-                      ScheduleSettings.colors[bell] =
-                          HSVColor.fromColor(hexToColor(hexColors[i]));
-                    });
-                  },
+    final ScrollController controller = ScrollController();
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+            onPressed: () {
+              controller.animateTo(controller.offset - 46 * 3,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut);
+            },
+            icon: Icon(
+              Icons.arrow_back_ios,
+              color: colorScheme.onSurface.withAlpha(128),
+              size: 12,
+            )),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          width: mediaQuery.size.width * .7,
+          child: Stack(
+            alignment: Alignment.centerLeft,
+            children: [
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                controller: controller,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: List<Widget>.generate(hexColors.length, (i) {
+                    return InkWell(
+                      onTap: () {
+                        setState(() {
+                          ScheduleSettings.colors[bell] =
+                              HSVColor.fromColor(hexToColor(hexColors[i]));
+                        });
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 8),
+                        width: 30,
+                        height: 30,
+                        decoration: BoxDecoration(
+                            color: hexToColor(hexColors[i]),
+                            borderRadius: BorderRadius.circular(5),
+                            boxShadow: [
+                              BoxShadow(
+                                  color: colorScheme.shadow, blurRadius: 1)
+                            ]),
+                      ),
+                    );
+                  }),
+                ),
+              ),
+              IgnorePointer(
                   child: Container(
-                    margin:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    width: 30,
-                    height: 30,
-                    decoration: BoxDecoration(
-                        color: hexToColor(hexColors[i]),
-                        borderRadius: BorderRadius.circular(5),
-                        boxShadow: [
-                          BoxShadow(color: colorScheme.shadow, blurRadius: 1)
-                        ]),
-                  ),
-                );
-              }),
-            ),
+                      width: 12,
+                      height: 46,
+                      decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                              colors: [
+                            colorScheme.surface,
+                            colorScheme.surface.withAlpha(0),
+                          ],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight)))),
+              Align(
+                alignment: Alignment.centerRight,
+                child: IgnorePointer(
+                    child: Container(
+                        width: 12,
+                        height: 46,
+                        decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                                colors: [
+                              colorScheme.surface,
+                              colorScheme.surface.withAlpha(0),
+                            ],
+                                end: Alignment.centerLeft,
+                                begin: Alignment.centerRight)))),
+              )
+            ],
           ),
-          IgnorePointer(
-              child: Container(
-                  width: 10,
-                  height: 46,
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                          colors: [
-                        colorScheme.surface,
-                        colorScheme.surface.withAlpha(0),
-                      ],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight)))),
-          Align(
-            alignment: Alignment.centerRight,
-            child: IgnorePointer(
-                child: Container(
-                    width: 10,
-                    height: 46,
-                    decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                            colors: [
-                          colorScheme.surface,
-                          colorScheme.surface.withAlpha(0),
-                        ],
-                            end: Alignment.centerLeft,
-                            begin: Alignment.centerRight)))),
-          )
-        ],
-      ),
+        ),
+        IconButton(
+            onPressed: () {
+              controller.animateTo(controller.offset + 46 * 3,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut);
+            },
+            icon: Icon(
+              Icons.arrow_forward_ios,
+              color: colorScheme.onSurface.withAlpha(128),
+              size: 12,
+            )),
+      ],
     );
   }
 
@@ -745,7 +894,8 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                           if (context.mounted) {
                             if (aiScan['error'] != null) {
                               context.showSnackBar(
-                                  'Request Failed: Error Code ${aiScan['error']}', isError: true);
+                                  'Request Failed: Error Code ${aiScan['error']}',
+                                  isError: true);
                               setLocalState(() {
                                 isLoading = false;
                               });
