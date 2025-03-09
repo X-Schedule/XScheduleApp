@@ -508,8 +508,9 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     final Schedule schedule = ScheduleData.schedule[date] ?? Schedule.empty();
 
     //Gets Map from schedule_settings.dart
-    Map settings = ScheduleSettings.bellInfo[bell] ?? {};
-
+    final Map settings = ScheduleSettings.bellInfo[bell] ?? {};
+    final Color color = hexToColor(settings['color'] ?? '#909090');
+    
     bool activities = bell.toLowerCase().contains("flex");
 
     Map times = schedule.clockMap(bell) ?? {};
@@ -537,7 +538,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
         child: Container(
             height: height,
             margin: EdgeInsets.only(top: margin),
-            color: colorScheme.surfaceContainer,
+            color: color.withAlpha(40),
             child: tutorialSystem.showcase(
               context: context,
               message: bell == schedule.firstFlex
@@ -549,7 +550,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                   //Left color nib; if no setting set, displays as grey
                   Container(
                     width: 10,
-                    color: hexToColor(settings['color'] ?? '#999999'),
+                    color: color,
                   ),
                   //spacer
                   const SizedBox(width: 7.5),
