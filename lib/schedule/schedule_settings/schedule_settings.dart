@@ -42,6 +42,42 @@ class ScheduleSettings extends StatefulWidget {
   static Map<String, TextEditingController> teachers = {};
   static Map<String, TextEditingController> locations = {};
 
+  
+  static final TutorialSystem tutorialSystem = TutorialSystem({
+    'tutorial_settings':
+    "In this menu, you'll be able to customize your schedule to match the classes you have.",
+    'tutorial_settings_button':
+    "Click on any individual bell to change its name, information, and appearance.",
+    'tutorial_settings_ai':
+    "... or try uploading a picture of your schedule to let AI interpret it for you!",
+    'tutorial_settings_complete':
+    "Once you're satisfied with your schedule, tap the button down here to move on."
+  });
+  
+  static const Map<String, String> bellTutorials = {
+    'tutorial_settings_bell':
+    "In this menu, you'll be able to customize any individual bell on your schedule.",
+    'tutorial_settings_bell_color_wheel':
+    "You can give each bell a distinctive color using the color wheel.",
+    'tutorial_settings_bell_color_row':
+    "...or by selecting one from the available options.",
+    'tutorial_settings_bell_icon':
+    "Additionally, you can select an icon to represent each bell.",
+    'tutorial_settings_bell_info':
+    "As well, you can input the information about your class so that you can remember it later.",
+    'tutorial_settings_bell_alternate':
+    '...and if your class changes daily, you can add an "alternate" class for the bell.',
+    'tutorial_settings_bell_complete':
+    "When you've finished customizing the bell, press this button to save your changes and exit.",
+    'tutorial_settings_bell_help':
+    'If you ever need help, press this button here.'
+  };
+  static final TutorialSystem bellTutorialSystem = TutorialSystem({
+    'tutorial_settings_bell': bellTutorials['tutorial_settings_bell']!,
+    'tutorial_settings_bell_help':
+    bellTutorials['tutorial_settings_bell_help']!,
+  });
+
   @override
   State<ScheduleSettings> createState() => _ScheduleSettingsState();
 }
@@ -79,55 +115,20 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
     '#000000'
   ];
 
-  static final TutorialSystem tutorialSystem = TutorialSystem({
-    'tutorial_settings':
-        "In this menu, you'll be able to customize your schedule to match the classes you have.",
-    'tutorial_settings_button':
-        "Click on any individual bell to change its name, information, and appearance.",
-    'tutorial_settings_ai':
-        "... or try uploading a picture of your schedule to let AI interpret it for you!",
-    'tutorial_settings_complete':
-        "Once you're satisfied with your schedule, tap the button down here to move on."
-  });
-
-  static const Map<String, String> bellTutorials = {
-    'tutorial_settings_bell':
-        "In this menu, you'll be able to customize any individual bell on your schedule.",
-    'tutorial_settings_bell_color_wheel':
-        "You can give each bell a distinctive color using the color wheel.",
-    'tutorial_settings_bell_color_row':
-        "...or by selecting one from the available options.",
-    'tutorial_settings_bell_icon':
-        "Additionally, you can select an icon to represent each bell.",
-    'tutorial_settings_bell_info':
-        "As well, you can input the information about your class so that you can remember it later.",
-    'tutorial_settings_bell_alternate':
-        '...and if your class changes daily, you can add an "alternate" class for the bell.',
-    'tutorial_settings_bell_complete':
-        "When you've finished customizing the bell, press this button to save your changes and exit.",
-    'tutorial_settings_bell_help':
-        'If you ever need help, press this button here.'
-  };
-  static final TutorialSystem bellTutorialSystem = TutorialSystem({
-    'tutorial_settings_bell': bellTutorials['tutorial_settings_bell']!,
-    'tutorial_settings_bell_help':
-        bellTutorials['tutorial_settings_bell_help']!,
-  });
-
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
-    tutorialSystem.refreshKeys();
-    tutorialSystem.removeFinished();
+    ScheduleSettings.tutorialSystem.refreshKeys();
+    ScheduleSettings.tutorialSystem.removeFinished();
 
     return ShowCaseWidget(builder: (context) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await Future.delayed(const Duration(milliseconds: 250));
-        if (!tutorialSystem.finished && context.mounted) {
-          tutorialSystem.showTutorials(context);
-          tutorialSystem.finish();
+        if (!ScheduleSettings.tutorialSystem.finished && context.mounted) {
+          ScheduleSettings.tutorialSystem.showTutorials(context);
+          ScheduleSettings.tutorialSystem.finish();
         }
       });
 
@@ -141,7 +142,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
             actions: [
               Padding(
                 padding: const EdgeInsets.only(right: 10),
-                child: tutorialSystem.showcase(
+                child: ScheduleSettings.tutorialSystem.showcase(
                     context: context,
                     circular: true,
                     tutorial: 'tutorial_settings_ai',
@@ -158,7 +159,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                     )),
               )
             ],
-            title: tutorialSystem.showcase(
+            title: ScheduleSettings.tutorialSystem.showcase(
               context: context,
               tutorial: 'tutorial_settings',
               child: FittedBox(
@@ -181,7 +182,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
             height: 40,
             margin: EdgeInsets.symmetric(
                 vertical: 20, horizontal: mediaQuery.size.width * .325),
-            child: tutorialSystem.showcase(
+            child: ScheduleSettings.tutorialSystem.showcase(
                 context: context,
                 tutorial: 'tutorial_settings_complete',
                 child: ElevatedButton(
@@ -213,7 +214,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
             physics: const ClampingScrollPhysics(),
             child: Column(
               children: [
-                tutorialSystem.showcase(
+                ScheduleSettings.tutorialSystem.showcase(
                     context: context,
                     tutorial: 'tutorial_settings_button',
                     child: _buildBellTile(context, 'A')),
@@ -399,7 +400,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
       hint = 'Homeroom';
     }
 
-    bellTutorialSystem.refreshKeys();
+    ScheduleSettings.bellTutorialSystem.refreshKeys();
 
     //Allows for "setState" to be called, and only effect this popup
     return StatefulBuilder(
@@ -410,14 +411,14 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
           child: Align(
               alignment: Alignment.center,
               child: ShowCaseWidget(onFinish: () {
-                bellTutorialSystem.finish();
+                ScheduleSettings.bellTutorialSystem.finish();
               }, builder: (context) {
-                if (!bellTutorialSystem.finished) {
+                if (!ScheduleSettings.bellTutorialSystem.finished) {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
-                    bellTutorialSystem.showTutorials(context);
+                    ScheduleSettings.bellTutorialSystem.showTutorials(context);
                   });
                 }
-                return bellTutorialSystem.showcase(
+                return ScheduleSettings.bellTutorialSystem.showcase(
                   context: context,
                   tutorial: 'tutorial_settings_bell',
                   child: Card(
@@ -435,15 +436,16 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  bellTutorialSystem.showcase(
+                                  ScheduleSettings.bellTutorialSystem.showcase(
                                     context: context,
                                     tutorial: "tutorial_settings_bell_help",
                                     circular: true,
                                     child: IconButton(
                                         onPressed: () {
-                                          bellTutorialSystem.tutorials
-                                              .addAll(bellTutorials);
-                                          bellTutorialSystem.showTutorials(
+                                          ScheduleSettings.bellTutorialSystem.tutorials.clear();
+                                          ScheduleSettings.bellTutorialSystem.tutorials
+                                              .addAll(ScheduleSettings.bellTutorials);
+                                          ScheduleSettings.bellTutorialSystem.showTutorials(
                                               context,
                                               storeCompletion: false);
                                         },
@@ -458,7 +460,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                                           fontFamily: 'Exo2',
                                           color: colorScheme.onSurface
                                               .withAlpha(128))),
-                                  bellTutorialSystem.showcase(
+                                  ScheduleSettings.bellTutorialSystem.showcase(
                                     context: context,
                                     tutorial:
                                         "tutorial_settings_bell_alternate",
@@ -471,7 +473,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                                   )
                                 ],
                               )),
-                          bellTutorialSystem.showcase(
+                          ScheduleSettings.bellTutorialSystem.showcase(
                               context: context,
                               tutorial: 'tutorial_settings_bell_color_wheel',
                               child: SizedBox(
@@ -498,7 +500,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                                         });
                                       },
                                     ),
-                                    bellTutorialSystem.showcase(
+                                    ScheduleSettings.bellTutorialSystem.showcase(
                                         context: context,
                                         tutorial: 'tutorial_settings_bell_icon',
                                         circular: true,
@@ -553,7 +555,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                                   ],
                                 ),
                               )),
-                          bellTutorialSystem.showcase(
+                          ScheduleSettings.bellTutorialSystem.showcase(
                             context: context,
                             tutorial: 'tutorial_settings_bell_color_row',
                             child: _buildColorSelection(
@@ -561,7 +563,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                           ),
                           const SizedBox(height: 16),
                           //Column of text forms
-                          bellTutorialSystem.showcase(
+                          ScheduleSettings.bellTutorialSystem.showcase(
                               context: context,
                               tutorial: 'tutorial_settings_bell_info',
                               targetPadding: const EdgeInsets.all(8),
@@ -587,7 +589,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                           //Submits
                           Padding(
                               padding: const EdgeInsets.only(top: 8),
-                              child: bellTutorialSystem.showcase(
+                              child: ScheduleSettings.bellTutorialSystem.showcase(
                                   context: context,
                                   tutorial: 'tutorial_settings_bell_complete',
                                   child: ElevatedButton(

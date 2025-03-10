@@ -3,6 +3,7 @@ import 'package:localstorage/localstorage.dart';
 import 'package:xschedule/display/home_page.dart';
 import 'package:xschedule/global_variables/dynamic_content/stream_signal.dart';
 import 'package:xschedule/personal/credits.dart';
+import 'package:xschedule/schedule/schedule_display/schedule_display.dart';
 
 import '../global_variables/static_content/global_methods.dart';
 import '../schedule/schedule_settings/schedule_settings.dart';
@@ -56,8 +57,11 @@ class Personal extends StatelessWidget {
                 context, const ScheduleSettings(backArrow: true));
           }),
           _buildOption(context, "Reset Local Data", () {
-            ScheduleSettings.bellInfo = {};
             localStorage.clear();
+            ScheduleSettings.bellInfo = {};
+            ScheduleSettings.tutorialSystem.refreshKeys();
+            ScheduleSettings.bellTutorialSystem.refreshKeys();
+            ScheduleDisplay.tutorialSystem.refreshKeys();
             StreamSignal.updateStream(
                 streamController: HomePage.homePageStream);
           }),

@@ -34,6 +34,23 @@ class ScheduleDisplay extends StatefulWidget {
 
   static StreamController<StreamSignal> scheduleStream =
       StreamController<StreamSignal>();
+  
+  static final TutorialSystem tutorialSystem = TutorialSystem({
+    'tutorial_schedule':
+    "In this menu, you'll be able to see the schedule of any school day out of the year.",
+    'tutorial_schedule_bell':
+    'Each individual bell is set to match the information you provided about your class schedule, and clicking on any bell will display more information about it.',
+    'tutorial_schedule_flex':
+    'Additionally, you can tap the Flex bell to view information about lunch, clubs, and more!',
+    'tutorial_schedule_date':
+    "Up top, you'll find the date you're currently viewing. You can use the buttons or simple swiping gestures to flip between days.",
+    'tutorial_schedule_calendar':
+    "... or click this button to quickly navigate through the school days of the year.",
+    'tutorial_schedule_info':
+    "Tap this button to view important information about a school day, if available.",
+    'tutorial_schedule_settings':
+    'Lastly, if you every want to edit your class information, you can do so by clicking this button.'
+  });
 
   @override
   State<ScheduleDisplay> createState() => _ScheduleDisplayState();
@@ -46,23 +63,6 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
   static const int initialPage = 547;
   final PageController _controller =
       PageController(initialPage: initialPage + ScheduleDisplay.pageIndex);
-
-  static final TutorialSystem tutorialSystem = TutorialSystem({
-    'tutorial_schedule':
-        "In this menu, you'll be able to see the schedule of any school day out of the year.",
-    'tutorial_schedule_bell':
-        'Each individual bell is set to match the information you provided about your class schedule, and clicking on any bell will display more information about it.',
-    'tutorial_schedule_flex':
-        'Additionally, you can tap the Flex bell to view information about lunch, clubs, and more!',
-    'tutorial_schedule_date':
-        "Up top, you'll find the date you're currently viewing. You can use the buttons or simple swiping gestures to flip between days.",
-    'tutorial_schedule_calendar':
-        "... or click this button to quickly navigate through the school days of the year.",
-    'tutorial_schedule_info':
-        "Tap this button to view important information about a school day, if available.",
-    'tutorial_schedule_settings':
-        'Lastly, if you every want to edit your class information, you can do so by clicking this button.'
-  });
 
   Timer? timer;
 
@@ -77,7 +77,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
       await Future.delayed(Duration(milliseconds: 100));
     }
     await Future.delayed(const Duration(milliseconds: 250));
-    if (!tutorialSystem.finished) {
+    if (!ScheduleDisplay.tutorialSystem.finished) {
       int index = 0;
       if (ScheduleDisplay.tutorialDate == null) {
         while (index <= 25 && ScheduleDisplay.tutorialDate == null) {
@@ -106,8 +106,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
             duration: const Duration(milliseconds: 250),
             curve: Curves.easeInOut);
       } else if (context.mounted) {
-        tutorialSystem.showTutorials(context);
-        tutorialSystem.finish();
+        ScheduleDisplay.tutorialSystem.showTutorials(context);
+        ScheduleDisplay.tutorialSystem.finish();
       }
     }
   }
@@ -117,8 +117,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
-    tutorialSystem.refreshKeys();
-    tutorialSystem.removeFinished();
+    ScheduleDisplay.tutorialSystem.refreshKeys();
+    ScheduleDisplay.tutorialSystem.removeFinished();
 
     //Runs addDailyData asynchronously on page moved; may do nothing at all if ranges overlap
     ScheduleData.addDailyData(
@@ -131,7 +131,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
         stream: ScheduleDisplay.scheduleStream.stream,
         builder: (context, snapshot) {
           return ShowCaseWidget(onComplete: (_, __) {
-            tutorialSystem.finish();
+            ScheduleDisplay.tutorialSystem.finish();
           }, builder: (context) {
             WidgetsBinding.instance.addPostFrameCallback((_) async {
               await _showTutorial(context);
@@ -152,7 +152,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                         children: [
                           Padding(
                             padding: const EdgeInsets.only(left: 20),
-                            child: tutorialSystem.showcase(
+                            child: ScheduleDisplay.tutorialSystem.showcase(
                                 context: context,
                                 circular: true,
                                 tutorial: 'tutorial_schedule_calendar',
@@ -173,7 +173,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                                                   ScheduleDisplay.pageIndex)));
                                     })),
                           ),
-                          tutorialSystem.showcase(
+                          ScheduleDisplay.tutorialSystem.showcase(
                               context: context,
                               tutorial: 'tutorial_schedule_date',
                               child: Row(
@@ -204,7 +204,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                               )),
                           Padding(
                             padding: const EdgeInsets.only(right: 20),
-                            child: tutorialSystem.showcase(
+                            child: ScheduleDisplay.tutorialSystem.showcase(
                                 context: context,
                                 circular: true,
                                 tutorial: 'tutorial_schedule_info',
@@ -220,7 +220,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                       margin: EdgeInsets.symmetric(
                           horizontal: mediaQuery.size.width * .3),
                       height: 30,
-                      child: tutorialSystem.showcase(
+                      child: ScheduleDisplay.tutorialSystem.showcase(
                           context: context,
                           tutorial: 'tutorial_schedule_settings',
                           child: ElevatedButton(
@@ -376,7 +376,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     Map schedule = dayInfo.schedule;
     //The height (in pxs) that each minute will be on the screen, based on the devices screen size etc.
     double minuteHeight = cardHeight / 430;
-    return tutorialSystem.showcase(
+    return ScheduleDisplay.tutorialSystem.showcase(
         context: context,
         uniqueNull: true,
         tutorial: date == ScheduleDisplay.tutorialDate
@@ -538,7 +538,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
             height: height,
             margin: EdgeInsets.only(top: margin),
             color: color.withAlpha(40),
-            child: tutorialSystem.showcase(
+            child: ScheduleDisplay.tutorialSystem.showcase(
               context: context,
               tutorial: _tutorial(date, bell),
               uniqueNull: true,

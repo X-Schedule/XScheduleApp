@@ -45,6 +45,12 @@ class TutorialSystem {
             ShowCaseWidget.of(context).next();
           }
         },
+        onTargetClick: () async {
+          await Future.delayed(const Duration(milliseconds: 100));
+          if (tutorial != tutorials.keys.lastOrNull && context.mounted) {
+            ShowCaseWidget.of(context).next();
+          }
+        },
         descTextStyle: TextStyle(
             color: colorScheme.onPrimary,
             fontSize: dense ? 15 : 17,
