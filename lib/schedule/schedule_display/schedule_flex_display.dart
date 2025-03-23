@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:xschedule/global_variables/dynamic_content/clock.dart';
 import 'package:xschedule/global_variables/static_content/global_methods.dart';
 import 'package:xschedule/global_variables/static_content/global_widgets.dart';
-import 'package:xschedule/schedule/schedule_data/schedule_data.dart';
+import 'package:xschedule/global_variables/dynamic_content/backend/schedule_data.dart';
 
-import '../schedule_data/schedule.dart';
+import '../../global_variables/dynamic_content/schedule.dart';
 
 class FlexScheduleDisplay extends StatefulWidget {
   const FlexScheduleDisplay(

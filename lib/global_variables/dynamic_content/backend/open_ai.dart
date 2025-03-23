@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:image/image.dart' as img;
 
-class ScheduleSettingsAI {
+class OpenAI {
   //OpenAI comm. variables to be defined on initialization
   static late String apiUrl;
   static late String apiKey;
@@ -49,7 +49,7 @@ class ScheduleSettingsAI {
       final double scaleFactor = sqrt(maxPixels / imagePixels);
       final int newWidth = (image.width * scaleFactor).round();
       final int newHeight = (image.height * scaleFactor).round();
-      
+
       image = img.copyResize(image, width: newWidth, height: newHeight);
     }
 

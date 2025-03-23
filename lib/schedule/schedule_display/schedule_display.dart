@@ -8,8 +8,8 @@ import 'package:xschedule/global_variables/dynamic_content/stream_signal.dart';
 import 'package:xschedule/global_variables/static_content/global_methods.dart';
 import 'package:xschedule/global_variables/static_content/global_variables.dart';
 import 'package:xschedule/global_variables/static_content/global_widgets.dart';
-import 'package:xschedule/schedule/schedule_data/schedule.dart';
-import 'package:xschedule/schedule/schedule_data/schedule_data.dart';
+import 'package:xschedule/global_variables/dynamic_content/schedule.dart';
+import 'package:xschedule/global_variables/dynamic_content/backend/schedule_data.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_flex_display.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_info_display.dart';
 import 'package:xschedule/schedule/schedule_settings/schedule_settings.dart';
@@ -373,7 +373,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     double timeMargin = currentTime.hour * 60 + currentTime.minute - 480;
 
     //Schedule data
-    Map schedule = dayInfo.schedule;
+    final Map<String, String> schedule = dayInfo.schedule;
     //The height (in pxs) that each minute will be on the screen, based on the devices screen size etc.
     double minuteHeight = cardHeight / 430;
     return ScheduleDisplay.tutorialSystem.showcase(
@@ -615,8 +615,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
     //Gets settings from schedule_settings.dart
-    Map settings = ScheduleSettings.bellInfo[bell] ?? {};
-    Map times = schedule.clockMap(bell) ?? {};
+    final Map<String, dynamic> settings = ScheduleSettings.bellInfo[bell] ?? {};
+    final Map<String, Clock> times = schedule.clockMap(bell) ?? {};
     //Aligns on center of screen
     return GlobalWidgets.popup(
         context,
@@ -726,7 +726,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                               ),
                               //Displays the time length (time length cannot be null)
                               Text(
-                                '${times['start'].display()} - ${times['end'].display()}',
+                                '${times['start']?.display()} - ${times['end']?.display()}',
                                 style: TextStyle(
                                     height: 0.9,
                                     fontSize: 25,

@@ -14,9 +14,9 @@ import 'package:xschedule/global_variables/dynamic_content/stream_signal.dart';
 import 'package:xschedule/global_variables/dynamic_content/tutorial_system.dart';
 import 'package:xschedule/global_variables/static_content/global_widgets.dart';
 import 'package:xschedule/main.dart';
-import 'package:xschedule/schedule/schedule_data/schedule_settings_ai.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_display.dart';
 
+import '../../global_variables/dynamic_content/backend/open_ai.dart';
 import '../../global_variables/static_content/global_methods.dart';
 
 /*
@@ -42,7 +42,7 @@ class ScheduleSettings extends StatefulWidget {
   static Map<String, TextEditingController> teachers = {};
   static Map<String, TextEditingController> locations = {};
 
-  
+
   static final TutorialSystem tutorialSystem = TutorialSystem({
     'tutorial_settings':
     "In this menu, you'll be able to customize your schedule to match the classes you have.",
@@ -53,7 +53,7 @@ class ScheduleSettings extends StatefulWidget {
     'tutorial_settings_complete':
     "Once you're satisfied with your schedule, tap the button down here to move on."
   });
-  
+
   static const Map<String, String> bellTutorials = {
     'tutorial_settings_bell':
     "In this menu, you'll be able to customize any individual bell on your schedule.",
@@ -891,7 +891,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                         });
                         if (await imageFile!.exists()) {
                           final Map<String, dynamic> aiScan =
-                              await ScheduleSettingsAI.scanSchedule(
+                              await OpenAI.scanSchedule(
                                   imageFile!.path);
                           if (context.mounted) {
                             if (aiScan['error'] != null) {

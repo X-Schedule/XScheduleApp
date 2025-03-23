@@ -51,6 +51,7 @@ class TutorialSystem {
             ShowCaseWidget.of(context).next();
           }
         },
+        disposeOnTap: false,
         descTextStyle: TextStyle(
             color: colorScheme.onPrimary,
             fontSize: dense ? 15 : 17,

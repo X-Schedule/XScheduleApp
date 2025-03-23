@@ -2,8 +2,8 @@
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:icalendar_parser/icalendar_parser.dart';
-import 'package:xschedule/global_variables/dynamic_content/supabase_db.dart';
-import 'package:xschedule/schedule/schedule_data/schedule.dart';
+import 'package:xschedule/global_variables/dynamic_content/backend/supabase_db.dart';
+import 'package:xschedule/global_variables/dynamic_content/schedule.dart';
 
 /*
 ScheduleData:
@@ -35,10 +35,10 @@ class ScheduleData {
     final RegExp regexp = RegExp(r'^\s*([\w\s]+?)\s*[:\-]?\s*(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})\s*$');
 
     //Gets the calendar data as a list from the iCalendar
-    List<Map> schedules = iCalendar.data;
+    List<Map<String, dynamic>> schedules = iCalendar.data;
 
     //For each date data, inserts the schedule data Map into out schedule Map under the key of the date
-    for (Map instance in schedules) {
+    for (Map<String, dynamic> instance in schedules) {
       //Gets the base String describing the day layout
       String rawSchedule = instance['description'];
       //Splits the schedule by the raw string '\n\n\n' so that we can access the 2nd half of it, where the data is.

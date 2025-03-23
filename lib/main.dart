@@ -3,11 +3,13 @@ import 'package:localstorage/localstorage.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:xschedule/display/splash_page.dart';
 import 'package:xschedule/display/themes.dart';
-import 'package:xschedule/global_variables/dynamic_content/supabase_db.dart';
+import 'package:xschedule/global_variables/dynamic_content/backend/github.dart';
+import 'package:xschedule/global_variables/dynamic_content/backend/supabase_db.dart';
 import 'package:xschedule/global_variables/static_content/global_variables.dart';
 import 'package:xschedule/personal/credits.dart';
-import 'package:xschedule/schedule/schedule_data/schedule_data.dart';
-import 'package:xschedule/schedule/schedule_data/schedule_settings_ai.dart';
+import 'package:xschedule/global_variables/dynamic_content/backend/schedule_data.dart';
+
+import 'global_variables/dynamic_content/backend/open_ai.dart';
 
 /*
 Main:
@@ -24,7 +26,9 @@ Future<void> main() async {
   await initLocalStorage();
 
   //Reads the json data for openAI communication
-  await ScheduleSettingsAI.loadOpenAIJson();
+  GitHub.loadGithubJson();
+
+  OpenAI.loadOpenAIJson();
   Credits.loadCreditsAIJson();
 
   GlobalVariables.packageInfo = await PackageInfo.fromPlatform();

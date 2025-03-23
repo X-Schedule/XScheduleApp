@@ -61,7 +61,9 @@ class Personal extends StatelessWidget {
             ScheduleSettings.bellInfo = {};
             ScheduleSettings.tutorialSystem.refreshKeys();
             ScheduleSettings.bellTutorialSystem.refreshKeys();
+
             ScheduleDisplay.tutorialSystem.refreshKeys();
+            ScheduleDisplay.tutorialDate = null;
             StreamSignal.updateStream(
                 streamController: HomePage.homePageStream);
           }),

@@ -1,4 +1,4 @@
-import '../../global_variables/dynamic_content/clock.dart';
+import 'clock.dart';
 
 /*
 Schedule:
@@ -51,7 +51,7 @@ class Schedule {
   }
 
   //Returns the start and end times of the inputted bell
-  Map? clockMap(String bell) {
+  Map<String, Clock>? clockMap(String bell) {
     //If bell doesn't exist, return null
     if (schedule[bell] != null) {
       //Splits bell into start and end
