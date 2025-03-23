@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:xschedule/display/home_page.dart';
 import 'package:xschedule/global_variables/dynamic_content/stream_signal.dart';
+import 'package:xschedule/global_variables/static_content/extensions/build_context_extension.dart';
 import 'package:xschedule/personal/credits.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_display.dart';
 
@@ -53,8 +54,7 @@ class Personal extends StatelessWidget {
             )),
         body: Column(children: [
           _buildOption(context, "Customize Bell Appearances", () {
-            GlobalMethods.pushSwipePage(
-                context, const ScheduleSettings(backArrow: true));
+            context.pushSwipePage(const ScheduleSettings(backArrow: true));
           }),
           _buildOption(context, "Reset Local Data", () {
             localStorage.clear();
@@ -68,7 +68,7 @@ class Personal extends StatelessWidget {
                 streamController: HomePage.homePageStream);
           }),
           _buildOption(context, "Credits and Copyright", () {
-            GlobalMethods.showPopup(context, Credits());
+            context.pushPopup(Credits());
           }),
           _buildOption(context, "Submit Beta Report", () {
             GlobalMethods.visitUrl(

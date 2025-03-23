@@ -7,6 +7,7 @@ import '../personal/welcome.dart';
 class SplashPage extends StatelessWidget {
   const SplashPage({super.key});
 
+  // 
   static void determineDestination(BuildContext context) {
     if (localStorage.getItem("state") != "logged") {
       Navigator.of(context).pushAndRemoveUntil(

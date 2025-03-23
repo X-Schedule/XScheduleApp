@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:xschedule/global_variables/dynamic_content/clock.dart';
-import 'package:xschedule/global_variables/static_content/global_methods.dart';
+import 'package:xschedule/global_variables/static_content/extensions/date_time_extension.dart';
 import 'package:xschedule/global_variables/static_content/global_widgets.dart';
 import 'package:xschedule/global_variables/dynamic_content/backend/schedule_data.dart';
 
@@ -86,7 +86,7 @@ class _FlexScheduleDisplayState extends State<FlexScheduleDisplay> {
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
-              GlobalMethods.dateText(widget.date),
+              widget.date.dateText(),
               style: TextStyle(
                   color: colorScheme.onSurface,
                   fontSize: 35,

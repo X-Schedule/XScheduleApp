@@ -3,13 +3,15 @@ import 'dart:async';
 import 'package:color_hex/class/hex_to_color.dart';
 import 'package:flutter/material.dart';
 import 'package:showcaseview/showcaseview.dart';
+import 'package:xschedule/global_variables/dynamic_content/backend/schedule_data.dart';
 import 'package:xschedule/global_variables/dynamic_content/clock.dart';
+import 'package:xschedule/global_variables/dynamic_content/schedule.dart';
 import 'package:xschedule/global_variables/dynamic_content/stream_signal.dart';
+import 'package:xschedule/global_variables/static_content/extensions/build_context_extension.dart';
+import 'package:xschedule/global_variables/static_content/extensions/date_time_extension.dart';
 import 'package:xschedule/global_variables/static_content/global_methods.dart';
 import 'package:xschedule/global_variables/static_content/global_variables.dart';
 import 'package:xschedule/global_variables/static_content/global_widgets.dart';
-import 'package:xschedule/global_variables/dynamic_content/schedule.dart';
-import 'package:xschedule/global_variables/dynamic_content/backend/schedule_data.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_flex_display.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_info_display.dart';
 import 'package:xschedule/schedule/schedule_settings/schedule_settings.dart';
@@ -34,22 +36,22 @@ class ScheduleDisplay extends StatefulWidget {
 
   static StreamController<StreamSignal> scheduleStream =
       StreamController<StreamSignal>();
-  
+
   static final TutorialSystem tutorialSystem = TutorialSystem({
     'tutorial_schedule':
-    "In this menu, you'll be able to see the schedule of any school day out of the year.",
+        "In this menu, you'll be able to see the schedule of any school day out of the year.",
     'tutorial_schedule_bell':
-    'Each individual bell is set to match the information you provided about your class schedule, and clicking on any bell will display more information about it.',
+        'Each individual bell is set to match the information you provided about your class schedule, and clicking on any bell will display more information about it.',
     'tutorial_schedule_flex':
-    'Additionally, you can tap the Flex bell to view information about lunch, clubs, and more!',
+        'Additionally, you can tap the Flex bell to view information about lunch, clubs, and more!',
     'tutorial_schedule_date':
-    "Up top, you'll find the date you're currently viewing. You can use the buttons or simple swiping gestures to flip between days.",
+        "Up top, you'll find the date you're currently viewing. You can use the buttons or simple swiping gestures to flip between days.",
     'tutorial_schedule_calendar':
-    "... or click this button to quickly navigate through the school days of the year.",
+        "... or click this button to quickly navigate through the school days of the year.",
     'tutorial_schedule_info':
-    "Tap this button to view important information about a school day, if available.",
+        "Tap this button to view important information about a school day, if available.",
     'tutorial_schedule_settings':
-    'Lastly, if you every want to edit your class information, you can do so by clicking this button.'
+        'Lastly, if you every want to edit your class information, you can do so by clicking this button.'
   });
 
   @override
@@ -81,13 +83,11 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
       int index = 0;
       if (ScheduleDisplay.tutorialDate == null) {
         while (index <= 25 && ScheduleDisplay.tutorialDate == null) {
-          if (_schedule(
-              GlobalMethods.addDay(ScheduleDisplay.initialDate, index),
+          if (_schedule(ScheduleDisplay.initialDate.addDay(index),
               tutorial: true)) {
             break;
           }
-          if (_schedule(
-              GlobalMethods.addDay(ScheduleDisplay.initialDate, -index),
+          if (_schedule(ScheduleDisplay.initialDate.addDay(-index),
               tutorial: true)) {
             index = -index;
             break;
@@ -98,7 +98,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
           return;
         }
         ScheduleDisplay.tutorialDate =
-            GlobalMethods.addDay(ScheduleDisplay.initialDate, index);
+            ScheduleDisplay.initialDate.addDay(index);
       }
       if (index != ScheduleDisplay.pageIndex && index != 0) {
         ScheduleDisplay.pageIndex = index;
@@ -122,10 +122,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
 
     //Runs addDailyData asynchronously on page moved; may do nothing at all if ranges overlap
     ScheduleData.addDailyData(
-        GlobalMethods.addDay(
-            ScheduleDisplay.initialDate, ScheduleDisplay.pageIndex - 25),
-        GlobalMethods.addDay(
-            ScheduleDisplay.initialDate, ScheduleDisplay.pageIndex + 25));
+        ScheduleDisplay.initialDate.addDay(ScheduleDisplay.pageIndex - 25),
+        ScheduleDisplay.initialDate.addDay(ScheduleDisplay.pageIndex + 25));
     ScheduleDisplay.scheduleStream = StreamController();
     return StreamBuilder(
         stream: ScheduleDisplay.scheduleStream.stream,
@@ -164,13 +162,10 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                                     radius: 20,
                                     padding: 10,
                                     onTap: () {
-                                      GlobalMethods.showPopup(
+                                      context.pushPopup(_buildCalendarNav(
                                           context,
-                                          _buildCalendarNav(
-                                              context,
-                                              GlobalMethods.addDay(
-                                                  ScheduleDisplay.initialDate,
-                                                  ScheduleDisplay.pageIndex)));
+                                          ScheduleDisplay.initialDate.addDay(
+                                              ScheduleDisplay.pageIndex)));
                                     })),
                           ),
                           ScheduleDisplay.tutorialSystem.showcase(
@@ -186,10 +181,9 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                                     child: FittedBox(
                                       fit: BoxFit.contain,
                                       child: Text(
-                                        GlobalMethods.dateText(
-                                            GlobalMethods.addDay(
-                                                ScheduleDisplay.initialDate,
-                                                ScheduleDisplay.pageIndex)),
+                                        ScheduleDisplay.initialDate
+                                            .addDay(ScheduleDisplay.pageIndex)
+                                            .dateText(),
                                         style: TextStyle(
                                             fontWeight: FontWeight.w500,
                                             fontSize: 32.5,
@@ -225,11 +219,9 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                           tutorial: 'tutorial_schedule_settings',
                           child: ElevatedButton(
                               onPressed: () {
-                                GlobalMethods.pushSwipePage(
-                                    context,
-                                    const ScheduleSettings(
-                                      backArrow: true,
-                                    ));
+                                context.pushSwipePage(const ScheduleSettings(
+                                  backArrow: true,
+                                ));
                               },
                               style: ElevatedButton.styleFrom(
                                   overlayColor: colorScheme.onPrimary,
@@ -288,8 +280,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
         //Builds the schedules based on given index(i)
         itemBuilder: (_, i) {
           //The date of the schedule (currentDate+index)
-          DateTime date = GlobalMethods.addDay(
-              ScheduleDisplay.initialDate, i - initialPage);
+          DateTime date = ScheduleDisplay.initialDate.addDay(i - initialPage);
 
           //Schedule card wrapped in gestureDetector
           return GestureDetector(
@@ -307,12 +298,11 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                     curve: Curves.easeInOut);
                 ScheduleDisplay.pageIndex++;
               } else {
-                GlobalMethods.showPopup(
-                    context,
+                context.pushPopup(
                     _buildCalendarNav(
                         context,
-                        GlobalMethods.addDay(ScheduleDisplay.initialDate,
-                            ScheduleDisplay.pageIndex)),
+                        ScheduleDisplay.initialDate
+                            .addDay(ScheduleDisplay.pageIndex)),
                     begin: Offset(0, -1.0));
               }
             },
@@ -522,15 +512,12 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
         //When Tile is tapped, will display popup with more info
         onTap: () {
           if (activities) {
-            GlobalMethods.showPopup(
-                context,
-                FlexScheduleDisplay(
-                    date: GlobalMethods.addDay(
-                        ScheduleDisplay.initialDate, ScheduleDisplay.pageIndex),
-                    schedule: schedule));
+            context.pushPopup(FlexScheduleDisplay(
+                date: ScheduleDisplay.initialDate
+                    .addDay(ScheduleDisplay.pageIndex),
+                schedule: schedule));
           } else {
-            GlobalMethods.showPopup(
-                context, _buildBellInfo(context, schedule, bell));
+            context.pushPopup(_buildBellInfo(context, schedule, bell));
           }
         },
         //Tile
@@ -747,7 +734,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
-    int monthIndex = GlobalMethods.monthDiff(date, ScheduleDisplay.initialDate);
+    int monthIndex = date.monthDiff(ScheduleDisplay.initialDate);
     PageController calController = PageController(initialPage: 18 + monthIndex);
     double height = mediaQuery.size.width * 24 / 35;
     double width = mediaQuery.size.width * 4 / 5;
@@ -792,7 +779,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                         child: FittedBox(
                           fit: BoxFit.contain,
                           child: Text(
-                            "${GlobalVariables.monthText[newMonth.month]} ${newMonth.year}",
+                            "${newMonth.monthText()} ${newMonth.year}",
                             style: TextStyle(
                                 fontWeight: FontWeight.w500,
                                 fontSize: 20,
@@ -902,9 +889,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                                   return GestureDetector(
                                       onTap: () {
                                         Navigator.pop(context);
-                                        int change = GlobalMethods.addDay(
-                                                ScheduleDisplay.initialDate,
-                                                ScheduleDisplay.pageIndex)
+                                        int change = ScheduleDisplay.initialDate
+                                            .addDay(ScheduleDisplay.pageIndex)
                                             .difference(dotDate)
                                             .inDays;
                                         _controller.animateToPage(
@@ -972,8 +958,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return FutureBuilder(future: ScheduleData.awaitCondition(() {
-      return ScheduleData.dailyData[GlobalMethods.addDay(
-              ScheduleDisplay.initialDate, ScheduleDisplay.pageIndex)] !=
+      return ScheduleData.dailyData[
+              ScheduleDisplay.initialDate.addDay(ScheduleDisplay.pageIndex)] !=
           null;
     }), builder: (context, snapshot) {
       if (snapshot.connectionState == ConnectionState.waiting) {
@@ -986,11 +972,9 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
               radius: 20,
               padding: 5,
               onTap: () {
-                GlobalMethods.showPopup(
-                    context,
-                    ScheduleInfoDisplay(
-                        date: GlobalMethods.addDay(ScheduleDisplay.initialDate,
-                            ScheduleDisplay.pageIndex)));
+                context.pushPopup(ScheduleInfoDisplay(
+                    date: ScheduleDisplay.initialDate
+                        .addDay(ScheduleDisplay.pageIndex)));
               }),
         );
       }
@@ -1001,11 +985,9 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
           radius: 20,
           padding: 5,
           onTap: () {
-            GlobalMethods.showPopup(
-                context,
-                ScheduleInfoDisplay(
-                    date: GlobalMethods.addDay(ScheduleDisplay.initialDate,
-                        ScheduleDisplay.pageIndex)));
+            context.pushPopup(ScheduleInfoDisplay(
+                date: ScheduleDisplay.initialDate
+                    .addDay(ScheduleDisplay.pageIndex)));
           });
     });
   }

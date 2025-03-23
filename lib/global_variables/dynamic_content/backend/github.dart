@@ -31,6 +31,5 @@ class GitHub {
           "Content-Type": "application/json",
         },
         body: jsonEncode({"title": "$dateStamp: title", "body": body}));
-    print(response.body);
   }
 }

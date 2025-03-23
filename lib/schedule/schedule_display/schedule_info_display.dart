@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:xschedule/global_variables/static_content/global_methods.dart';
-import 'package:xschedule/global_variables/static_content/global_variables.dart';
+import 'package:xschedule/global_variables/static_content/extensions/date_time_extension.dart';
 import 'package:xschedule/global_variables/static_content/global_widgets.dart';
 import 'package:xschedule/global_variables/dynamic_content/backend/schedule_data.dart';
 
@@ -13,6 +12,15 @@ Widget displayed in popup for daily info
 
 class ScheduleInfoDisplay extends StatelessWidget {
   const ScheduleInfoDisplay({super.key, required this.date});
+
+  static String dressEmoji(String dressCode){
+    if(dressCode.toLowerCase().contains("formal")){
+      return '👔';
+    } else if(dressCode.toLowerCase().contains("spirit")){
+      return '🏱';
+    }
+    return '👕';
+  }
 
   final DateTime date;
 
@@ -32,7 +40,7 @@ class ScheduleInfoDisplay extends StatelessWidget {
             children: [
               //Date Text
               Text(
-                GlobalMethods.dateText(date),
+                date.dateText(),
                 style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
@@ -77,7 +85,7 @@ class ScheduleInfoDisplay extends StatelessWidget {
                   //If variable is null, then replace with empty string, and checks if string is empty; detects both null and empty values
                   if ((dailyData['dressCode'] ?? '').isNotEmpty)
                     Text(
-                      '${GlobalVariables.dressEmoji(dailyData['dressCode'])} ${dailyData['dressCode']}',
+                      '${dressEmoji(dailyData['dressCode'])} ${dailyData['dressCode']}',
                       style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w500,

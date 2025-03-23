@@ -12,7 +12,7 @@ class Credits extends StatelessWidget {
 
   static final Map<String, List<dynamic>> credits = {};
 
-  static Future<void> loadCreditsAIJson() async {
+  static Future<void> loadCreditsJson() async {
     final String jsonString =
         await rootBundle.loadString("assets/data/credits.json");
     final Map<String, dynamic> json = jsonDecode(jsonString);
