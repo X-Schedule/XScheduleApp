@@ -1,4 +1,7 @@
 
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:icalendar_parser/icalendar_parser.dart';
@@ -13,20 +16,30 @@ Primary function i sto get data via RSS
  */
 
 class ScheduleData {
-  static Map<DateTime, Schedule> schedule = {};
-  static Map<DateTime, Map<String, dynamic>> dailyData = {};
+  static Map<DateTime, Schedule> schedules = {};
+  static Map<DateTime, Map<String, dynamic>> dailyOrder = {};
   static Map<DateTime, List<Map<String, dynamic>>> coCurriculars = {};
 
   //List of ranges of prior supabase requests to remove overlap
   static List<Map<String, DateTime>> dailyDataRequests = [];
 
+  static late String dailyOrderUrl;
+  static late String coCurricularsUrl;
+
+  static Future<void> loadRSSJson() async {
+    final String jsonString =
+    await rootBundle.loadString("assets/data/rss.json");
+    final Map<String, dynamic> json = jsonDecode(jsonString);
+
+    dailyOrderUrl = json['daily_order_url'];
+    coCurricularsUrl = json['cocurriculars_url'];
+  }
+
   static Future<Map<DateTime, Schedule>> getDailyOrder() async {
     Map<DateTime, Schedule> result = {};
-    //The Base URL for the RSS request. When updating, see St. X Calendar RSS icon or ST X IT Department.
-    String baseUrl = 'https://www.stxavier.org/calendar/calendar_27.ics';
 
     //Gets calendarData via RSS
-    Response response = await http.get(Uri.parse(baseUrl));
+    Response response = await http.get(Uri.parse(dailyOrderUrl));
 
     //Formats the response type (ICS) into an object we can work with
     final ICalendar iCalendar = ICalendar.fromString(response.body);
@@ -65,7 +78,7 @@ class ScheduleData {
       //Adds the forSchedule to our schedule data Map, under the DateTime (ignoring time)
       if (forSchedule.isNotEmpty) {
         result[DateTime(date.year, date.month, date.day)] = Schedule(
-            schedule: forSchedule,
+            bells: forSchedule,
             name: instance['summary'],
             start: date,
             end: instance['dtend'].toDateTime());
@@ -77,11 +90,9 @@ class ScheduleData {
   static Future<Map<DateTime, List<Map<String, dynamic>>>>
       getCoCurriculars() async {
     Map<DateTime, List<Map<String, dynamic>>> result = {};
-    //The Base URL for the RSS request. When updating, see St. X Calendar RSS icon or ST X IT Department.
-    String baseUrl = 'https://www.stxavier.org/calendar/calendar_242.ics';
 
     //Gets calendarData via RSS
-    Response response = await http.get(Uri.parse(baseUrl));
+    Response response = await http.get(Uri.parse(coCurricularsUrl));
 
     //Formats the response type (ICS) into an object we can work with
     final ICalendar iCalendar = ICalendar.fromString(response.body);
@@ -127,7 +138,7 @@ class ScheduleData {
         await SupaBaseDB.getDailyData(start, end);
     //Adds all fetched data to dailyData
     for (Map<String, dynamic> data in dailyDataResult) {
-      dailyData[DateTime.parse(data["day"])] = data;
+      dailyOrder[DateTime.parse(data["day"])] = data;
     }
   }
 

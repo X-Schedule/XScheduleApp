@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:color_hex/class/hex_to_color.dart';
 import 'package:flutter/material.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:xschedule/global_variables/dynamic_content/backend/schedule_data.dart';
@@ -15,6 +14,7 @@ import 'package:xschedule/global_variables/static_content/global_widgets.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_flex_display.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_info_display.dart';
 import 'package:xschedule/schedule/schedule_settings/schedule_settings.dart';
+import 'package:xschedule/global_variables/static_content/extensions/color_extension.dart';
 
 import '../../global_variables/dynamic_content/tutorial_system.dart';
 
@@ -75,7 +75,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
   }
 
   Future<void> _showTutorial(BuildContext context) async {
-    while (ScheduleData.schedule.isEmpty) {
+    while (ScheduleData.schedules.isEmpty) {
       await Future.delayed(Duration(milliseconds: 100));
     }
     await Future.delayed(const Duration(milliseconds: 250));
@@ -321,7 +321,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                         color: colorScheme.surfaceContainer,
                         offset: const Offset(2.25, 2.25))
                   ]),
-              child: ScheduleData.schedule.isEmpty
+              child: ScheduleData.schedules.isEmpty
                   //FutureBuilder: will run async methods while displaying loading/placeholder widget; then replaces with widget once data fully fetched
                   ? FutureBuilder(
                       future: ScheduleData.getDailyOrder(),
@@ -334,7 +334,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                           return _buildLoading(context);
                         }
 
-                        ScheduleData.schedule.addAll(snapshot.data ?? {});
+                        ScheduleData.schedules.addAll(snapshot.data ?? {});
                         //Returns full schedule card
                         return _buildSchedule(context, date);
                       })
@@ -349,7 +349,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
-    Schedule dayInfo = ScheduleData.schedule[date] ?? Schedule.empty();
+    Schedule dayInfo = ScheduleData.schedules[date] ?? Schedule.empty();
     double cardHeight = mediaQuery.size.height -
         190 -
         mediaQuery.padding.top -
@@ -363,7 +363,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     double timeMargin = currentTime.hour * 60 + currentTime.minute - 480;
 
     //Schedule data
-    final Map<String, String> schedule = dayInfo.schedule;
+    final Map<String, String> schedule = dayInfo.bells;
     //The height (in pxs) that each minute will be on the screen, based on the devices screen size etc.
     double minuteHeight = cardHeight / 430;
     return ScheduleDisplay.tutorialSystem.showcase(
@@ -456,19 +456,19 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
 
   //Checks that all info of the schedule of a given date is proper
   bool _schedule(DateTime date, {bool tutorial = false}) {
-    Schedule dayInfo = ScheduleData.schedule[date] ?? Schedule.empty();
+    Schedule dayInfo = ScheduleData.schedules[date] ?? Schedule.empty();
     if (tutorial) {
-      if (dayInfo.schedule.length < 2 || dayInfo.firstFlex == null) {
+      if (dayInfo.bells.length < 2 || dayInfo.firstFlex == null) {
         return false;
       }
     }
-    if (dayInfo.schedule.isEmpty || dayInfo.schedule.containsKey('-')) {
+    if (dayInfo.bells.isEmpty || dayInfo.bells.containsKey('-')) {
       return false;
     }
-    List<String> keys = dayInfo.schedule.keys.toList();
+    List<String> keys = dayInfo.bells.keys.toList();
     for (String key in keys) {
       if (dayInfo.clockMap(key) == null) {
-        ScheduleData.schedule[date]!.schedule.remove(key);
+        ScheduleData.schedules[date]!.bells.remove(key);
       }
     }
     return true;
@@ -476,7 +476,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
 
   String _tutorial(final DateTime date, final String bell) {
     if (date == ScheduleDisplay.tutorialDate) {
-      final Schedule schedule = ScheduleData.schedule[date] ?? Schedule.empty();
+      final Schedule schedule = ScheduleData.schedules[date] ?? Schedule.empty();
       if (bell == schedule.firstBell) {
         return 'tutorial_schedule_bell';
       }
@@ -494,12 +494,11 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
-    final Schedule schedule = ScheduleData.schedule[date] ?? Schedule.empty();
+    final Schedule schedule = ScheduleData.schedules[date] ?? Schedule.empty();
 
     //Gets Map from schedule_settings.dart
-    final Map settings = ScheduleSettings.bellInfo[bell] ?? {};
-    final Color color = hexToColor(settings['color'] ?? '#909090');
-
+    final Map settings = Schedule.bellVanity[bell] ?? {};
+    final Color color = ColorExtension.fromHex(settings['color'] ?? '#909090');
     bool activities = bell.toLowerCase().contains("flex");
 
     Map times = schedule.clockMap(bell) ?? {};
@@ -602,7 +601,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
     //Gets settings from schedule_settings.dart
-    final Map<String, dynamic> settings = ScheduleSettings.bellInfo[bell] ?? {};
+    final Map<String, dynamic> settings = Schedule.bellVanity[bell] ?? {};
     final Map<String, Clock> times = schedule.clockMap(bell) ?? {};
     //Aligns on center of screen
     return GlobalWidgets.popup(
@@ -619,7 +618,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                   borderRadius:
                       const BorderRadius.horizontal(left: Radius.circular(10)),
                   //Converts hex color string to flutter color object
-                  color: hexToColor(settings['color'] ?? '#999999'),
+                  color: ColorExtension.fromHex(settings['color'] ?? '#999999'),
                 ),
                 width: 10,
               ),
@@ -867,8 +866,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                                   if (dotDate.month == iMonth.month) {
                                     opacity += 0.05;
                                   }
-                                  if (ScheduleData.schedule[dotDate] != null) {
-                                    if (!ScheduleData.schedule[dotDate]!.name
+                                  if (ScheduleData.schedules[dotDate] != null) {
+                                    if (!ScheduleData.schedules[dotDate]!.name
                                         .contains("No Classes")) {
                                       opacity += 0.15;
                                     }
@@ -958,7 +957,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return FutureBuilder(future: ScheduleData.awaitCondition(() {
-      return ScheduleData.dailyData[
+      return ScheduleData.dailyOrder[
               ScheduleDisplay.initialDate.addDay(ScheduleDisplay.pageIndex)] !=
           null;
     }), builder: (context, snapshot) {

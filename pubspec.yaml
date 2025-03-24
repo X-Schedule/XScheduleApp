@@ -39,7 +39,6 @@ dependencies:
   flutter_native_splash: ^2.4.1 # Adds splash screen creator; see flutter_native_splash.yaml
   localstorage: ^5.0.0 # Adds localstorage management methods
   google_fonts: ^6.2.1 # Adds GoogleFonts compatibility for testing purposes
-  color_hex: ^0.0.1 # Hex and Flutter color conversion
   flutter_hsvcolor_picker: ^1.5.1 # Adds color picking widgets
   url_launcher: ^6.3.1 # Adds ability to launch url in device browser
   package_info_plus: ^8.1.2 # Adds ability to read deployment info (app version and build)
@@ -80,6 +79,7 @@ flutter:
     - assets/data/open_ai.json
     - assets/data/credits.json
     - assets/data/github.json
+    - assets/data/rss.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

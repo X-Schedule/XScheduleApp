@@ -38,6 +38,7 @@ Future<void> init() async {
   GitHub.loadGithubJson();
   OpenAI.loadOpenAIJson();
   Credits.loadCreditsJson();
+  await ScheduleData.loadRSSJson();
 
   // Fetches information about the build of the app
   GlobalVariables.packageInfo = await PackageInfo.fromPlatform();

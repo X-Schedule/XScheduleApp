@@ -6,6 +6,7 @@ import 'package:xschedule/global_variables/static_content/extensions/build_conte
 import 'package:xschedule/personal/credits.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_display.dart';
 
+import '../global_variables/dynamic_content/schedule.dart';
 import '../global_variables/static_content/global_methods.dart';
 import '../schedule/schedule_settings/schedule_settings.dart';
 
@@ -58,7 +59,7 @@ class Personal extends StatelessWidget {
           }),
           _buildOption(context, "Reset Local Data", () {
             localStorage.clear();
-            ScheduleSettings.bellInfo = {};
+            Schedule.bellVanity = {};
             ScheduleSettings.tutorialSystem.refreshKeys();
             ScheduleSettings.bellTutorialSystem.refreshKeys();
 

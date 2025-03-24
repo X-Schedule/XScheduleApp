@@ -97,14 +97,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.19.0"
-  color_hex:
-    dependency: "direct main"
-    description:
-      name: color_hex
-      sha256: f19befdf0afe8d67ee1ec1f4038da80a7b9e0876167cf017b0b86d56b415f698
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.1"
   cross_file:
     dependency: transitive
     description:

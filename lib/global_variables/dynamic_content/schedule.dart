@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:localstorage/localstorage.dart';
+
 import 'clock.dart';
 
 /*
@@ -8,12 +12,15 @@ Centralized class for various static(public) methods as well as object specific
  */
 
 class Schedule {
+  static Map<String, dynamic> bellVanity =
+      json.decode(localStorage.getItem("scheduleSettings") ?? '{}');
+
   Schedule(
-      {required this.schedule,
+      {required this.bells,
       this.start,
       this.end,
       this.name = 'No Classes'}) {
-    for (String bell in schedule.keys) {
+    for (String bell in bells.keys) {
       if (bell.toLowerCase().contains('flex')) {
         firstFlex ??= bell;
       } else {
@@ -22,7 +29,7 @@ class Schedule {
     }
   }
 
-  final Map<String, String> schedule;
+  final Map<String, String> bells;
 
   final String name;
 
@@ -34,7 +41,7 @@ class Schedule {
 
   //Empty schedule class; used for null safety
   static Schedule empty() {
-    return Schedule(schedule: {});
+    return Schedule(bells: {});
   }
 
   //Gets the absolute value of the difference of teh start and end times, then returns day length
@@ -53,9 +60,9 @@ class Schedule {
   //Returns the start and end times of the inputted bell
   Map<String, Clock>? clockMap(String bell) {
     //If bell doesn't exist, return null
-    if (schedule[bell] != null) {
+    if (bells[bell] != null) {
       //Splits bell into start and end
-      List<String> times = schedule[bell]?.split('-') ?? [];
+      List<String> times = bells[bell]?.split('-') ?? [];
       //If bell improperly formatted, return null
       if (times.length == 2) {
         Clock? startClock = Clock.parse(times[0]);

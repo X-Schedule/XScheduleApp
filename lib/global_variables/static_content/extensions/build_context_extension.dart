@@ -99,4 +99,3 @@ extension BuildContextExtension on BuildContext {
     ));
   }
 }
-

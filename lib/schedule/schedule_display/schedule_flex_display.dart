@@ -23,9 +23,9 @@ class _FlexScheduleDisplayState extends State<FlexScheduleDisplay> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
-    Map<String, dynamic> dailyData = ScheduleData.dailyData[widget.date] ?? {};
+    Map<String, dynamic> dailyData = ScheduleData.dailyOrder[widget.date] ?? {};
 
-    List<String> mapKeys = widget.schedule.schedule.keys.toList();
+    List<String> mapKeys = widget.schedule.bells.keys.toList();
     List<String> flexKeys = mapKeys
         .where((element) =>
             element.toLowerCase().contains('flex') ||
@@ -39,7 +39,7 @@ class _FlexScheduleDisplayState extends State<FlexScheduleDisplay> {
     String flexTime = "";
 
     for (String key in flexKeys) {
-      String scheduleTime = widget.schedule.schedule[key]!;
+      String scheduleTime = widget.schedule.bells[key]!;
       if (flexTime.isEmpty) {
         flexTime = scheduleTime;
       } else {

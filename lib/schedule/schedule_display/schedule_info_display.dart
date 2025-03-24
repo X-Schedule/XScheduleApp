@@ -29,8 +29,8 @@ class ScheduleInfoDisplay extends StatelessWidget {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     //Gets the schedules and dailyData based on the given date
-    Schedule schedule = ScheduleData.schedule[date] ?? Schedule.empty();
-    Map<String, dynamic> dailyData = ScheduleData.dailyData[date] ?? {};
+    Schedule schedule = ScheduleData.schedules[date] ?? Schedule.empty();
+    Map<String, dynamic> dailyData = ScheduleData.dailyOrder[date] ?? {};
     return GlobalWidgets.popup(
         context,
         Container(

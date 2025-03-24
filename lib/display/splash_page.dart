@@ -1,3 +1,9 @@
+/*
+  * splash_page.dart *
+  Temporary destination page of the app which appears while it determines where to send the user.
+  Displays splash page featuring logo while loading.
+  Currently useless, considering destination is determined synchronously.
+*/
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:xschedule/display/home_page.dart';
@@ -7,8 +13,9 @@ import '../personal/welcome.dart';
 class SplashPage extends StatelessWidget {
   const SplashPage({super.key});
 
-  // 
+  // Determines where to send the user based on app history status
   static void determineDestination(BuildContext context) {
+    // Sends user to Welcome if not logged, else sends them to home page
     if (localStorage.getItem("state") != "logged") {
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const Welcome()), (_) => false);
@@ -20,9 +27,17 @@ class SplashPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Schedules reroute post build
     WidgetsBinding.instance.addPostFrameCallback((_){
       determineDestination(context);
     });
-    return Container();
+    // Basic scaffold displaying logo while app loads (as of right now, practically unused)
+    return Scaffold(
+      backgroundColor: Color(0xfff6eedd),
+      body: Align(
+          alignment: Alignment.center,
+          child: Image.asset("assets/images/xschedule_transparent.png")
+      )
+    );
   }
 }

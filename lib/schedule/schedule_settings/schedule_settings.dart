@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:color_hex/color_hex.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hsvcolor_picker/flutter_hsvcolor_picker.dart';
@@ -15,24 +14,15 @@ import 'package:xschedule/global_variables/dynamic_content/tutorial_system.dart'
 import 'package:xschedule/global_variables/static_content/extensions/build_context_extension.dart';
 import 'package:xschedule/global_variables/static_content/global_widgets.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_display.dart';
+import 'package:xschedule/global_variables/static_content/extensions/color_extension.dart';
 
 import '../../global_variables/dynamic_content/backend/open_ai.dart';
-
-/*
-Schedule Settings:
-Class created for two purposes
-1) Manages local schedule settings values
-2) Widget which allows user to manage settings
- */
+import '../../global_variables/dynamic_content/schedule.dart';
 
 class ScheduleSettings extends StatefulWidget {
   const ScheduleSettings({super.key, this.backArrow = false});
 
   final bool backArrow;
-
-  //Map of Maps for all bell data; decoded from local storage json
-  static Map bellInfo =
-      json.decode(localStorage.getItem("scheduleSettings") ?? '{}');
 
   //Temporary values for editing
   static Map<String, HSVColor> colors = {};
@@ -185,7 +175,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                 child: ElevatedButton(
                     onPressed: () {
                       localStorage.setItem("scheduleSettings",
-                          json.encode(ScheduleSettings.bellInfo));
+                          json.encode(Schedule.bellVanity));
                       localStorage.setItem("state", "logged");
                       Navigator.pushAndRemoveUntil(
                           context,
@@ -234,30 +224,30 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
   //Ensures no bell values are null
   void _defineBell(final String bell) {
     // ??= means if null, then define as this value
-    ScheduleSettings.bellInfo[bell] ??= {};
-    ScheduleSettings.bellInfo[bell]!['color'] ??= "#006aff";
+    Schedule.bellVanity[bell] ??= {};
+    Schedule.bellVanity[bell]!['color'] ??= "#006aff";
     ScheduleSettings.colors[bell] ??= HSVColor.fromColor(
-        hexToColor(ScheduleSettings.bellInfo[bell]!['color']!));
+        ColorExtension.fromHex(Schedule.bellVanity[bell]!['color']));
 
-    ScheduleSettings.bellInfo[bell]!['emoji'] ??= bell.replaceAll('HR', '📚');
+    Schedule.bellVanity[bell]!['emoji'] ??= bell.replaceAll('HR', '📚');
     ScheduleSettings.emojis[bell] ??= TextEditingController(
-        text: ScheduleSettings.bellInfo[bell]!['emoji'].replaceAll('HR', '📚'));
+        text: Schedule.bellVanity[bell]!['emoji'].replaceAll('HR', '📚'));
     emojiFocus[bell] ??= FocusNode();
 
-    ScheduleSettings.bellInfo[bell]!['name'] ??=
+    Schedule.bellVanity[bell]!['name'] ??=
         '$bell Bell'.replaceAll('HR Bell', 'Homeroom');
     ScheduleSettings.names[bell] ??=
-        TextEditingController(text: ScheduleSettings.bellInfo[bell]!['name']);
+        TextEditingController(text: Schedule.bellVanity[bell]!['name']);
     nameFocus[bell] ??= FocusNode();
 
-    ScheduleSettings.bellInfo[bell]!['teacher'] ??= '';
+    Schedule.bellVanity[bell]!['teacher'] ??= '';
     ScheduleSettings.teachers[bell] ??= TextEditingController(
-        text: ScheduleSettings.bellInfo[bell]!['teacher']);
+        text: Schedule.bellVanity[bell]!['teacher']);
     teacherFocus[bell] ??= FocusNode();
 
-    ScheduleSettings.bellInfo[bell]!['location'] ??= '';
+    Schedule.bellVanity[bell]!['location'] ??= '';
     ScheduleSettings.locations[bell] ??= TextEditingController(
-        text: ScheduleSettings.bellInfo[bell]!['location']);
+        text: Schedule.bellVanity[bell]!['location']);
     locationFocus[bell] ??= FocusNode();
   }
 
@@ -269,7 +259,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
     //Ensures no null values
     _defineBell(bell);
     //For brevity purposes
-    Map settings = ScheduleSettings.bellInfo[bell];
+    Map settings = Schedule.bellVanity[bell];
     //Tile very similar to those displayed in the schedule
     return Container(
       margin: const EdgeInsets.all(10),
@@ -290,7 +280,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                   //rounds the left edges to match the Card
                   borderRadius:
                       const BorderRadius.horizontal(left: Radius.circular(10)),
-                  color: hexToColor(settings['color']!),
+                  color: ColorExtension.fromHex(settings['color']!),
                 ),
                 width: 10,
               ),
@@ -606,7 +596,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                                           onPressed: () {
                                             setState(() {
                                               //Sets global value to correspond to new variables
-                                              ScheduleSettings.bellInfo[bell] =
+                                              Schedule.bellVanity[bell] =
                                                   {
                                                 'name': ScheduleSettings
                                                     .names[bell]!.text,
@@ -616,11 +606,9 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                                                     .locations[bell]!.text,
                                                 'emoji': ScheduleSettings
                                                     .emojis[bell]!.text,
-                                                'color': colorToHex(
-                                                        ScheduleSettings
+                                                'color': ScheduleSettings
                                                             .colors[bell]!
-                                                            .toColor())
-                                                    .hex
+                                                            .toColor().toHex()
                                               };
                                             });
                                             //Pops popup
@@ -690,7 +678,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                       onTap: () {
                         setState(() {
                           ScheduleSettings.colors[bell] =
-                              HSVColor.fromColor(hexToColor(hexColors[i]));
+                              HSVColor.fromColor(ColorExtension.fromHex(hexColors[i]));
                         });
                       },
                       child: Container(
@@ -699,7 +687,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                         width: 30,
                         height: 30,
                         decoration: BoxDecoration(
-                            color: hexToColor(hexColors[i]),
+                            color: ColorExtension.fromHex(hexColors[i]),
                             borderRadius: BorderRadius.circular(5),
                             boxShadow: [
                               BoxShadow(
@@ -917,7 +905,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                               return;
                             }
                             setState(() {
-                              ScheduleSettings.bellInfo = aiScan;
+                              Schedule.bellVanity = aiScan;
 
                               ScheduleSettings.names.clear();
                               ScheduleSettings.teachers.clear();
@@ -926,7 +914,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                               ScheduleSettings.emojis.clear();
 
                               for (String bell
-                                  in ScheduleSettings.bellInfo.keys) {
+                                  in Schedule.bellVanity.keys) {
                                 _defineBell(bell);
                               }
                             });
