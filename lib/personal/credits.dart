@@ -13,10 +13,14 @@ class Credits extends StatelessWidget {
   static final Map<String, List<dynamic>> credits = {};
 
   static Future<void> loadCreditsJson() async {
-    final String jsonString =
-        await rootBundle.loadString("assets/data/credits.json");
-    final Map<String, dynamic> json = jsonDecode(jsonString);
-    credits.addAll(json.cast());
+    try {
+      final String jsonString =
+      await rootBundle.loadString("assets/data/credits.json");
+      final Map<String, dynamic> json = jsonDecode(jsonString);
+      credits.addAll(json.cast());
+    } catch (e){
+      print("*** Credits Json not found! ***\n${e.toString()}");
+    }
   }
 
   static Widget _buildTextList(BuildContext context, String key) {

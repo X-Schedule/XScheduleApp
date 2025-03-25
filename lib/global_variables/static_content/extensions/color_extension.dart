@@ -1,5 +1,8 @@
 import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
 extension ColorExtension on Color {
   /// Color extension <p>
   /// Returns a Flutter color object from a given hex code (RGB)

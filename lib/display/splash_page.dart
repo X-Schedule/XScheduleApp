@@ -10,6 +10,8 @@ import 'package:xschedule/display/home_page.dart';
 
 import '../personal/welcome.dart';
 
+/// Splash page which appears while determining destination <p>
+/// Displays the logo on a beige background while the destination is determined.
 class SplashPage extends StatelessWidget {
   const SplashPage({super.key});
 

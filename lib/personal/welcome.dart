@@ -7,6 +7,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:xschedule/schedule/schedule_settings/schedule_settings.dart';
 
+/// First-time-use destination page. <p>
+/// Displays the logo over a background of St. X with a welcome Card with a button leading to ScheduleSettings.
 class Welcome extends StatelessWidget {
   const Welcome({super.key});
 
@@ -15,10 +17,13 @@ class Welcome extends StatelessWidget {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
+    // Returns a Scaffold with an image background with a translucent overlay, card and logo atop
     return Scaffold(
+      // All contents displayed in Stack
         body: Stack(
       alignment: Alignment.bottomCenter,
       children: [
+        // Background image set to cover screen
         SizedBox(
           width: mediaQuery.size.width,
           height: mediaQuery.size.height,
@@ -29,7 +34,9 @@ class Welcome extends StatelessWidget {
             ),
           ),
         ),
+        // Translucent blue overlay
         Container(color: colorScheme.primary.withValues(alpha: 0.7)),
+        // Logo aligned towards the center
         Align(
           alignment: Alignment.center,
           child: Container(
@@ -38,14 +45,18 @@ class Welcome extends StatelessWidget {
             child: Image.asset("assets/images/xschedule_transparent.png"),
           ),
         ),
+        // Welcome Card; contains progression button
         Card(
-          margin: const EdgeInsets.only(bottom: 30, top: 50),
+          // Displaces card 30px from bottom
+          margin: const EdgeInsets.only(bottom: 30),
           color: colorScheme.surface,
           child: SizedBox(
             width: mediaQuery.size.width * 4 / 5,
             child: Column(
+              // Minimum height to fit contents
               mainAxisSize: MainAxisSize.min,
               children: [
+                // Welcome text fitted to card
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
@@ -56,18 +67,23 @@ class Welcome extends StatelessWidget {
                         color: colorScheme.onSurface),
                   ),
                 ),
+                // Button spaced 10px from vertical edges
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   child: ElevatedButton(
                       onPressed: () {
+                        // Pushes ScheduleSettings to Navigator with animation
                         Navigator.push(context,
                             CupertinoPageRoute(builder: (context) {
                           return const ScheduleSettings();
                         }));
                       },
+                      // Button styled with theme colors
                       style: ElevatedButton.styleFrom(
+                        // Animated shimmer color
                           overlayColor: colorScheme.onPrimary,
                           backgroundColor: colorScheme.primary),
+                      // Container of set size with text aligned to center
                       child: Container(
                         alignment: Alignment.center,
                         width: mediaQuery.size.width * 3 / 5,

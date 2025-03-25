@@ -1,3 +1,8 @@
+/*
+  * schedule_settings.dart *
+  Settings page which allows the user to configure their bell vanity.
+  Contains maps for temporary settings values
+*/
 import 'dart:convert';
 import 'dart:io';
 
@@ -12,25 +17,30 @@ import 'package:xschedule/display/home_page.dart';
 import 'package:xschedule/global_variables/dynamic_content/stream_signal.dart';
 import 'package:xschedule/global_variables/dynamic_content/tutorial_system.dart';
 import 'package:xschedule/global_variables/static_content/extensions/build_context_extension.dart';
+import 'package:xschedule/global_variables/static_content/extensions/color_extension.dart';
 import 'package:xschedule/global_variables/static_content/global_widgets.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_display.dart';
-import 'package:xschedule/global_variables/static_content/extensions/color_extension.dart';
 
 import '../../global_variables/dynamic_content/backend/open_ai.dart';
 import '../../global_variables/dynamic_content/schedule.dart';
 
+/// Settings page which allows the user to configure bell vanity. <p>
+/// Contains Appbar with title and AI option, ScrollView of bell tiles, and submission button. <p>
+/// [bool backArrow]: Boolean for whether or not the option to leav the menu should appear in the top left.
 class ScheduleSettings extends StatefulWidget {
   const ScheduleSettings({super.key, this.backArrow = false});
 
+  // Parameter which specifies if an arrow should appear to back out of the page
   final bool backArrow;
 
-  //Temporary values for editing
+  // Maps of temporary values used in editing bell vanity; <Bell, Value>
   static Map<String, HSVColor> colors = {};
   static Map<String, TextEditingController> emojis = {};
   static Map<String, TextEditingController> names = {};
   static Map<String, TextEditingController> teachers = {};
   static Map<String, TextEditingController> locations = {};
 
+  // Tutorial systems used on ScheduleSettings page
   static final TutorialSystem tutorialSystem = TutorialSystem({
     'tutorial_settings':
         "In this menu, you'll be able to customize your schedule to match the classes you have.",
@@ -42,6 +52,7 @@ class ScheduleSettings extends StatefulWidget {
         "Once you're satisfied with your schedule, tap the button down here to move on."
   });
 
+  // All tutorials used in bell customization page; recalled when help button pressed
   static const Map<String, String> bellTutorials = {
     'tutorial_settings_bell':
         "In this menu, you'll be able to customize any individual bell on your schedule.",
@@ -71,15 +82,19 @@ class ScheduleSettings extends StatefulWidget {
 }
 
 class _ScheduleSettingsState extends State<ScheduleSettings> {
+  // Default color of color wheels.
   final Color pickerColor = Colors.blue;
 
+  // FocusNodes used for bell customization UI elements; <Bell, FocusNode>
   final Map<String, FocusNode> emojiFocus = {};
   final Map<String, FocusNode> nameFocus = {};
   final Map<String, FocusNode> teacherFocus = {};
   final Map<String, FocusNode> locationFocus = {};
 
+  // Image file uploaded to AI; null by default
   File? imageFile;
 
+  // List of color options in color scroll
   static const List<String> hexColorOptions = [
     '#ff0000',
     '#ff6600',
@@ -108,32 +123,42 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
+    // Refreshes the global keys of each tutorial element
     ScheduleSettings.tutorialSystem.refreshKeys();
     ScheduleSettings.tutorialSystem.removeFinished();
 
+    // Showcase View which returns page Scaffold
     return ShowCaseWidget(builder: (context) {
+      // Schedules tutorial start after widget has been built
       WidgetsBinding.instance.addPostFrameCallback((_) async {
+        // Wait .25 seconds for page animation
         await Future.delayed(const Duration(milliseconds: 250));
+        // If tutorial has not been run, run tutorial system
         if (!ScheduleSettings.tutorialSystem.finished && context.mounted) {
           ScheduleSettings.tutorialSystem.showTutorials(context);
           ScheduleSettings.tutorialSystem.finish();
         }
       });
 
+      // Returns page scaffold with top bar and body containing scroll view of bells
       return Scaffold(
           backgroundColor: colorScheme.primaryContainer,
-          //Top Bar
           appBar: AppBar(
+            // If back arrow is selected to be displayed, return null (allows default button to be displayed)
             leading: widget.backArrow ? null : Container(),
             centerTitle: true,
             backgroundColor: colorScheme.surface,
+            // List of Widgets to be displayed in top right
             actions: [
+              // IconButton leading to OpenAI popup padded 10px from right
               Padding(
                 padding: const EdgeInsets.only(right: 10),
+                // Showcase target for OpenAI button
                 child: ScheduleSettings.tutorialSystem.showcase(
                     context: context,
                     circular: true,
                     tutorial: 'tutorial_settings_ai',
+                    // OpenAI button
                     child: IconButton(
                       icon: Icon(
                         Icons.camera_outlined,
@@ -141,14 +166,17 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                         color: colorScheme.onSurface,
                       ),
                       onPressed: () {
+                        // Pushes the OpenAI popup to the Navigator
                         context.pushPopup(_buildPicPopup(context));
                       },
                     )),
               )
             ],
+            // Showcase target for title
             title: ScheduleSettings.tutorialSystem.showcase(
               context: context,
               tutorial: 'tutorial_settings',
+              // Title fitted to width
               child: FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
@@ -162,31 +190,40 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                   )),
             ),
           ),
-          //Extends the body behind the bottom bar
+          // Extends the body behind the bottom bar
           extendBody: true,
-          //Bottom bar; the done button
+          // "Done" button on the bottom of the page
           bottomNavigationBar: Container(
             height: 40,
+            // Offset from bottom corresponding to device "safety zone"
             margin: EdgeInsets.symmetric(
                 vertical: 20, horizontal: mediaQuery.size.width * .325),
+            // Showcase target for "Done" button
             child: ScheduleSettings.tutorialSystem.showcase(
                 context: context,
                 tutorial: 'tutorial_settings_complete',
+                // "Done" button
                 child: ElevatedButton(
                     onPressed: () {
-                      localStorage.setItem("scheduleSettings",
-                          json.encode(Schedule.bellVanity));
+                      // Saves the schedule vanity data to local storage
+                      localStorage.setItem(
+                          "scheduleSettings", json.encode(Schedule.bellVanity));
+                      // Confirms that the user's progress is marked as "logged"
                       localStorage.setItem("state", "logged");
+                      // Returns to HomePage
                       Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => HomePage()),
                           (_) => false);
+                      // Refreshed HomePage stream
                       StreamSignal.updateStream(
                           streamController: ScheduleDisplay.scheduleStream);
                     },
+                    // Button styled to fit theme colors
                     style: ElevatedButton.styleFrom(
                         overlayColor: colorScheme.onPrimary,
                         backgroundColor: colorScheme.primary),
+                    // Check Mark Icon aligned at center of button
                     child: Container(
                       alignment: Alignment.center,
                       width: mediaQuery.size.width * 3 / 5,
@@ -196,15 +233,17 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                       ),
                     ))),
           ),
-          //Body is a scroll view of seperate tiles
+          // ScrollView of individual bell tiles
           body: SingleChildScrollView(
             physics: const ClampingScrollPhysics(),
             child: Column(
               children: [
+                // A Bell Tile wrapped in ShowCase Widget
                 ScheduleSettings.tutorialSystem.showcase(
                     context: context,
                     tutorial: 'tutorial_settings_button',
                     child: _buildBellTile(context, 'A')),
+                // Remaining bell tiles; B-H, HR
                 _buildBellTile(context, 'B'),
                 _buildBellTile(context, 'C'),
                 _buildBellTile(context, 'D'),
@@ -213,7 +252,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                 _buildBellTile(context, 'G'),
                 _buildBellTile(context, 'H'),
                 _buildBellTile(context, 'HR'),
-                //So that with the bottom bar, you can still scorll to view last item
+                // Bottom padding og 60px to add blank space for button to rest
                 const SizedBox(height: 60)
               ],
             ),
@@ -221,76 +260,99 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
     });
   }
 
-  //Ensures no bell values are null
-  void _defineBell(final String bell) {
-    // ??= means if null, then define as this value
+  // Method which ensures no bell variables are undefined
+  void _defineBell(String bell) {
+    // Null-aware assignments of bell variables
+
+    // Defines bellVanity map
     Schedule.bellVanity[bell] ??= {};
+
+    // Defines color values
     Schedule.bellVanity[bell]!['color'] ??= "#006aff";
     ScheduleSettings.colors[bell] ??= HSVColor.fromColor(
         ColorExtension.fromHex(Schedule.bellVanity[bell]!['color']));
 
+    // Defines emoji values
     Schedule.bellVanity[bell]!['emoji'] ??= bell.replaceAll('HR', '📚');
     ScheduleSettings.emojis[bell] ??= TextEditingController(
         text: Schedule.bellVanity[bell]!['emoji'].replaceAll('HR', '📚'));
     emojiFocus[bell] ??= FocusNode();
 
+    // Defines name values
     Schedule.bellVanity[bell]!['name'] ??=
         '$bell Bell'.replaceAll('HR Bell', 'Homeroom');
     ScheduleSettings.names[bell] ??=
         TextEditingController(text: Schedule.bellVanity[bell]!['name']);
     nameFocus[bell] ??= FocusNode();
 
+    // Defines teacher values
     Schedule.bellVanity[bell]!['teacher'] ??= '';
-    ScheduleSettings.teachers[bell] ??= TextEditingController(
-        text: Schedule.bellVanity[bell]!['teacher']);
+    ScheduleSettings.teachers[bell] ??=
+        TextEditingController(text: Schedule.bellVanity[bell]!['teacher']);
     teacherFocus[bell] ??= FocusNode();
 
+    // Defines location values
     Schedule.bellVanity[bell]!['location'] ??= '';
-    ScheduleSettings.locations[bell] ??= TextEditingController(
-        text: Schedule.bellVanity[bell]!['location']);
+    ScheduleSettings.locations[bell] ??=
+        TextEditingController(text: Schedule.bellVanity[bell]!['location']);
     locationFocus[bell] ??= FocusNode();
   }
 
-  //Builds the tiles displayed in the scroll view
+  // Saves the temporary selected bell values to the bellVanity
+  void _saveBell(String bell) {
+    Schedule.bellVanity[bell] = {
+      'name': ScheduleSettings.names[bell]!.text,
+      'teacher': ScheduleSettings.teachers[bell]!.text,
+      'location': ScheduleSettings.locations[bell]!.text,
+      'emoji': ScheduleSettings.emojis[bell]!.text,
+      'color': ScheduleSettings.colors[bell]!.toColor().toHex()
+    };
+  }
+
+  // Builds the bell tiles displayed in ScrollView
   Widget _buildBellTile(BuildContext context, String bell) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
-    //Ensures no null values
+    // Ensures no null values
     _defineBell(bell);
-    //For brevity purposes
-    Map settings = Schedule.bellVanity[bell];
-    //Tile very similar to those displayed in the schedule
+
+    // Vanity map of provided bell
+    final Map<String, dynamic> vanity = Schedule.bellVanity[bell];
+
+    // Returns "Settings Tile", which displays current bell info and ability to edit bell
     return Container(
       margin: const EdgeInsets.all(10),
       width: mediaQuery.size.width * .95,
       height: 100,
+      // Tap-able card leading to bell config menu
       child: Card(
         color: colorScheme.surface,
         child: InkWell(
           highlightColor: colorScheme.onPrimary,
           onTap: () {
-            context.pushPopup(_buildBellSettings(bell));
+            // Pushes the bell configuration popup
+            context.pushPopup(_buildBellSettings(context, bell));
           },
           child: Row(
             children: [
-              //Left color nib w/ rounded edges
+              // Left color nib w/ rounded edges; selected color of bell
               Container(
                 decoration: BoxDecoration(
-                  //rounds the left edges to match the Card
+                  // Rounds the left edges to match the Card
                   borderRadius:
                       const BorderRadius.horizontal(left: Radius.circular(10)),
-                  color: ColorExtension.fromHex(settings['color']!),
+                  color: ColorExtension.fromHex(vanity['color']!),
                 ),
                 width: 10,
               ),
               Padding(
                 padding: const EdgeInsets.all(10),
-                //Column w/ two rows
+                // Column w/ two rows
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    //Stacks the emoji on top of a shadowed circle
+                    // Stacks the emoji on top of a shadowed circle
                     Stack(
                       alignment: Alignment.center,
                       children: [
@@ -299,28 +361,28 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                           radius: 35,
                         ),
                         Text(
-                          settings['emoji'],
+                          vanity['emoji'],
                           style: TextStyle(
                               fontSize: 40, color: colorScheme.onSurface),
                         )
                       ],
                     ),
-                    //Title Container
+                    // Container including all text widgets
                     Container(
                       width: mediaQuery.size.width * .95 - 180,
                       height: 70,
                       alignment: Alignment.centerLeft,
                       padding: const EdgeInsets.only(left: 5),
-                      //FittedBox to ensure text doesn't overflow card
+                      // Column of Text Widgets w/ height divided equally among them, and wrapped in individual FittedBoxes to prevent overflow.
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          //Displays class name, bell name, or nothing (if null)
+                          // Text set to fit Expanded container
                           Expanded(
                               child: FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
-                              settings['name']!,
+                              vanity['name'],
                               style: TextStyle(
                                   height: 1,
                                   fontSize: 25,
@@ -334,7 +396,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                               child: FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
-                              settings['teacher']!,
+                              vanity['teacher'],
                               style: TextStyle(
                                   fontSize: 18,
                                   height: 1,
@@ -347,7 +409,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                               child: FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
-                              settings['location']!,
+                              vanity['location'],
                               style: TextStyle(
                                   fontSize: 18,
                                   height: 1,
@@ -359,6 +421,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                         ],
                       ),
                     ),
+                    // Settings icon to indicate the ability to configure by tapping tile
                     Container(
                       alignment: Alignment.center,
                       width: 70,
@@ -375,11 +438,24 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
     );
   }
 
-  //Builds the setting popup
-  Widget _buildBellSettings(String bell) {
+  // Restarts the tutorial of the bell configuration menu
+  void _startBellTutorial() {
+    // Clears tutorialSystem of tutorial values
+    ScheduleSettings.bellTutorialSystem.tutorials.clear();
+    // Re-adds all tutorials to tutorialSystem
+    ScheduleSettings.bellTutorialSystem.tutorials
+        .addAll(ScheduleSettings.bellTutorials);
+    // Starts tutorial
+    ScheduleSettings.bellTutorialSystem
+        .showTutorials(context, storeCompletion: false);
+  }
+
+  // Builds the bell configuration popup
+  Widget _buildBellSettings(BuildContext context, String bell) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
+    // Determines the hint text to be displayed at the top of the popup
     String hint = bell;
     if (hint.length == 1) {
       hint = '$hint Bell';
@@ -387,27 +463,34 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
       hint = 'Homeroom';
     }
 
+    // Refreshes the GlobalKeys of the bell tutorial system.
     ScheduleSettings.bellTutorialSystem.refreshKeys();
 
-    //Allows for "setState" to be called, and only effect this popup
+    // Returns the popup wrapped in a StatefulBuilder
     return StatefulBuilder(
+        // Allows for "setState" to be called, and only effect this popup (i.e. a StatefulWidget)
         builder: (BuildContext context, StateSetter setLocalState) {
-      //Aligns card in center
+      // Prevents the popup from being overlapped by the keyboard
       return KeyboardAvoider(
           autoScroll: true,
+          // Aligns the popup at the center of the page
           child: Align(
               alignment: Alignment.center,
+              // Popup wrapped in Showcase View Widget
               child: ShowCaseWidget(onFinish: () {
                 ScheduleSettings.bellTutorialSystem.finish();
               }, builder: (context) {
+                // Schedules the showcase to start after the Widget is built
                 if (!ScheduleSettings.bellTutorialSystem.finished) {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     ScheduleSettings.bellTutorialSystem.showTutorials(context);
                   });
                 }
+                // Returns the popup wrapped in a Showcase
                 return ScheduleSettings.bellTutorialSystem.showcase(
                   context: context,
                   tutorial: 'tutorial_settings_bell',
+                  // The popup as a card with Column of content
                   child: Card(
                     child: Padding(
                       padding: const EdgeInsets.all(8),
@@ -416,34 +499,29 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
+                          // Row of set size at the top for misc. actions
                           SizedBox(
                               width: mediaQuery.size.width * .9,
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
+                                // Items spaced evenly
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
+                                  // Help icon wrapped in Showcase
                                   ScheduleSettings.bellTutorialSystem.showcase(
                                     context: context,
                                     tutorial: "tutorial_settings_bell_help",
                                     circular: true,
                                     child: IconButton(
-                                        onPressed: () {
-                                          ScheduleSettings
-                                              .bellTutorialSystem.tutorials
-                                              .clear();
-                                          ScheduleSettings
-                                              .bellTutorialSystem.tutorials
-                                              .addAll(ScheduleSettings
-                                                  .bellTutorials);
-                                          ScheduleSettings.bellTutorialSystem
-                                              .showTutorials(context,
-                                                  storeCompletion: false);
-                                        },
+                                        // Restarts bell tutorial
+                                        onPressed: _startBellTutorial,
+                                        // Help Icon
                                         icon: Icon(Icons.help_outline_rounded,
                                             size: 30,
                                             color: colorScheme.onSurface)),
                                   ),
+                                  // Hint text widget
                                   Text(hint,
                                       style: TextStyle(
                                           fontSize: 25,
@@ -451,6 +529,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                                           fontFamily: 'Exo2',
                                           color: colorScheme.onSurface
                                               .withAlpha(128))),
+                                  // Alternate-schedule configuration button wrapped in SHowcase
                                   ScheduleSettings.bellTutorialSystem.showcase(
                                     context: context,
                                     tutorial:
@@ -458,125 +537,48 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                                     circular: true,
                                     child: IconButton(
                                         onPressed: () {},
+                                        // Tuning Icon
                                         icon: Icon(Icons.tune,
                                             size: 30,
                                             color: colorScheme.onSurface)),
                                   )
                                 ],
                               )),
+                          // Color Wheel w/ Emoji Picker wrapped in Showcase
                           ScheduleSettings.bellTutorialSystem.showcase(
                               context: context,
                               tutorial: 'tutorial_settings_bell_color_wheel',
-                              child: SizedBox(
-                                width: 200,
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    //Solid Color circle
-                                    CircleAvatar(
-                                      backgroundColor:
-                                          //Color in variable type "HSVColor"; needs to be converted
-                                          ScheduleSettings.colors[bell]!
-                                              .toColor(),
-                                      radius: 95,
-                                    ),
-                                    WheelPicker(
-                                      showPalette: false,
-                                      color: ScheduleSettings.colors[bell]!,
-                                      onChanged: (HSVColor value) {
-                                        setLocalState(() {
-                                          ScheduleSettings.colors[bell] = value
-                                              .withValue(1)
-                                              .withSaturation(1);
-                                        });
-                                      },
-                                    ),
-                                    ScheduleSettings.bellTutorialSystem
-                                        .showcase(
-                                            context: context,
-                                            tutorial:
-                                                'tutorial_settings_bell_icon',
-                                            circular: true,
-                                            child: Container(
-                                              width: 125,
-                                              height: 125,
-                                              alignment: Alignment.center,
-                                              margin: const EdgeInsets.only(
-                                                  bottom: 10),
-                                              child: IntrinsicWidth(
-                                                child: TextField(
-                                                  controller: ScheduleSettings
-                                                      .emojis[bell],
-                                                  enableInteractiveSelection:
-                                                      false,
-                                                  focusNode: emojiFocus[bell],
-                                                  showCursor: false,
-                                                  decoration:
-                                                      const InputDecoration(
-                                                    isDense: true,
-                                                    border: InputBorder.none,
-                                                    // Removes the underline
-                                                    contentPadding:
-                                                        EdgeInsets.symmetric(
-                                                            vertical:
-                                                                10.0), // Optional: adjust padding
-                                                  ),
-                                                  style: TextStyle(
-                                                      fontSize: 120,
-                                                      // Large font size
-                                                      color: colorScheme
-                                                          .onSurface),
-                                                  onTapOutside: (_) {
-                                                    emojiFocus[bell]?.unfocus();
-                                                  },
-                                                  onChanged: (String text) {
-                                                    //Ensured no empty values
-                                                    if (text.isEmpty) {
-                                                      text = '_';
-                                                    }
-                                                    //Ensures no values greater than one character; will use 2nd char so that you can quickly type
-                                                    //Use characters to ensure emojis work
-                                                    if (text.characters.length >
-                                                        1) {
-                                                      text =
-                                                          text.characters.last;
-                                                    }
-                                                    setLocalState(() {
-                                                      ScheduleSettings
-                                                          .emojis[bell]!
-                                                          .text = text;
-                                                    });
-                                                  },
-                                                ),
-                                              ),
-                                            ))
-                                  ],
-                                ),
-                              )),
+                              child: _buildColorWheel(
+                                  context, bell, setLocalState)),
+                          // Color Scroll wrapped in Showcase
                           ScheduleSettings.bellTutorialSystem.showcase(
                             context: context,
                             tutorial: 'tutorial_settings_bell_color_row',
                             child: _buildColorSelection(
                                 context, bell, setLocalState, hexColorOptions),
                           ),
+                          // Spacing of 16px
                           const SizedBox(height: 16),
-                          //Column of text forms
+                          // Column of text forms wrapped in Showcase
                           ScheduleSettings.bellTutorialSystem.showcase(
                               context: context,
                               tutorial: 'tutorial_settings_bell_info',
                               targetPadding: const EdgeInsets.all(8),
                               child: Column(
                                 children: [
+                                  // Name TextField
                                   _buildTextForm(
                                       context,
                                       ScheduleSettings.names[bell]!,
                                       "Bell Name",
                                       focusNode: nameFocus[bell]),
+                                  // Teacher TextField
                                   _buildTextForm(
                                       context,
                                       ScheduleSettings.teachers[bell]!,
                                       "Teacher",
                                       focusNode: teacherFocus[bell]),
+                                  // Location TextField
                                   _buildTextForm(
                                       context,
                                       ScheduleSettings.locations[bell]!,
@@ -584,7 +586,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                                       focusNode: locationFocus[bell]),
                                 ],
                               )),
-                          //Submits
+                          // Submit Button wrapped in Showcase w/ padding
                           Padding(
                               padding: const EdgeInsets.only(top: 8),
                               child: ScheduleSettings.bellTutorialSystem
@@ -594,26 +596,15 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                                           'tutorial_settings_bell_complete',
                                       child: ElevatedButton(
                                           onPressed: () {
+                                            // Resets state of settings page to include new values
                                             setState(() {
-                                              //Sets global value to correspond to new variables
-                                              Schedule.bellVanity[bell] =
-                                                  {
-                                                'name': ScheduleSettings
-                                                    .names[bell]!.text,
-                                                'teacher': ScheduleSettings
-                                                    .teachers[bell]!.text,
-                                                'location': ScheduleSettings
-                                                    .locations[bell]!.text,
-                                                'emoji': ScheduleSettings
-                                                    .emojis[bell]!.text,
-                                                'color': ScheduleSettings
-                                                            .colors[bell]!
-                                                            .toColor().toHex()
-                                              };
+                                              // Sets global bellVanity values to match selected ones
+                                              _saveBell(bell);
                                             });
-                                            //Pops popup
+                                            // Pops popup, returning to settings page
                                             Navigator.pop(context);
                                           },
+                                          // Button styles to be green
                                           style: ElevatedButton.styleFrom(
                                               overlayColor:
                                                   colorScheme.onPrimary,
@@ -625,6 +616,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                                                     .width *
                                                 3 /
                                                 5,
+                                            // Simple Check Icon
                                             child: Icon(
                                               Icons.check,
                                               color: colorScheme.onPrimary,
@@ -639,53 +631,151 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
     });
   }
 
+  // Builds the Color Wheel displayed in the bell configuration menu
+  Widget _buildColorWheel(
+      BuildContext context, String bell, StateSetter setState) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+    // Color Wheel and Emoji Selector Stack
+    return SizedBox(
+      width: 200,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Solid Color circle to display selected color
+          CircleAvatar(
+            backgroundColor:
+                // Color in variable type "HSVColor"; needs to be converted
+                ScheduleSettings.colors[bell]!.toColor(),
+            radius: 95,
+          ),
+          // Color Wheel picker
+          WheelPicker(
+            showPalette: false,
+            color: ScheduleSettings.colors[bell]!,
+            onChanged: (HSVColor value) {
+              setState(() {
+                // Stores the selected color at 100% saturation and value (ensures color is actually displayed on wheel)
+                ScheduleSettings.colors[bell] =
+                    value.withValue(1).withSaturation(1);
+              });
+            },
+          ),
+          // Emoji Picker wrapped in Showcase
+          ScheduleSettings.bellTutorialSystem.showcase(
+              context: context,
+              tutorial: 'tutorial_settings_bell_icon',
+              circular: true,
+              // Container w/ Emoji TextField
+              child: Container(
+                width: 125,
+                height: 125,
+                alignment: Alignment.center,
+                margin: const EdgeInsets.only(bottom: 10),
+                // IntrinsicWidth which serves as a Container of the smallest size possible based on child (TextField)
+                child: IntrinsicWidth(
+                  child: TextField(
+                    controller: ScheduleSettings.emojis[bell],
+                    enableInteractiveSelection: false,
+                    focusNode: emojiFocus[bell],
+                    showCursor: false,
+                    decoration: const InputDecoration(
+                      isDense: true,
+                      border: InputBorder.none,
+                      // Removes the underline
+                      contentPadding: EdgeInsets.symmetric(
+                          vertical: 10.0), // Optional: adjust padding
+                    ),
+                    style: TextStyle(
+                        fontSize: 120,
+                        // Large font size
+                        color: colorScheme.onSurface),
+                    onTapOutside: (_) {
+                      emojiFocus[bell]?.unfocus();
+                    },
+                    onChanged: (String text) {
+                      //Ensured no empty values
+                      if (text.isEmpty) {
+                        text = '_';
+                      }
+                      //Ensures no values greater than one character; will use 2nd char so that you can quickly type
+                      //Use characters to ensure emojis work
+                      if (text.characters.length > 1) {
+                        text = text.characters.last;
+                      }
+                      setState(() {
+                        ScheduleSettings.emojis[bell]!.text = text;
+                      });
+                    },
+                  ),
+                ),
+              ))
+        ],
+      ),
+    );
+  }
+
+  // Builds the Color Scroll displayed in the bell configuration menu
   Widget _buildColorSelection(BuildContext context, String bell,
       StateSetter setState, List<String> hexColors) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
+    // ScrollController of the Color ScrollView
     final ScrollController controller = ScrollController();
 
+    // Row containing arrow indicators and constrained ScrollView
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
+        // Left Arrow IconButton
         IconButton(
             onPressed: () {
+              // Scrolls the ScrollView 3 tiles left
               controller.animateTo(controller.offset - 46 * 3,
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOut);
             },
+            // Simple Left Arrow
             icon: Icon(
               Icons.arrow_back_ios,
               color: colorScheme.onSurface.withAlpha(128),
               size: 12,
             )),
+        // ScrollView constrained within set-width container
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8),
           width: mediaQuery.size.width * .7,
+          // Stack containing ScrollView and edge-fading overlays
           child: Stack(
             alignment: Alignment.centerLeft,
             children: [
+              // Color ScrollView
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 controller: controller,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
+                  // Builds list of color selecting tiles based on provided list
                   children: List<Widget>.generate(hexColors.length, (i) {
+                    // Returns colored button
                     return InkWell(
                       onTap: () {
+                        // Sets the color and refreshes the popup
                         setState(() {
-                          ScheduleSettings.colors[bell] =
-                              HSVColor.fromColor(ColorExtension.fromHex(hexColors[i]));
+                          ScheduleSettings.colors[bell] = HSVColor.fromColor(
+                              ColorExtension.fromHex(hexColors[i]));
                         });
                       },
+                      // Colored container
                       child: Container(
                         margin: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 8),
                         width: 30,
                         height: 30,
+                        // Rounded edges, shadow, and color
                         decoration: BoxDecoration(
                             color: ColorExtension.fromHex(hexColors[i]),
                             borderRadius: BorderRadius.circular(5),
@@ -698,10 +788,12 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                   }),
                 ),
               ),
+              // Fading container which ignores touch (aligned left by default)
               IgnorePointer(
                   child: Container(
                       width: 12,
                       height: 46,
+                      // Decorated by LinearGradient of surfaceColor from left to right
                       decoration: BoxDecoration(
                           gradient: LinearGradient(
                               colors: [
@@ -710,12 +802,14 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                           ],
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight)))),
+              // Fading container which ignores touch aligned right
               Align(
                 alignment: Alignment.centerRight,
                 child: IgnorePointer(
                     child: Container(
                         width: 12,
                         height: 46,
+                        // Decorated by LinearGradient of surfaceColor from right to left
                         decoration: BoxDecoration(
                             gradient: LinearGradient(
                                 colors: [
@@ -728,12 +822,15 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
             ],
           ),
         ),
+        // Right Arrow IconButton
         IconButton(
             onPressed: () {
+              // Scrolls the ScrollView 3 tiles right
               controller.animateTo(controller.offset + 46 * 3,
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOut);
             },
+            // Simple Right Arrow
             icon: Icon(
               Icons.arrow_forward_ios,
               color: colorScheme.onSurface.withAlpha(128),
@@ -743,13 +840,15 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
     );
   }
 
-  //The text form displayed in the settings page
+  // Builds a text form displayed in the bell configuration menu
   Widget _buildTextForm(
       BuildContext context, TextEditingController controller, String display,
       {FocusNode? focusNode}) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
-    double size = mediaQuery.size.width * 5 / 6;
+    final double size = mediaQuery.size.width * 5 / 6;
+
+    // Returns a TextFormField constrained by a set-width Container
     return Container(
       margin: const EdgeInsets.only(top: 5),
       height: size * 2 / 15,
@@ -760,6 +859,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
         controller: controller,
         maxLength: 50,
         maxLines: 1,
+        // Decorated by basic border w/ hint text
         decoration: InputDecoration(
           labelText: display,
           isDense: true,
@@ -775,12 +875,18 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
     );
   }
 
+  // Allows the user to select an image from their camera roll
   Future<void> selectImage(StateSetter setState) async {
+    // Requests image to be picked and stored selection
     FilePickerResult? pickedImage = await FilePicker.platform
         .pickFiles(type: FileType.image, allowMultiple: false);
+
+    // If image was selected, stores image file path
     if (pickedImage != null) {
       if (pickedImage.xFiles.isNotEmpty) {
+        // The file selected
         final File pickedFile = File(pickedImage.xFiles.first.path);
+        // If the file exists, refresh the page to account for the selection
         if (await pickedFile.exists() && context.mounted) {
           setState(() {
             imageFile = pickedFile;
@@ -790,19 +896,24 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
     }
   }
 
+  // Builds the popup for selecting and uploading an image
   Widget _buildPicPopup(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
     final double width = mediaQuery.size.width;
 
+    // Status booleans
     bool uploaded = false;
     bool isLoading = false;
 
+    // Returns popup wrapped in StatefulBuilder
     return StatefulBuilder(
         builder: (BuildContext context, StateSetter setLocalState) {
+      // Refreshes uploaded status
       uploaded = imageFile != null;
-      //Aligns card in center
+
+      // Returns popup
       return GlobalWidgets.popup(
           context,
           Column(
@@ -812,6 +923,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
             children: [
               Padding(
                   padding: const EdgeInsets.only(left: 16, right: 16, top: 5),
+                  // Title wrapped in FittedBox
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Text(
@@ -822,18 +934,24 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                           fontWeight: FontWeight.w600),
                     ),
                   )),
-              GestureDetector(
+              // Image display wrapped in button
+              InkWell(
+                highlightColor: colorScheme.onSurface,
                 onTap: () async {
+                  // Requests image through camera roll selection
                   if (!isLoading) {
                     await selectImage(setLocalState);
                   }
                 },
+                // Image display Stack
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
+                    // Image wrapped in Container w/ border
                     Container(
                         width: width * 3 / 5,
                         height: width * 3 / 5,
+                        // 5px border
                         decoration: BoxDecoration(
                             border: Border.all(
                                 color: colorScheme.onSurface.withAlpha(128),
@@ -841,7 +959,9 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                         padding: const EdgeInsets.all(2.5),
                         margin: const EdgeInsets.all(15),
                         alignment: Alignment.center,
+                        // If image has been selected, display it; if not, display selection Icon
                         child: uploaded
+                            // Image which covers given space
                             ? SizedBox(
                                 width: width * 3 / 5,
                                 height: width * 3 / 5,
@@ -851,11 +971,13 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                                   child: Image.file(imageFile!),
                                 )),
                               )
+                            // Image selection icon
                             : Icon(
                                 Icons.photo_outlined,
                                 size: width * 1 / 2,
                                 color: colorScheme.onSecondary,
                               )),
+                    // If image has been uploaded, display icon as reminder that new image can be selected
                     if (uploaded && !isLoading)
                       Opacity(
                         opacity: 0.1,
@@ -865,6 +987,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                           color: colorScheme.onSurface,
                         ),
                       ),
+                    // If is loading, display Shimmer effect to represent loading
                     if (isLoading)
                       Opacity(
                         opacity: 0.75,
@@ -879,78 +1002,90 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                   ],
                 ),
               ),
+              // Progress button wrapped in Container w/ padding and sizing
               Container(
                 margin: const EdgeInsets.only(bottom: 15),
                 padding: EdgeInsets.symmetric(horizontal: width * .08),
                 width: width * 4 / 5,
                 child: ElevatedButton(
                     onPressed: () async {
+                      // If image has not been selected, request one
                       if (!uploaded) {
                         await selectImage(setLocalState);
+                        // ...else begin uploading process, if not already loading
                       } else if (!isLoading) {
+                        // Refresh page to begin loading animation
                         setLocalState(() {
                           isLoading = true;
                         });
                         if (await imageFile!.exists()) {
+                          // Send http.get request to OpenAI, interpret, and store result
                           final Map<String, dynamic> aiScan =
                               await OpenAI.scanSchedule(imageFile!.path);
                           if (context.mounted) {
+                            // If error detected, display error and exit
                             if (aiScan['error'] != null) {
                               context.showSnackBar(
                                   'Request Failed: Error Code ${aiScan['error']}',
                                   isError: true);
+                              // Refresh page to end loading animation
                               setLocalState(() {
                                 isLoading = false;
                               });
                               return;
                             }
+                            // If error not detected, refresh entire page to include AI results
                             setState(() {
                               Schedule.bellVanity = aiScan;
 
+                              // Clear all temporary values to be reset later
                               ScheduleSettings.names.clear();
                               ScheduleSettings.teachers.clear();
                               ScheduleSettings.locations.clear();
                               ScheduleSettings.colors.clear();
                               ScheduleSettings.emojis.clear();
-
-                              for (String bell
-                                  in Schedule.bellVanity.keys) {
-                                _defineBell(bell);
-                              }
                             });
-                            //Pops popup
+                            // Pops popup, returning to settings page
                             Navigator.pop(context);
                           }
                         }
                       }
                     },
+                    // Button styled dependent on status
                     style: ElevatedButton.styleFrom(
                         overlayColor: colorScheme.onPrimary,
+                        // If image is selected, primary button, else secondary button color scheme
                         backgroundColor: uploaded
                             ? colorScheme.primary
                             : colorScheme.secondary,
                         shape: RoundedRectangleBorder(
                             borderRadius:
                                 BorderRadius.all(Radius.circular(15)))),
+                    // Displays Shimmer dependent on status w/ text
                     child: Container(
                         alignment: Alignment.center,
                         height: 37.5,
                         child: Shimmer.fromColors(
                             baseColor: colorScheme.onPrimary,
                             highlightColor: colorScheme.onSecondary,
+                            // Shimmer dependent on loading status
                             enabled: isLoading,
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
+                                // Icon hint dependent on status
                                 Icon(
+                                  // If image has been selected, display scan icon, else image upload icon
                                   uploaded
                                       ? Icons.document_scanner_outlined
                                       : Icons.add_photo_alternate_outlined,
                                   size: 25,
                                   color: colorScheme.onPrimary,
                                 ),
+                                // Hint text dependent on status
                                 Text(
+                                  // If image has been selected, display scan image text, else upload image text
                                   uploaded ? "  Scan Image" : "  Upload Image",
                                   style: TextStyle(
                                       fontSize: 25, fontFamily: "Georama"),

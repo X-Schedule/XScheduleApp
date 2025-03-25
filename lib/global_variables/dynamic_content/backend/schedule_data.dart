@@ -27,12 +27,16 @@ class ScheduleData {
   static late String coCurricularsUrl;
 
   static Future<void> loadRSSJson() async {
-    final String jsonString =
-    await rootBundle.loadString("assets/data/rss.json");
-    final Map<String, dynamic> json = jsonDecode(jsonString);
+    try {
+      final String jsonString =
+      await rootBundle.loadString("assets/data/rss.json");
+      final Map<String, dynamic> json = jsonDecode(jsonString);
 
-    dailyOrderUrl = json['daily_order_url'];
-    coCurricularsUrl = json['cocurriculars_url'];
+      dailyOrderUrl = json['daily_order_url'];
+      coCurricularsUrl = json['cocurriculars_url'];
+    } catch (e){
+      print("*** RSS Json not found! This is imperative for the app to work! ***\n\n${e.toString()}");
+    }
   }
 
   static Future<Map<DateTime, Schedule>> getDailyOrder() async {

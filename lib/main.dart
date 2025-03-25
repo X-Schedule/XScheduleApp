@@ -67,7 +67,12 @@ class XScheduleApp extends StatelessWidget {
       title: 'X-Schedule',
       // Sets the default text styling of the app
       home: const DefaultTextStyle(
-        style: TextStyle(color: Colors.black, fontSize: 25, decoration: null),
+        style: TextStyle(
+            color: Colors.black,
+            fontSize: 25,
+            decoration: null,
+            // Any overflowing text fades out
+            overflow: TextOverflow.fade),
         // Directs to the app's splash page to determine destination
         child: SplashPage(),
       ),

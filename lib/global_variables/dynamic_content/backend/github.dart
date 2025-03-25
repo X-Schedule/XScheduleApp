@@ -8,13 +8,17 @@ class GitHub {
   static late String apiKey;
 
   static Future<void> loadGithubJson() async {
-    final String jsonString =
-        await rootBundle.loadString("assets/data/github.json");
-    final Map<String, dynamic> json = jsonDecode(jsonString);
+    try {
+      final String jsonString =
+      await rootBundle.loadString("assets/data/github.json");
+      final Map<String, dynamic> json = jsonDecode(jsonString);
 
-    //Assigns comm. values
-    apiUrl = json['api_url'];
-    apiKey = json['api_key'];
+      //Assigns comm. values
+      apiUrl = json['api_url'];
+      apiKey = json['api_key'];
+    } catch (e){
+      print("*** GitHub Json not found! ***\n${e.toString()}");
+    }
   }
 
   static Future<void> postIssue(
