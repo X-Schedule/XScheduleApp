@@ -1,25 +1,23 @@
+/*
+  * home_page.dart *
+  Base destination page of the app.
+  Contains basic navigation bar and PageView of app's pages
+*/
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:icon_decoration/icon_decoration.dart';
-import 'package:localstorage/localstorage.dart';
-import 'package:xschedule/global_variables/dynamic_content/stream_signal.dart';
-import 'package:xschedule/personal/welcome.dart';
+import 'package:xschedule/global/dynamic_content/stream_signal.dart';
 import 'package:xschedule/personal/personal.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_display.dart';
 
-/*
-HomePage:
-HomePage is the base file in charge of linking main.dart to the rest of the app
 
-Displays the appbar, navbar, and is parent of the body
- */
-
-//StatefulWidget: Widget capable of updating 'State's or instances
+/// Basic destination page of the app <p>
+/// Features a bottom navigation bar with page icons and body of a PageView.
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
-  //Stream which allows reference to widgets across widget tree
+  // HomePage stream; allows static calling of HomePage refresh
   static StreamController<StreamSignal> homePageStream = StreamController();
 
   @override
@@ -27,18 +25,19 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  //Pages available to scroll to using PageView
+  // List of pages displayed in PageView
   static const List<Widget> pages = [
     ScheduleDisplay(),
     Personal(),
   ];
 
-  //Controller of the PageView; allows access to variables and methods
+  // Controller of the PageView; allows access to variables and methods
   final PageController controller = PageController(initialPage: 0);
 
-  //int value representing which page the pageView is on
+  // int value representing which page the pageView is on
   int pageIndex = 0;
 
+  // On Widget disposed, dispose controller as well
   @override
   void dispose(){
     super.dispose();
@@ -48,23 +47,23 @@ class _HomePageState extends State<HomePage> {
   //Builds the HomePage
   @override
   Widget build(BuildContext context) {
-    //Checks the local storage to see if app has gone through login page before
+    // Refreshes stream on rebuild
     HomePage.homePageStream = StreamController();
-    //Will refresh when stream updated
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    // HomePage wrapped in StreamBuilder; updates on stream update
     return StreamBuilder(
         stream: HomePage.homePageStream.stream,
         builder: (context, snapshot) {
-          if (localStorage.getItem("state") != "logged") {
-            return const Welcome();
-          }
+          // HomePage
           return Scaffold(
             backgroundColor: colorScheme.primaryContainer,
+            // Bottom Navigation Bar containing page icons
             bottomNavigationBar: _buildNavBar(context),
+            // Body as PageView; body alternates between pages
             body: PageView(
               controller: controller,
               physics: const PageScrollPhysics(),
-              //Once page changes, sets pageIndex to the new index
+              // Once page changes, sets pageIndex to the new index
               onPageChanged: (i) {
                 setState(() {
                   pageIndex = i;
@@ -76,31 +75,36 @@ class _HomePageState extends State<HomePage> {
         });
   }
 
-  //The bottom nav bar
+  // Builds the bottom nav bar
   Widget _buildNavBar(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    //Color used in navbar gradient
+    // Color used in navbar gradient
     Color gradient = colorScheme.primary;
+
+    // Returns NavBar wrapped in GestureDetector
     return GestureDetector(
-      //Allows gestures on navbar to affect homepage
+      // Horizontal Swiping listener
       onHorizontalDragEnd: (detail) {
+        // Changes page based on direction
         controller.animateToPage(
             pageIndex - detail.primaryVelocity!.sign.round(),
             duration: const Duration(milliseconds: 125),
             curve: Curves.easeInOut);
       },
-      //Size of navbar
+      // NavBar w/ fixed Size
       child: SizedBox(
           height: 65,
+          // Stack of NavBar body and gradient
           child: Stack(
             children: [
-              //Navbar body aligned at bottom
+              // Body aligned to bottom
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Container(
                   height: 62.5,
                   color: colorScheme.tertiaryContainer,
                   padding: const EdgeInsets.only(bottom: 15),
+                  // Row of page icons
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -111,7 +115,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              //Navbar gradient aligned at top
+              // Navbar gradient aligned at top
               Align(
                 alignment: Alignment.topCenter,
                 child: Container(
@@ -130,20 +134,23 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  //Builds the icons in the bottom NavBar
+  // Builds the page icons in the bottom NavBar
   Widget _buildPageIcon(BuildContext context, IconData icon, int index) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return TextButton(
-        //When pressed, animated PageView to the selected page
+        // When pressed, animates PageView to the selected page
         onPressed: () {
           controller.animateToPage(index,
               duration: const Duration(milliseconds: 200),
               curve: Curves.easeInOut);
         },
+        // DecoratedIcon to feature outline
         child: DecoratedIcon(
+          // Outline decoration
             decoration: IconDecoration(
                 border: IconBorder(width: 2, color: colorScheme.onSurface)),
+            // Provided Icon
             icon: Icon(
               icon,
               //When page selected, icon is fully opaque and white; if not, only at 70% opacity

@@ -14,19 +14,19 @@ import 'package:localstorage/localstorage.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:xschedule/display/home_page.dart';
-import 'package:xschedule/global_variables/dynamic_content/stream_signal.dart';
-import 'package:xschedule/global_variables/dynamic_content/tutorial_system.dart';
-import 'package:xschedule/global_variables/static_content/extensions/build_context_extension.dart';
-import 'package:xschedule/global_variables/static_content/extensions/color_extension.dart';
-import 'package:xschedule/global_variables/static_content/global_widgets.dart';
+import 'package:xschedule/global/dynamic_content/stream_signal.dart';
+import 'package:xschedule/global/dynamic_content/tutorial_system.dart';
+import 'package:xschedule/global/static_content/extensions/build_context_extension.dart';
+import 'package:xschedule/global/static_content/extensions/color_extension.dart';
+import 'package:xschedule/global/static_content/global_widgets.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_display.dart';
 
-import '../../global_variables/dynamic_content/backend/open_ai.dart';
-import '../../global_variables/dynamic_content/schedule.dart';
+import '../../global/dynamic_content/backend/open_ai.dart';
+import '../../global/dynamic_content/schedule.dart';
 
 /// Settings page which allows the user to configure bell vanity. <p>
 /// Contains Appbar with title and AI option, ScrollView of bell tiles, and submission button. <p>
-/// [bool backArrow]: Boolean for whether or not the option to leav the menu should appear in the top left.
+/// [bool backArrow]: Boolean for whether or not the option to leave the menu should appear in the top left.
 class ScheduleSettings extends StatefulWidget {
   const ScheduleSettings({super.key, this.backArrow = false});
 
@@ -318,7 +318,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
     _defineBell(bell);
 
     // Vanity map of provided bell
-    final Map<String, dynamic> vanity = Schedule.bellVanity[bell];
+    final Map<String, dynamic> vanity = Schedule.bellVanity[bell] ?? {};
 
     // Returns "Settings Tile", which displays current bell info and ability to edit bell
     return Container(
@@ -1036,7 +1036,9 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                             }
                             // If error not detected, refresh entire page to include AI results
                             setState(() {
-                              Schedule.bellVanity = aiScan;
+                              Schedule.bellVanity =
+                                  Map<String, Map<String, dynamic>>.from(
+                                      aiScan);
 
                               // Clear all temporary values to be reset later
                               ScheduleSettings.names.clear();

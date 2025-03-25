@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:xschedule/display/home_page.dart';
-import 'package:xschedule/global_variables/dynamic_content/stream_signal.dart';
-import 'package:xschedule/global_variables/static_content/extensions/build_context_extension.dart';
+import 'package:xschedule/display/splash_page.dart';
+import 'package:xschedule/global/dynamic_content/stream_signal.dart';
+import 'package:xschedule/global/static_content/extensions/build_context_extension.dart';
 import 'package:xschedule/personal/credits.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_display.dart';
 
-import '../global_variables/dynamic_content/schedule.dart';
-import '../global_variables/static_content/global_methods.dart';
+import '../global/dynamic_content/schedule.dart';
+import '../global/static_content/global_methods.dart';
 import '../schedule/schedule_settings/schedule_settings.dart';
 
 /*
@@ -65,8 +66,8 @@ class Personal extends StatelessWidget {
 
             ScheduleDisplay.tutorialSystem.refreshKeys();
             ScheduleDisplay.tutorialDate = null;
-            StreamSignal.updateStream(
-                streamController: HomePage.homePageStream);
+
+            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => SplashPage()), (_) => false);
           }),
           _buildOption(context, "Credits and Copyright", () {
             context.pushPopup(Credits());

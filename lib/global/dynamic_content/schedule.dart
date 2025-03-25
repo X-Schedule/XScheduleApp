@@ -12,14 +12,11 @@ Centralized class for various static(public) methods as well as object specific
  */
 
 class Schedule {
-  static Map<String, dynamic> bellVanity =
-      json.decode(localStorage.getItem("scheduleSettings") ?? '{}');
+  static Map<String, Map<String, dynamic>> bellVanity = Map<String, Map<String, dynamic>>.from(
+      json.decode(localStorage.getItem("scheduleSettings") ?? '{}'));
 
   Schedule(
-      {required this.bells,
-      this.start,
-      this.end,
-      this.name = 'No Classes'}) {
+      {required this.bells, this.start, this.end, this.name = 'No Classes'}) {
     for (String bell in bells.keys) {
       if (bell.toLowerCase().contains('flex')) {
         firstFlex ??= bell;

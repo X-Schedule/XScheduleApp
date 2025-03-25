@@ -2,26 +2,21 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:showcaseview/showcaseview.dart';
-import 'package:xschedule/global_variables/dynamic_content/backend/schedule_data.dart';
-import 'package:xschedule/global_variables/dynamic_content/clock.dart';
-import 'package:xschedule/global_variables/dynamic_content/schedule.dart';
-import 'package:xschedule/global_variables/dynamic_content/stream_signal.dart';
-import 'package:xschedule/global_variables/static_content/extensions/build_context_extension.dart';
-import 'package:xschedule/global_variables/static_content/extensions/date_time_extension.dart';
-import 'package:xschedule/global_variables/static_content/global_methods.dart';
-import 'package:xschedule/global_variables/static_content/global_variables.dart';
-import 'package:xschedule/global_variables/static_content/global_widgets.dart';
+import 'package:xschedule/global/dynamic_content/backend/schedule_data.dart';
+import 'package:xschedule/global/dynamic_content/clock.dart';
+import 'package:xschedule/global/dynamic_content/schedule.dart';
+import 'package:xschedule/global/dynamic_content/stream_signal.dart';
+import 'package:xschedule/global/static_content/extensions/build_context_extension.dart';
+import 'package:xschedule/global/static_content/extensions/date_time_extension.dart';
+import 'package:xschedule/global/static_content/global_methods.dart';
+import 'package:xschedule/global/static_content/global_variables.dart';
+import 'package:xschedule/global/static_content/global_widgets.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_flex_display.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_info_display.dart';
 import 'package:xschedule/schedule/schedule_settings/schedule_settings.dart';
-import 'package:xschedule/global_variables/static_content/extensions/color_extension.dart';
+import 'package:xschedule/global/static_content/extensions/color_extension.dart';
 
-import '../../global_variables/dynamic_content/tutorial_system.dart';
-
-/*
-ScheduleDisplay:
-Displays the daily schedules
- */
+import '../../global/dynamic_content/tutorial_system.dart';
 
 class ScheduleDisplay extends StatefulWidget {
   const ScheduleDisplay({super.key});
