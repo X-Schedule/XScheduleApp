@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
@@ -23,72 +22,96 @@ class ScheduleData {
   //List of ranges of prior supabase requests to remove overlap
   static List<Map<String, DateTime>> dailyDataRequests = [];
 
+  static bool dailyOrderRequest = false;
+
   static late String dailyOrderUrl;
   static late String coCurricularsUrl;
 
   static Future<void> loadRSSJson() async {
     try {
       final String jsonString =
-      await rootBundle.loadString("assets/data/rss.json");
+          await rootBundle.loadString("assets/data/rss.json");
       final Map<String, dynamic> json = jsonDecode(jsonString);
 
       dailyOrderUrl = json['daily_order_url'];
       coCurricularsUrl = json['cocurriculars_url'];
-    } catch (e){
-      print("*** RSS Json not found! This is imperative for the app to work! ***\n\n${e.toString()}");
+    } catch (e) {
+      print(
+          "*** RSS Json not found! This is imperative for the app to work! ***\n\n${e.toString()}");
     }
   }
 
-  static Future<Map<DateTime, Schedule>> getDailyOrder() async {
-    Map<DateTime, Schedule> result = {};
-
-    //Gets calendarData via RSS
-    Response response = await http.get(Uri.parse(dailyOrderUrl));
-
-    //Formats the response type (ICS) into an object we can work with
-    final ICalendar iCalendar = ICalendar.fromString(response.body);
-
-    //RegExp used for decoding schedule
-    final RegExp regexp = RegExp(r'^\s*([\w\s]+?)\s*[:\-]?\s*(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})\s*$');
-
-    //Gets the calendar data as a list from the iCalendar
-    List<Map<String, dynamic>> schedules = iCalendar.data;
-
-    //For each date data, inserts the schedule data Map into out schedule Map under the key of the date
-    for (Map<String, dynamic> instance in schedules) {
-      //Gets the base String describing the day layout
-      String rawSchedule = instance['description'];
-      //Splits the schedule by the raw string '\n\n\n' so that we can access the 2nd half of it, where the data is.
-      List<String> splitSchedule = rawSchedule.split(r'\n\n\n');
-      //Splits the 2nd half of rawSchedule into String for each bell
-      List<String> scheduleParts =
-          (splitSchedule[splitSchedule.length - 1]).split(r'\n');
-
-      //The return schedule of this for loop
-      Map<String, String> forSchedule = {};
-      for (String part in scheduleParts) {
-        //Ensures no junk strings make it into the list
-          final RegExpMatch? match = regexp.firstMatch(part);
-          if(match != null){
-            String title = match.group(1)!;
-            if(int.tryParse(title) != null){
-              title = 'Flex $title';
-            }
-            forSchedule[title] = '${match.group(2)!}-${match.group(3)!}';
-          }
+  static Future<Map<DateTime, Schedule>> getDailyOrder(
+      {bool limitRequests = true}) async {
+    while (limitRequests && dailyOrderRequest) {
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+    if (!limitRequests || dailyOrder.isEmpty) {
+      if (limitRequests) {
+        dailyOrderRequest = true;
       }
-      //Date of the data
-      DateTime date = instance['dtstart'].toDateTime();
-      //Adds the forSchedule to our schedule data Map, under the DateTime (ignoring time)
-      if (forSchedule.isNotEmpty) {
-        result[DateTime(date.year, date.month, date.day)] = Schedule(
-            bells: forSchedule,
-            name: instance['summary'],
-            start: date,
-            end: instance['dtend'].toDateTime());
+      try {
+        Map<DateTime, Schedule> result = {};
+
+        //Gets calendarData via RSS
+        final Response response = await http.get(Uri.parse(dailyOrderUrl));
+
+        //Formats the response type (ICS) into an object we can work with
+        final ICalendar iCalendar = ICalendar.fromString(response.body);
+
+        //RegExp used for decoding schedule
+        final RegExp regexp = RegExp(
+            r'^\s*([\w\s]+?)\s*[:\-]?\s*(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})\s*$');
+
+        //Gets the calendar data as a list from the iCalendar
+        List<Map<String, dynamic>> schedules = iCalendar.data;
+
+        //For each date data, inserts the schedule data Map into out schedule Map under the key of the date
+        for (Map<String, dynamic> instance in schedules) {
+          //Gets the base String describing the day layout
+          String rawSchedule = instance['description'];
+          //Splits the schedule by the raw string '\n\n\n' so that we can access the 2nd half of it, where the data is.
+          List<String> splitSchedule = rawSchedule.split(r'\n\n\n');
+          //Splits the 2nd half of rawSchedule into String for each bell
+          List<String> scheduleParts =
+              (splitSchedule[splitSchedule.length - 1]).split(r'\n');
+
+          //The return schedule of this for loop
+          Map<String, String> forSchedule = {};
+          for (String part in scheduleParts) {
+            //Ensures no junk strings make it into the list
+            final RegExpMatch? match = regexp.firstMatch(part);
+            if (match != null) {
+              String title = match.group(1)!;
+              if (int.tryParse(title) != null) {
+                title = 'Flex $title';
+              }
+              forSchedule[title] = '${match.group(2)!}-${match.group(3)!}';
+            }
+          }
+          //Date of the data
+          DateTime date = instance['dtstart'].toDateTime();
+          //Adds the forSchedule to our schedule data Map, under the DateTime (ignoring time)
+          if (forSchedule.isNotEmpty) {
+            result[DateTime(date.year, date.month, date.day)] = Schedule(
+                bells: forSchedule,
+                name: instance['summary'],
+                start: date,
+                end: instance['dtend'].toDateTime());
+          }
+        }
+        if (limitRequests) {
+          dailyOrderRequest = false;
+        }
+        return result;
+      } catch (_) {
+        if (limitRequests) {
+          dailyOrderRequest = false;
+        }
+        rethrow;
       }
     }
-    return result;
+    return {};
   }
 
   static Future<Map<DateTime, List<Map<String, dynamic>>>>

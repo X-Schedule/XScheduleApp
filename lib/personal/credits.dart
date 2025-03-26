@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-import '../global_variables/static_content/global_variables.dart';
-import '../global_variables/static_content/global_widgets.dart';
+import '../global/static_content/global_variables.dart';
+import '../global/static_content/global_widgets.dart';
 
 class Credits extends StatelessWidget {
   const Credits({super.key});
@@ -25,6 +25,9 @@ class Credits extends StatelessWidget {
 
   static Widget _buildTextList(BuildContext context, String key) {
     final List<dynamic> list = credits[key] ?? [];
+    if(list.length > 2){
+      key = '${key}s';
+    }
 
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 

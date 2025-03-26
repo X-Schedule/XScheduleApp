@@ -134,6 +134,31 @@ flutter:
           weight: 800
         - asset: assets/fonts/Exo_2/Exo2-ExtraBold.ttf
           weight: 900
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter/Inter_18pt-Regular.ttf
+        - asset: assets/fonts/Inter/Inter_18pt-Italic.ttf
+          style: italic
+        - asset: assets/fonts/Inter/Inter_18pt-Light.ttf
+          weight: 400
+        - asset: assets/fonts/Inter/Inter_18pt-LightItalic.ttf
+          weight: 400
+          style: italic
+        - asset: assets/fonts/Inter/Inter_18pt-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Inter/Inter_18pt-MediumItalic.ttf
+          weight: 500
+          style: italic
+        - asset: assets/fonts/Inter/Inter_18pt-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter/Inter_18pt-SemiBoldItalic.ttf
+          weight: 600
+          style: italic
+        - asset: assets/fonts/Inter/Inter_18pt-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Inter/Inter_18pt-BoldItalic.ttf
+          weight: 700
+          style: italic
 
   #   - family: Schyler
   #     fonts:
