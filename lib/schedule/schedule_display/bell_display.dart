@@ -5,7 +5,6 @@
 */
 import 'package:flutter/material.dart';
 import 'package:xschedule/global/static_content/extensions/build_context_extension.dart';
-import 'package:xschedule/global/static_content/extensions/date_time_extension.dart';
 import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_display.dart';
 
@@ -13,8 +12,6 @@ import '../../global/dynamic_content/backend/schedule_data.dart';
 import '../../global/dynamic_content/clock.dart';
 import '../../global/dynamic_content/schedule.dart';
 import '../../global/static_content/extensions/color_extension.dart';
-import '../../global/static_content/global_widgets.dart';
-import 'flex_display.dart';
 
 /// Class which contains Widgets for displaying bell information. <p>
 /// Features bellTile (basic tile for schedule) and bellInfo (popup for additional info).
@@ -72,10 +69,7 @@ class BellDisplay {
         onTap: () {
           // If bell has activities (i.e. flex), push Flex menu
           if (activities) {
-            context.pushPopup(FlexScheduleDisplay(
-                date: ScheduleDisplay.initialDate
-                    .addDay(ScheduleDisplay.pageIndex),
-                schedule: schedule));
+            // Insert Flex Menu Here lol
           } else {
             // ...else push bell info popup
             context.pushPopup(bellInfo(context, schedule, bell));
@@ -177,7 +171,7 @@ class BellDisplay {
     // Clock Map of bell ('start' and 'end')
     final Map<String, Clock> times = schedule.clockMap(bell) ?? {};
     // Aligns on center of screen w/ shadowed background
-    return GlobalWidgets.popup(
+    return WidgetExtension.popup(
         context,
         SizedBox(
           width: mediaQuery.size.width * 4 / 5,

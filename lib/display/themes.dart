@@ -1,13 +1,13 @@
+/*
+  * themes.dart *
+  Class in charge of managing teh app's themes.
+ */
 import 'package:flutter/material.dart';
 
-/*
-Themes:
-Class designed to organize app themes(color scheme, fonts, etc.)
-
-Using Flutter themes allows for easier adjustments to global colors and a more professional UI
- */
-
+/// Manages the themes, including colorSchemes, of the app.
+/// Contains blueTheme.
 class Themes {
+  // St. X Blue theme
   static final ThemeData blueTheme = ThemeData(
       colorScheme: const ColorScheme(
     brightness: Brightness.light,

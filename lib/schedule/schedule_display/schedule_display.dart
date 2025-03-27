@@ -15,7 +15,6 @@ import 'package:xschedule/global/static_content/extensions/build_context_extensi
 import 'package:xschedule/global/static_content/extensions/date_time_extension.dart';
 import 'package:xschedule/global/static_content/extensions/int_extension.dart';
 import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
-import 'package:xschedule/global/static_content/global_widgets.dart';
 import 'package:xschedule/schedule/schedule_display/bell_display.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_info_display.dart';
 import 'package:xschedule/schedule/schedule_settings/schedule_settings.dart';
@@ -238,7 +237,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
               circular: true,
               tutorial: 'tutorial_schedule_calendar',
               // Calendar IconCircle (serves as button)
-              child: GlobalWidgets.iconCircle(
+              child: WidgetExtension.iconCircle(
                   icon: Icons.calendar_month,
                   iconColor: colorScheme.onTertiary,
                   color: colorScheme.tertiary.withValues(alpha: 0.4),
@@ -859,7 +858,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
           null;
     }), builder: (context, snapshot) {
       // Returns IconCircle of info button
-      return GlobalWidgets.iconCircle(
+      return WidgetExtension.iconCircle(
         // Simple info icon
           icon: Icons.info_outline,
           // Icon opacity changes w/ info available

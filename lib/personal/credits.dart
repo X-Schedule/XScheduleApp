@@ -5,39 +5,55 @@ import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
 
-import '../global/static_content/global_widgets.dart';
-
 class Credits extends StatelessWidget {
   const Credits({super.key});
 
+  // Map of credits info derived from json file interpreted on startup
   static final Map<String, List<dynamic>> credits = {};
+  // App build info determined on startup
   static late PackageInfo packageInfo;
 
+  // Interprets the credits.json file on startup
   static Future<void> loadCreditsJson() async {
+    // Tries to read json file
     try {
+      // Loads json file contents as String
       final String jsonString =
           await rootBundle.loadString("assets/data/credits.json");
+      // Interprets String as hashmap
       final Map<String, dynamic> json = jsonDecode(jsonString);
-      credits.addAll(json.cast());
+      // Adds all instances which fit typing (should be all)
+      credits.addAll(Map<String, List<dynamic>>.from(json));
     } catch (e) {
+      // Warns developer of missing json file.
       print("*** Credits Json not found! ***\n${e.toString()}");
     }
   }
 
+  // Builds a list of Text Widgets containing values from json file
   static Widget _buildTextList(BuildContext context, String key) {
+    // List of Strings from given key
     final List<dynamic> list = credits[key] ?? [];
-    if (list.length > 2) {
-      key = '${key}s';
+
+    // If no names found; don't bother building list
+    if(list.isEmpty){
+      return Container();
     }
 
+    // Makes the title plural if list >1
+    if (list.length > 1) {
+      key = '${key}s';
+    }
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
+    // Returns Container featuring title and generated list of names
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
+          // Title list
           Text(
             key,
             style: TextStyle(
@@ -46,26 +62,25 @@ class Credits extends StatelessWidget {
                 fontWeight: FontWeight.w600,
                 color: colorScheme.onSurface),
           ),
+          // Generated Column of pairs of names
           Column(
             children: List<Widget>.generate((list.length / 2).round(), (r) {
               return Row(
                 children: List<Widget>.generate(2, (c) {
+                  // Index of name being generated
                   final int index = 2 * r + c;
+                  // If index passes surpasses list length, return empty Container
                   if (index >= list.length) {
                     return Container();
                   }
-                  return Expanded(
-                      child: Container(
-                    alignment: Alignment.center,
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Text(
+                  // Returns expandedFit Text of name
+                  return Text(
                       list[index],
                       style: TextStyle(
                           fontSize: 20,
                           fontFamily: "Georama",
                           color: colorScheme.onSurface),
-                    ).fit(),
-                  ));
+                    ).expandedFit(padding: const EdgeInsets.symmetric(horizontal: 4));
                 }),
               );
             }),
@@ -80,17 +95,18 @@ class Credits extends StatelessWidget {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
-    final PackageInfo packageInfo = Credits.packageInfo;
-
-    return GlobalWidgets.popup(
+    // Returns credits popup
+    return WidgetExtension.popup(
         context,
         SizedBox(
           width: mediaQuery.size.width * 4 / 5,
           height: mediaQuery.size.height * 2 / 3,
+          // Contents displayed in Column
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              // X-Schedule Logo
               Container(
                 height: 125,
                 margin: const EdgeInsets.all(8),
@@ -99,6 +115,7 @@ class Credits extends StatelessWidget {
                   child: Image.asset("assets/images/xschedule.png"),
                 ),
               ),
+              // X-Schedule title
               Text(
                 "X-Schedule",
                 style: TextStyle(
@@ -108,6 +125,7 @@ class Credits extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                     color: colorScheme.onSurface),
               ),
+              // Credits title
               Text(
                 "Contributors",
                 style: TextStyle(
@@ -117,18 +135,21 @@ class Credits extends StatelessWidget {
                     color: colorScheme.onSurface,
                     decoration: TextDecoration.underline),
               ),
+              // ScrollView of Credits set to fill rest of popup
               Expanded(
                   child: Container(
                 margin: const EdgeInsets.symmetric(vertical: 16),
                 child: SingleChildScrollView(
                   child: Column(
                       mainAxisSize: MainAxisSize.min,
+                      // Builds list of contributors
                       children: List<Widget>.generate(credits.length, (i) {
                         final String key = credits.keys.elementAt(i);
                         return _buildTextList(context, key);
                       })),
                 ),
               )),
+              // Copyright info text
               Text(
                 "© 2024 St. Xavier HS\nAvailable under MIT license.",
                 textAlign: TextAlign.center,
@@ -139,6 +160,7 @@ class Credits extends StatelessWidget {
                     color: colorScheme.onSurface),
               ),
               const SizedBox(height: 8),
+              // Build and Version info
               Text(
                 "v${packageInfo.version} Build ${packageInfo.buildNumber}",
                 style: TextStyle(

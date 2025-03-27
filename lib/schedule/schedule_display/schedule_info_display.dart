@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:xschedule/global/dynamic_content/backend/schedule_data.dart';
 import 'package:xschedule/global/static_content/extensions/date_time_extension.dart';
 import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
-import 'package:xschedule/global/static_content/global_widgets.dart';
 
 import '../../global/dynamic_content/schedule.dart';
 
@@ -37,7 +36,7 @@ class ScheduleInfoDisplay extends StatelessWidget {
     final Map<String, dynamic> dailyInfo = ScheduleData.dailyInfo[date] ?? {};
 
     // Returns dailyInfo popup
-    return GlobalWidgets.popup(
+    return WidgetExtension.popup(
         context,
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),

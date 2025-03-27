@@ -19,7 +19,6 @@ import 'package:xschedule/global/dynamic_content/tutorial_system.dart';
 import 'package:xschedule/global/static_content/extensions/build_context_extension.dart';
 import 'package:xschedule/global/static_content/extensions/color_extension.dart';
 import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
-import 'package:xschedule/global/static_content/global_widgets.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_display.dart';
 
 import '../../global/dynamic_content/backend/open_ai.dart';
@@ -901,7 +900,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
       uploaded = imageFile != null;
 
       // Returns popup
-      return GlobalWidgets.popup(
+      return WidgetExtension.popup(
           context,
           Column(
             mainAxisSize: MainAxisSize.min,
