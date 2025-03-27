@@ -5,6 +5,7 @@
 */
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
 import 'package:xschedule/schedule/schedule_settings/schedule_settings.dart';
 
 /// First-time-use destination page. <p>
@@ -19,7 +20,7 @@ class Welcome extends StatelessWidget {
 
     // Returns a Scaffold with an image background with a translucent overlay, card and logo atop
     return Scaffold(
-      // All contents displayed in Stack
+        // All contents displayed in Stack
         body: Stack(
       alignment: Alignment.bottomCenter,
       children: [
@@ -57,16 +58,13 @@ class Welcome extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Welcome text fitted to card
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    "Welcome to X-Schedule",
-                    style: TextStyle(
-                        fontFamily: "SansitaSwashed",
-                        fontSize: 30,
-                        color: colorScheme.onSurface),
-                  ),
-                ),
+                Text(
+                  "Welcome to X-Schedule",
+                  style: TextStyle(
+                      fontFamily: "SansitaSwashed",
+                      fontSize: 30,
+                      color: colorScheme.onSurface),
+                ).fit(),
                 // Button spaced 10px from vertical edges
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10),
@@ -80,7 +78,7 @@ class Welcome extends StatelessWidget {
                       },
                       // Button styled with theme colors
                       style: ElevatedButton.styleFrom(
-                        // Animated shimmer color
+                          // Animated shimmer color
                           overlayColor: colorScheme.onPrimary,
                           backgroundColor: colorScheme.primary),
                       // Container of set size with text aligned to center

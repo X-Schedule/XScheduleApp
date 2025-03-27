@@ -16,11 +16,11 @@ Primary function i sto get data via RSS
 
 class ScheduleData {
   static Map<DateTime, Schedule> schedules = {};
-  static Map<DateTime, Map<String, dynamic>> dailyOrder = {};
+  static Map<DateTime, Map<String, dynamic>> dailyInfo = {};
   static Map<DateTime, List<Map<String, dynamic>>> coCurriculars = {};
 
   //List of ranges of prior supabase requests to remove overlap
-  static List<Map<String, DateTime>> dailyDataRequests = [];
+  static List<Map<String, DateTime>> dailyInfoRequests = [];
 
   static bool dailyOrderRequest = false;
 
@@ -46,7 +46,7 @@ class ScheduleData {
     while (limitRequests && dailyOrderRequest) {
       await Future.delayed(const Duration(milliseconds: 100));
     }
-    if (!limitRequests || dailyOrder.isEmpty) {
+    if (!limitRequests || schedules.isEmpty) {
       if (limitRequests) {
         dailyOrderRequest = true;
       }
@@ -142,10 +142,10 @@ class ScheduleData {
     return result;
   }
 
-  //Runs SupaBaseDB.getDailyData, but adds it to dailyData
+  //Runs SupaBaseDB.getDailyData, but adds it to dailyInfo
   static Future<void> addDailyData(DateTime start, DateTime end) async {
     //Checks prior supabase requests, and removes overlap in times
-    for (Map<String, DateTime> day in dailyDataRequests) {
+    for (Map<String, DateTime> day in dailyInfoRequests) {
       if (start.isAfter(day["start"]!) && start.isBefore(day["end"]!)) {
         start = day["end"]!;
       }
@@ -158,14 +158,14 @@ class ScheduleData {
       return;
     }
     //Adds current request to map
-    dailyDataRequests.add({"start": start, "end": end});
+    dailyInfoRequests.add({"start": start, "end": end});
 
     //Runs getDailyData
-    List<Map<String, dynamic>> dailyDataResult =
+    List<Map<String, dynamic>> dailyInfoResult =
         await SupaBaseDB.getDailyData(start, end);
-    //Adds all fetched data to dailyData
-    for (Map<String, dynamic> data in dailyDataResult) {
-      dailyOrder[DateTime.parse(data["day"])] = data;
+    //Adds all fetched data to dailyInfo
+    for (Map<String, dynamic> data in dailyInfoResult) {
+      dailyInfo[DateTime.parse(data["day"])] = data;
     }
   }
 

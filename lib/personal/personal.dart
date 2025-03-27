@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
-import 'package:xschedule/display/home_page.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:xschedule/display/splash_page.dart';
-import 'package:xschedule/global/dynamic_content/stream_signal.dart';
 import 'package:xschedule/global/static_content/extensions/build_context_extension.dart';
+import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
 import 'package:xschedule/personal/credits.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_display.dart';
 
 import '../global/dynamic_content/schedule.dart';
-import '../global/static_content/global_methods.dart';
 import '../schedule/schedule_settings/schedule_settings.dart';
 
 /*
@@ -34,17 +33,14 @@ class Personal extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      "Settings",
-                      style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: "Georama",
-                          color: colorScheme.onSurface),
-                    ),
-                  ),
+                  Text(
+                    "Settings",
+                    style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: "Georama",
+                        color: colorScheme.onSurface),
+                  ).fit(),
                   Container(
                     color: colorScheme.shadow,
                     height: 2.5,
@@ -67,19 +63,20 @@ class Personal extends StatelessWidget {
             ScheduleDisplay.tutorialSystem.refreshKeys();
             ScheduleDisplay.tutorialDate = null;
 
-            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => SplashPage()), (_) => false);
+            Navigator.pushAndRemoveUntil(context,
+                MaterialPageRoute(builder: (_) => SplashPage()), (_) => false);
           }),
           _buildOption(context, "Credits and Copyright", () {
             context.pushPopup(Credits());
           }),
           _buildOption(context, "Submit Beta Report", () {
-            GlobalMethods.visitUrl(
-                "https://forms.office.com/Pages/ResponsePage.aspx?id=udgb07DszU6VE6pe_6S_QEKQcshWKqpCj4E9J0VU-BRUN1o3SlRJMzk1SkZMMklLWFc3UEVFVkIzOC4u");
+            launchUrl(Uri.parse(
+                "https://forms.office.com/Pages/ResponsePage.aspx?id=udgb07DszU6VE6pe_6S_QEKQcshWKqpCj4E9J0VU-BRUN1o3SlRJMzk1SkZMMklLWFc3UEVFVkIzOC4u"));
           }),
         ]));
   }
 
-  Widget _buildOption(
+  static Widget _buildOption(
       BuildContext context, String text, void Function() action) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return GestureDetector(

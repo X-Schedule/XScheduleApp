@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
 
 /*
 GlobalWidgets:
@@ -30,36 +31,6 @@ class GlobalWidgets {
           )
         ],
       ),
-    );
-  }
-
-  //X-Schedule logo
-  static Widget xschedule({double height = 50}) {
-    return Stack(
-      alignment: Alignment.centerLeft,
-      children: [
-        //Gets the St. X logo from locally stored assets (see pubspec.yaml)
-        SizedBox(
-            height: height,
-            child: Image.asset(
-              'assets/images/x.png',
-              fit: BoxFit.fitHeight,
-            )),
-        //...and slaps 'chedule' on the end!
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(width: height),
-            Text(
-              'chedule',
-              style: TextStyle(
-                  fontSize: height / 2,
-                  color: Colors.white,
-                  shadows: const [Shadow(color: Colors.black, blurRadius: 10)]),
-            )
-          ],
-        )
-      ],
     );
   }
 
@@ -109,9 +80,7 @@ class GlobalWidgets {
                 strokeAlign: BorderSide.strokeAlignOutside)
                 : null,
             color: color ?? colorScheme.primary),
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Row(
+        child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(width: 1),
@@ -126,8 +95,7 @@ class GlobalWidgets {
                         fontFamily: 'Inter',
                         color: textColor ?? colorScheme.onPrimary))
             ],
-          ),
-        ),
+          ).fit()
       );
     }
 

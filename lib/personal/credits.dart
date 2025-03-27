@@ -3,29 +3,30 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
 
-import '../global/static_content/global_variables.dart';
 import '../global/static_content/global_widgets.dart';
 
 class Credits extends StatelessWidget {
   const Credits({super.key});
 
   static final Map<String, List<dynamic>> credits = {};
+  static late PackageInfo packageInfo;
 
   static Future<void> loadCreditsJson() async {
     try {
       final String jsonString =
-      await rootBundle.loadString("assets/data/credits.json");
+          await rootBundle.loadString("assets/data/credits.json");
       final Map<String, dynamic> json = jsonDecode(jsonString);
       credits.addAll(json.cast());
-    } catch (e){
+    } catch (e) {
       print("*** Credits Json not found! ***\n${e.toString()}");
     }
   }
 
   static Widget _buildTextList(BuildContext context, String key) {
     final List<dynamic> list = credits[key] ?? [];
-    if(list.length > 2){
+    if (list.length > 2) {
       key = '${key}s';
     }
 
@@ -57,16 +58,13 @@ class Credits extends StatelessWidget {
                       child: Container(
                     alignment: Alignment.center,
                     margin: const EdgeInsets.symmetric(horizontal: 4),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        list[index],
-                        style: TextStyle(
-                            fontSize: 20,
-                            fontFamily: "Georama",
-                            color: colorScheme.onSurface),
-                      ),
-                    ),
+                    child: Text(
+                      list[index],
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontFamily: "Georama",
+                          color: colorScheme.onSurface),
+                    ).fit(),
                   ));
                 }),
               );
@@ -82,7 +80,7 @@ class Credits extends StatelessWidget {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
-    final PackageInfo packageInfo = GlobalVariables.packageInfo;
+    final PackageInfo packageInfo = Credits.packageInfo;
 
     return GlobalWidgets.popup(
         context,
@@ -141,17 +139,14 @@ class Credits extends StatelessWidget {
                     color: colorScheme.onSurface),
               ),
               const SizedBox(height: 8),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  "v${packageInfo.version} Build ${packageInfo.buildNumber}",
-                  style: TextStyle(
-                      fontSize: 14,
-                      height: 0.9,
-                      fontFamily: "Georama",
-                      color: colorScheme.onSurface),
-                ),
-              ),
+              Text(
+                "v${packageInfo.version} Build ${packageInfo.buildNumber}",
+                style: TextStyle(
+                    fontSize: 14,
+                    height: 0.9,
+                    fontFamily: "Georama",
+                    color: colorScheme.onSurface),
+              ).fit(),
               const SizedBox(height: 8),
             ],
           ),

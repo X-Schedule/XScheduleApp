@@ -1,44 +1,50 @@
+/*
+  * schedule_info_display.dart *
+  StatelessWidget of a popup which displays the daily information of a given date from the database.
+*/
 import 'package:flutter/material.dart';
-import 'package:xschedule/global/static_content/extensions/date_time_extension.dart';
-import 'package:xschedule/global/static_content/global_widgets.dart';
 import 'package:xschedule/global/dynamic_content/backend/schedule_data.dart';
+import 'package:xschedule/global/static_content/extensions/date_time_extension.dart';
+import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
+import 'package:xschedule/global/static_content/global_widgets.dart';
 
 import '../../global/dynamic_content/schedule.dart';
 
-/*
-ScheduleInfoDisplay:
-Widget displayed in popup for daily info
- */
-
+/// StatelessWidget which displays the popup containing the dailyInfo of a given date. <p>
+/// Displays all values which exist, with the popup divided into general info, lunch, and announcements.
 class ScheduleInfoDisplay extends StatelessWidget {
   const ScheduleInfoDisplay({super.key, required this.date});
 
-  static String dressEmoji(String dressCode){
-    if(dressCode.toLowerCase().contains("formal")){
+  // Dynamic interpretation of dressCode String as emoji
+  static String dressEmoji(String dressCode) {
+    if (dressCode.toLowerCase().contains("formal")) {
       return '👔';
-    } else if(dressCode.toLowerCase().contains("spirit")){
+    } else if (dressCode.toLowerCase().contains("spirit")) {
       return '🏱';
     }
     return '👕';
   }
 
+  // The Date of the info popup
   final DateTime date;
 
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
-    //Gets the schedules and dailyData based on the given date
-    Schedule schedule = ScheduleData.schedules[date] ?? Schedule.empty();
-    Map<String, dynamic> dailyData = ScheduleData.dailyOrder[date] ?? {};
+    // Gets the schedules and dailyInfo based on the given date
+    final Schedule schedule = ScheduleData.schedules[date] ?? Schedule.empty();
+    final Map<String, dynamic> dailyInfo = ScheduleData.dailyInfo[date] ?? {};
+
+    // Returns dailyInfo popup
     return GlobalWidgets.popup(
         context,
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              //Date Text
+              // Date Text
               Text(
                 date.dateText(),
                 style: TextStyle(
@@ -46,62 +52,62 @@ class ScheduleInfoDisplay extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                     color: colorScheme.onSurface),
               ),
-              FittedBox(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '⏰ ',
+              // Day Schedule Name Text fitted to width
+              RichText(
+                // TextSpan serving as Row of Text; single line of text with different styles
+                text: TextSpan(children: [
+                  TextSpan(
+                      text: "⏰ ",
                       style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                          color: colorScheme.onSurface),
-                    ),
-                    Text(
-                      schedule.name,
+                          fontSize: 20, color: colorScheme.onSurface)),
+                  TextSpan(
+                      text: schedule.name,
                       style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w500,
                           color: colorScheme.onSurface,
+                          // If day has no classes, make text italic
                           fontStyle: schedule.name.contains("No Classes")
                               ? FontStyle.italic
-                              : FontStyle.normal),
-                    ),
-                  ],
-                ),
-              ),
-              //Row of quarter and dress code
+                              : FontStyle.normal))
+                ]),
+              ).fit(),
+              // Row of quarter and dress code
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  if (dailyData['quarter'] != null)
+                  // If variable is null, do not display
+                  if (dailyInfo['quarter'] != null)
+                    // expandedFit Text for quarter
                     Text(
-                      '🗓️ Quarter ${dailyData['quarter']}',
+                      '🗓️ Quarter ${dailyInfo['quarter']}',
                       style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w500,
                           color: colorScheme.onSurface),
-                    ),
-                  //If variable is null, then replace with empty string, and checks if string is empty; detects both null and empty values
-                  if ((dailyData['dressCode'] ?? '').isNotEmpty)
+                    ).expandedFit(),
+                  // If variable is null, then replace with empty string, and checks if string is empty; detects both null and empty values
+                  if ((dailyInfo['dressCode'] ?? '').isNotEmpty)
+                    // expandedFit Text for dressCode
                     Text(
-                      '${dressEmoji(dailyData['dressCode'])} ${dailyData['dressCode']}',
+                      '${dressEmoji(dailyInfo['dressCode'])} ${dailyInfo['dressCode']}',
                       style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w500,
                           color: colorScheme.onSurface),
-                    ),
+                    ).expandedFit()
                 ],
-              ),
-              //Checks to display lunch divider and header
-              if ((dailyData['lunchPasta'] ?? '').isNotEmpty ||
-                  (dailyData['lunchBox'] ?? '').isNotEmpty ||
-                  (dailyData['lunchMain'] ?? '').isNotEmpty)
+              ).fit(),
+              // Checks to display lunch divider and header
+              if ((dailyInfo['lunchPasta'] ?? '').isNotEmpty ||
+                  (dailyInfo['lunchBox'] ?? '').isNotEmpty ||
+                  (dailyInfo['lunchMain'] ?? '').isNotEmpty)
                 Column(
                   children: [
+                    // Divider between lunch info; only displayed if lunch data exists
                     Divider(
                       color: colorScheme.shadow,
                     ),
+                    // Lunch Title
                     Text(
                       "Lunch",
                       style: TextStyle(
@@ -109,43 +115,50 @@ class ScheduleInfoDisplay extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                           color: colorScheme.onSurface),
                     ),
-                    if ((dailyData['lunchMain'] ?? '').isNotEmpty)
+                    // If lunchMain exists, display
+                    if ((dailyInfo['lunchMain'] ?? '').isNotEmpty)
+                      // fitted Text for lunchMain
                       Text(
-                        '🥘 ${dailyData['lunchMain']}',
+                        '🥘 ${dailyInfo['lunchMain']}',
                         style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
                             color: colorScheme.onSurface),
-                      ),
+                      ).fit(),
+                    // Row containing lunchPasta and lunchBox Texts
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        if ((dailyData['lunchPasta'] ?? '').isNotEmpty)
+                        // If lunchPasta value exists, display
+                        if ((dailyInfo['lunchPasta'] ?? '').isNotEmpty)
+                          // expandedFit Text for lunchPasta
                           Text(
-                            '🍝 ${dailyData['lunchPasta']}',
+                            '🍝 ${dailyInfo['lunchPasta']}',
                             style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w500,
                                 color: colorScheme.onSurface),
-                          ),
-                        if ((dailyData['lunchBox'] ?? '').isNotEmpty)
+                          ).expandedFit(),
+                        if ((dailyInfo['lunchBox'] ?? '').isNotEmpty)
                           Text(
-                            '🍱 ${dailyData['lunchBox']}',
+                            '🍱 ${dailyInfo['lunchBox']}',
                             style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w500,
                                 color: colorScheme.onSurface),
-                          ),
+                          ).expandedFit(),
                       ],
                     )
                   ],
                 ),
-              if ((dailyData['event'] ?? '').isNotEmpty)
+              // Checks to display event Text and Divider
+              if ((dailyInfo['event'] ?? '').isNotEmpty)
                 Column(
                   children: [
+                    // Divider which only displays if event exists
                     Divider(
                       color: colorScheme.shadow,
                     ),
+                    // Event Title
                     Text(
                       '📢 Announcement',
                       style: TextStyle(
@@ -153,10 +166,11 @@ class ScheduleInfoDisplay extends StatelessWidget {
                           fontSize: 20,
                           color: colorScheme.onSurface),
                     ),
+                    // Event Text
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Text(
-                        dailyData['event'],
+                        dailyInfo['event'],
                         maxLines: 10,
                         style: TextStyle(
                             fontSize: 15,

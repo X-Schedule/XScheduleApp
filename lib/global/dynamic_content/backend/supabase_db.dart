@@ -23,7 +23,7 @@ class SupaBaseDB {
     supabase = Supabase.instance.client;
   }
 
-  //Method which returns the dailyData inbetween a given range of DateTimes
+  //Method which returns the dailyInfo inbetween a given range of DateTimes
   static Future<List<Map<String, dynamic>>> getDailyData(
       DateTime start, DateTime end) async {
     //Ensures supabase is initialized before running; waits .1 seconds before checking again
@@ -33,7 +33,7 @@ class SupaBaseDB {
 
     //Fetches data from supabase
     List<Map<String, dynamic>> result = await supabase
-        .from("dailyData")
+        .from("dailyInfo")
         .select()
     //Selects all rows with primary key (date) >= the given start time and <= the given end time.
         .gte("day", start.toIso8601String())

@@ -1,12 +1,12 @@
 /*
   * bell_display.dart *
-  Main page which displays the schedule.
-  Consists of multiple Widgets which come together to form Schedule page.
-  References other files under schedule_display for Widgets.
+  Contains Widgets for displaying bell information.
+  All Widgets are static; no instance required.
 */
 import 'package:flutter/material.dart';
 import 'package:xschedule/global/static_content/extensions/build_context_extension.dart';
 import 'package:xschedule/global/static_content/extensions/date_time_extension.dart';
+import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_display.dart';
 
 import '../../global/dynamic_content/backend/schedule_data.dart';
@@ -134,18 +134,15 @@ class BellDisplay {
                             child: Container(
                           // Forces close to second row
                           alignment: Alignment.bottomLeft,
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text(
-                              // If there won't be room for time range line, include it in this line
-                              '${(vanity['name'] ?? bell) ?? ''}${height <= 50 ? ':     $timeRange' : ''}',
-                              style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  fontFamily: "Inter",
-                                  color: colorScheme.onSurface),
-                            ),
-                          ),
+                          child: Text(
+                            // If there won't be room for time range line, include it in this line
+                            '${(vanity['name'] ?? bell) ?? ''}${height <= 50 ? ':     $timeRange' : ''}',
+                            style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: "Inter",
+                                color: colorScheme.onSurface),
+                          ).fit(),
                         )),
                         // If there is space, display time range as separate line
                         if (height > 50)
@@ -154,15 +151,13 @@ class BellDisplay {
                             margin: const EdgeInsets.only(top: 2),
                             // Forces close to top row
                             alignment: Alignment.topLeft,
-                            child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Text(
-                                  timeRange,
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontFamily: "Inter",
-                                      color: colorScheme.onSurface),
-                                )),
+                            child: Text(
+                              timeRange,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontFamily: "Inter",
+                                  color: colorScheme.onSurface),
+                            ).fit(),
                           ))
                       ],
                     ),
@@ -173,8 +168,7 @@ class BellDisplay {
   }
 
   // Builds the bell info popup
-  static Widget bellInfo(
-      BuildContext context, Schedule schedule, String bell) {
+  static Widget bellInfo(BuildContext context, Schedule schedule, String bell) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
@@ -234,44 +228,32 @@ class BellDisplay {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Expanded(
-                                    child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    vanity['name'] ??
-                                        '$bell${bell.length <= 1 ? ' Bell' : ''}',
-                                    style: TextStyle(
-                                        height: 0.9,
-                                        fontSize: 25,
-                                        color: colorScheme.onSurface,
-                                        //bold
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                )),
+                                Text(
+                                  vanity['name'] ??
+                                      '$bell${bell.length <= 1 ? ' Bell' : ''}',
+                                  style: TextStyle(
+                                      height: 0.9,
+                                      fontSize: 25,
+                                      color: colorScheme.onSurface,
+                                      //bold
+                                      fontWeight: FontWeight.w600),
+                                ).expandedFit(),
                                 if (vanity['teacher'] != null)
-                                  Expanded(
-                                      child: FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    child: Text(
-                                      vanity['teacher'],
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          color: colorScheme.onSurface,
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                  )),
+                                  Text(
+                                    vanity['teacher'],
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        color: colorScheme.onSurface,
+                                        fontWeight: FontWeight.w500),
+                                  ).expandedFit(),
                                 if (vanity['location'] != null)
-                                  Expanded(
-                                      child: FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    child: Text(
-                                      vanity['location'],
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          color: colorScheme.onSurface,
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                  )),
+                                  Text(
+                                    vanity['location'],
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        color: colorScheme.onSurface,
+                                        fontWeight: FontWeight.w500),
+                                  ).expandedFit()
                               ],
                             ),
                           )

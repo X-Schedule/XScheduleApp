@@ -13,8 +13,8 @@ import 'package:xschedule/global/dynamic_content/schedule.dart';
 import 'package:xschedule/global/dynamic_content/stream_signal.dart';
 import 'package:xschedule/global/static_content/extensions/build_context_extension.dart';
 import 'package:xschedule/global/static_content/extensions/date_time_extension.dart';
-import 'package:xschedule/global/static_content/global_methods.dart';
-import 'package:xschedule/global/static_content/global_variables.dart';
+import 'package:xschedule/global/static_content/extensions/int_extension.dart';
+import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
 import 'package:xschedule/global/static_content/global_widgets.dart';
 import 'package:xschedule/schedule/schedule_display/bell_display.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_info_display.dart';
@@ -267,10 +267,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                 // Date Title is SizedBox
                 SizedBox(
                   width: mediaQuery.size.width - 220,
-                  child: FittedBox(
-                    fit: BoxFit.contain,
-                    // Date Title in Weekday Date/Month format
-                    child: Text(
+                  child: Text(
                       ScheduleDisplay.initialDate
                           .addDay(ScheduleDisplay.pageIndex)
                           .dateText(),
@@ -280,9 +277,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                           color: colorScheme.onSurface),
                       textAlign: TextAlign.center,
                       maxLines: 1,
-                    ),
+                    ).fit(),
                   ),
-                ),
                 // Right Arrow IconButton
                 _buildNavButton(context, 1),
               ],
@@ -473,7 +469,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                                 EdgeInsets.only(top: minuteHeight * i * 60),
                             child: Text(
                               // Time text incremental to index
-                              '${GlobalVariables.stringDate(GlobalMethods.amPmHour(i + 8))} - ',
+                              '${((i + 8) % 12).multiDecimal()} - ',
                               style: TextStyle(
                                   fontSize: 15,
                                   height: 0.9,
@@ -657,9 +653,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                       SizedBox(
                         width: width - 200,
                         height: 50,
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
+                        child: Text(
                             // Text in Month Year format
                             "${newMonth.monthText()} ${newMonth.year}",
                             style: TextStyle(
@@ -668,8 +662,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                                 color: colorScheme.onSurface),
                             textAlign: TextAlign.center,
                             maxLines: 1,
-                          ),
-                        ),
+                          ).fit(),
                       ),
                       // Right Arrow IconButton
                       IconButton(
@@ -861,7 +854,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
 
     // Returns FutureBuilder, changing opacity of button as more info becomes available
     return FutureBuilder(future: ScheduleData.awaitCondition(() {
-      return ScheduleData.dailyOrder[
+      return ScheduleData.dailyInfo[
               ScheduleDisplay.initialDate.addDay(ScheduleDisplay.pageIndex)] !=
           null;
     }), builder: (context, snapshot) {

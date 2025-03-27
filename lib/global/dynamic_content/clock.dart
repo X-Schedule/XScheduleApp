@@ -5,8 +5,7 @@ Custom Class to construct custom 'Clock' Objects
 Clock objects allow for more efficient calculations when handling time
  */
 
-import '../static_content/global_methods.dart';
-import '../static_content/global_variables.dart';
+import 'package:xschedule/global/static_content/extensions/int_extension.dart';
 
 class Clock {
   //Constructor
@@ -50,9 +49,9 @@ class Clock {
       hourDisplay -= 24;
     }
     if(amPm){
-      return '${GlobalMethods.amPmHour(hourDisplay)}:${GlobalVariables.stringDate(minuteDisplay)}';
+      return '${hourDisplay % 12}:${minuteDisplay.multiDecimal()}';
     }
-    return '$hourDisplay:${GlobalVariables.stringDate(minuteDisplay)}';
+    return '$hourDisplay:${minuteDisplay.multiDecimal()}';
   }
 
   //Finds the time interval between one clock and another

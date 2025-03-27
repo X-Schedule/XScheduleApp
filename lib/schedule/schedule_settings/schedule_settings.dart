@@ -18,6 +18,7 @@ import 'package:xschedule/global/dynamic_content/stream_signal.dart';
 import 'package:xschedule/global/dynamic_content/tutorial_system.dart';
 import 'package:xschedule/global/static_content/extensions/build_context_extension.dart';
 import 'package:xschedule/global/static_content/extensions/color_extension.dart';
+import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
 import 'package:xschedule/global/static_content/global_widgets.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_display.dart';
 
@@ -177,9 +178,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
               context: context,
               tutorial: 'tutorial_settings',
               // Title fitted to width
-              child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
+              child: Text(
                     "Customize Bell Appearance",
                     style: TextStyle(
                         //Custom font Goerama
@@ -187,7 +186,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                         fontSize: 25,
                         fontWeight: FontWeight.w600,
                         color: colorScheme.onSurface),
-                  )),
+                  ).fit(),
             ),
           ),
           // Extends the body behind the bottom bar
@@ -378,10 +377,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Text set to fit Expanded container
-                          Expanded(
-                              child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text(
+                          Text(
                               vanity['name'],
                               style: TextStyle(
                                   height: 1,
@@ -390,12 +386,8 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                                   //bold
                                   fontWeight: FontWeight.w600,
                                   color: colorScheme.onSurface),
-                            ),
-                          )),
-                          Expanded(
-                              child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text(
+                            ).expandedFit(),
+                          Text(
                               vanity['teacher'],
                               style: TextStyle(
                                   fontSize: 18,
@@ -403,12 +395,8 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                                   overflow: TextOverflow.ellipsis,
                                   fontWeight: FontWeight.w500,
                                   color: colorScheme.onSurface),
-                            ),
-                          )),
-                          Expanded(
-                              child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text(
+                            ).expandedFit(),
+                          Text(
                               vanity['location'],
                               style: TextStyle(
                                   fontSize: 18,
@@ -416,8 +404,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                                   overflow: TextOverflow.ellipsis,
                                   fontWeight: FontWeight.w500,
                                   color: colorScheme.onSurface),
-                            ),
-                          )),
+                            ).expandedFit()
                         ],
                       ),
                     ),
@@ -924,16 +911,14 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
               Padding(
                   padding: const EdgeInsets.only(left: 16, right: 16, top: 5),
                   // Title wrapped in FittedBox
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
+                  child: Text(
                       "Schedule from Image",
                       style: TextStyle(
                           fontFamily: "Exo2",
                           fontSize: 35,
                           fontWeight: FontWeight.w600),
-                    ),
-                  )),
+                    ).expandedFit()
+                  ),
               // Image display wrapped in button
               InkWell(
                 highlightColor: colorScheme.onSurface,

@@ -11,9 +11,7 @@ import 'package:xschedule/display/themes.dart';
 import 'package:xschedule/global/dynamic_content/backend/github.dart';
 import 'package:xschedule/global/dynamic_content/backend/schedule_data.dart';
 import 'package:xschedule/global/dynamic_content/backend/supabase_db.dart';
-import 'package:xschedule/global/dynamic_content/schedule.dart';
 import 'package:xschedule/global/static_content/extensions/date_time_extension.dart';
-import 'package:xschedule/global/static_content/global_variables.dart';
 import 'package:xschedule/personal/credits.dart';
 
 import 'global/dynamic_content/backend/open_ai.dart';
@@ -41,8 +39,8 @@ Future<void> init() async {
   Credits.loadCreditsJson();
   await ScheduleData.loadRSSJson();
 
-  // Fetches information about the build of the app
-  GlobalVariables.packageInfo = await PackageInfo.fromPlatform();
+  // Fetches information about the build of the app; miniscule run duration
+  Credits.packageInfo = await PackageInfo.fromPlatform();
 
   // Fetches schedule info from X via RSS and database for closest 101 days
   final DateTime now = DateTime.now();
