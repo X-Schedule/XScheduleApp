@@ -27,9 +27,8 @@ Future<void> main() async {
 /// App Initialization Process. <p>
 /// Interprets json file data, initializes communication with backend
 Future<void> init() async {
-  // Initializes communication with the Supabase database
-  SupaBaseDB.initialize();
-
+  // Ensures Flutter is ready-to-go
+  WidgetsFlutterBinding.ensureInitialized();
   // Initializes local storage; Runs synchronously since local storage is essential
   await initLocalStorage();
 
@@ -38,6 +37,9 @@ Future<void> init() async {
   OpenAI.loadOpenAIJson();
   Credits.loadCreditsJson();
   await ScheduleData.loadRSSJson();
+
+  // Reads supabase.json and then initializes communication with the Supabase database
+  SupaBaseDB.loadSupabaseJson().then((_) => SupaBaseDB.initialize());
 
   // Fetches information about the build of the app; miniscule run duration
   Credits.packageInfo = await PackageInfo.fromPlatform();

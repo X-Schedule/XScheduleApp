@@ -50,7 +50,7 @@ class BellDisplay {
     final bool activities = bell.toLowerCase().contains("flex");
 
     // Clock values of bell ('start' and 'end' primarily)
-    final Map<String, Clock> times = schedule.clockMap(bell) ?? {};
+    final Map<String, Clock?> times = schedule.clockMap(bell) ?? {};
 
     // Height of bell base don start and end times
     final double height =
@@ -169,7 +169,7 @@ class BellDisplay {
     // Gets vanity data of bell
     final Map<String, dynamic> vanity = Schedule.bellVanity[bell] ?? {};
     // Clock Map of bell ('start' and 'end')
-    final Map<String, Clock> times = schedule.clockMap(bell) ?? {};
+    final Map<String, Clock?> times = schedule.clockMap(bell) ?? {};
     // Aligns on center of screen w/ shadowed background
     return WidgetExtension.popup(
         context,

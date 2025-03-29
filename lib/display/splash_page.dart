@@ -1,12 +1,13 @@
 /*
   * splash_page.dart *
   Temporary destination page of the app which appears while it determines where to send the user.
-  Displays splash page featuring logo while loading.
+  Displays static load featuring logo while loading.
   Currently useless, considering destination is determined synchronously.
 */
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:xschedule/display/home_page.dart';
+import 'package:xschedule/global/static_content/static_load.dart';
 
 import '../personal/welcome.dart';
 
@@ -34,12 +35,6 @@ class SplashPage extends StatelessWidget {
       determineDestination(context);
     });
     // Basic scaffold displaying logo while app loads (as of right now, practically unused)
-    return Scaffold(
-      backgroundColor: Color(0xfff6eedd),
-      body: Align(
-          alignment: Alignment.center,
-          child: Image.asset("assets/images/xschedule_transparent.png")
-      )
-    );
+    return StaticLoad();
   }
 }

@@ -45,3 +45,4 @@ app.*.map.json
 /android/app/release
 assets/data/open_ai.json
 assets/data/github.json
+assets/data/supabase.json

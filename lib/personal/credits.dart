@@ -10,24 +10,19 @@ class Credits extends StatelessWidget {
 
   // Map of credits info derived from json file interpreted on startup
   static final Map<String, List<dynamic>> credits = {};
+
   // App build info determined on startup
   static late PackageInfo packageInfo;
 
   // Interprets the credits.json file on startup
   static Future<void> loadCreditsJson() async {
-    // Tries to read json file
-    try {
-      // Loads json file contents as String
-      final String jsonString =
-          await rootBundle.loadString("assets/data/credits.json");
-      // Interprets String as hashmap
-      final Map<String, dynamic> json = jsonDecode(jsonString);
-      // Adds all instances which fit typing (should be all)
-      credits.addAll(Map<String, List<dynamic>>.from(json));
-    } catch (e) {
-      // Warns developer of missing json file.
-      print("*** Credits Json not found! ***\n${e.toString()}");
-    }
+    // Loads json file contents as String
+    final String jsonString =
+        await rootBundle.loadString("assets/data/credits.json");
+    // Interprets String as hashmap
+    final Map<String, dynamic> json = jsonDecode(jsonString);
+    // Adds all instances which fit typing (should be all)
+    credits.addAll(Map<String, List<dynamic>>.from(json));
   }
 
   // Builds a list of Text Widgets containing values from json file
@@ -36,7 +31,7 @@ class Credits extends StatelessWidget {
     final List<dynamic> list = credits[key] ?? [];
 
     // If no names found; don't bother building list
-    if(list.isEmpty){
+    if (list.isEmpty) {
       return Container();
     }
 
@@ -75,12 +70,13 @@ class Credits extends StatelessWidget {
                   }
                   // Returns expandedFit Text of name
                   return Text(
-                      list[index],
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontFamily: "Georama",
-                          color: colorScheme.onSurface),
-                    ).expandedFit(padding: const EdgeInsets.symmetric(horizontal: 4));
+                    list[index],
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontFamily: "Georama",
+                        color: colorScheme.onSurface),
+                  ).expandedFit(
+                      padding: const EdgeInsets.symmetric(horizontal: 4));
                 }),
               );
             }),

@@ -1,3 +1,10 @@
+/*
+  * date_time_extension.dart *
+  Provided basic methods and static variables for displaying DateTime instances
+ */
+
+/// DateTime extension <p>
+/// Provides basic instance methods and static variables for displaying DateTime objects.
 extension DateTimeExtension on DateTime {
   /// DateTime extension <p>
   /// Map of String value for each int month value
