@@ -106,10 +106,7 @@ class Credits extends StatelessWidget {
               Container(
                 height: 125,
                 margin: const EdgeInsets.all(8),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: Image.asset("assets/images/xschedule.png"),
-                ),
+                child: Image.asset("assets/images/xschedule.png").clip(borderRadius: BorderRadius.circular(20)),
               ),
               // X-Schedule title
               Text(

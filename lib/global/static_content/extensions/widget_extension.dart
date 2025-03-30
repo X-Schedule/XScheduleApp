@@ -154,4 +154,16 @@ extension WidgetExtension on Widget {
             alignment: alignment,
             child: FittedBox(fit: BoxFit.scaleDown, child: this)));
   }
+
+  /// Widget extension <p>
+  /// Returns this widget wrapped in an IntrinsicWidth widget. IntrinsicWidth matches teh size of its child.
+  Widget intrinsicFit() {
+    return IntrinsicWidth(child: this);
+  }
+
+  /// Widget extension <p>
+  /// Returns this widget wrapped in a ClipRRECT Widget.
+  Widget clip({BorderRadius borderRadius = BorderRadius.zero}){
+    return ClipRRect(borderRadius: borderRadius, clipBehavior: Clip.hardEdge, child: this);
+  }
 }

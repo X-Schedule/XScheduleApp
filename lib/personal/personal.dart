@@ -30,7 +30,7 @@ class Personal extends StatelessWidget {
         backgroundColor: colorScheme.primaryContainer,
         // Custom AppBar; features title
         appBar: PreferredSize(
-          // Auto-adapts to fit device safe zone
+            // Auto-adapts to fit device safe zone
             preferredSize: Size(mediaQuery.size.width, 55),
             child: Container(
               alignment: Alignment.bottomCenter,
@@ -64,19 +64,7 @@ class Personal extends StatelessWidget {
             context.pushSwipePage(const ScheduleSettings(backArrow: true));
           }),
           // Clear localData button
-          _buildOption(context, "Reset Local Data", () {
-            // Clears localStorage
-            localStorage.clear();
-            // Resets storage variables
-            Schedule.bellVanity = {};
-            ScheduleSettings.tutorialSystem.refreshKeys();
-            ScheduleSettings.bellTutorialSystem.refreshKeys();
-            ScheduleDisplay.tutorialSystem.refreshKeys();
-            ScheduleDisplay.tutorialDate = null;
-            // Forward to SplashPage
-            Navigator.pushAndRemoveUntil(context,
-                MaterialPageRoute(builder: (_) => SplashPage()), (_) => false);
-          }),
+          _buildOption(context, "Reset Local Data", () => _clearCache(context)),
           // Credits popup button
           _buildOption(context, "Credits and Copyright", () {
             context.pushPopup(Credits(), begin: Offset(1, 0));
@@ -138,5 +126,20 @@ class Personal extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // Clears all variables and localStorage
+  static void _clearCache(BuildContext context) {
+    // Clears localStorage
+    localStorage.clear();
+    // Resets storage variables
+    Schedule.bellVanity = {};
+    ScheduleSettings.tutorialSystem.refreshKeys();
+    ScheduleSettings.bellTutorialSystem.refreshKeys();
+    ScheduleDisplay.tutorialSystem.refreshKeys();
+    ScheduleDisplay.tutorialDate = null;
+    // Forward to SplashPage
+    Navigator.pushAndRemoveUntil(
+        context, MaterialPageRoute(builder: (_) => SplashPage()), (_) => false);
   }
 }

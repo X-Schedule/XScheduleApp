@@ -86,12 +86,12 @@ extension BuildContextExtension on BuildContext {
                 },
                 // Listens for swipe in opposite direction of animation to dismiss popup
                 onHorizontalDragEnd: (detail){
-                  if(detail.primaryVelocity!.sign == begin!.dx.sign){
+                  if(detail.primaryVelocity!.sign == begin!.dx.sign && Navigator.canPop(context)){
                     Navigator.of(context).pop();
                   }
                 },
                 onVerticalDragEnd: (detail){
-                  if(detail.primaryVelocity!.sign == begin!.dy.sign){
+                  if(detail.primaryVelocity!.sign == begin!.dy.sign && Navigator.canPop(context)){
                     Navigator.of(context).pop();
                   }
                 },

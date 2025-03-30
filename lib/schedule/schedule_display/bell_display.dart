@@ -45,7 +45,16 @@ class BellDisplay {
     final Schedule schedule = ScheduleData.schedules[date] ?? Schedule.empty();
 
     // Vanity info of bell
-    final Map vanity = Schedule.bellVanity[bell] ?? {};
+    Map<String, dynamic> vanity = Schedule.bellVanity[bell] ?? {};
+
+    // If schedule fits alternate bell conditions, set vanity map as alternate
+    for(String day in vanity['alt_days'] ?? []){
+      if(schedule.name.toLowerCase().contains(day.toLowerCase())){
+        vanity = vanity['alt'];
+        break;
+      }
+    }
+
     final Color color = ColorExtension.fromHex(vanity['color'] ?? '#909090');
     final bool activities = bell.toLowerCase().contains("flex");
 
@@ -63,102 +72,102 @@ class BellDisplay {
     final String timeRange =
         '${times['start']!.display()} - ${times['end']!.display()}';
 
-    //Returns Tile Wrapped in GestureDetector
-    return InkWell(
-        // When Tile is tapped, will display popup with more info
-        onTap: () {
-          // If bell has activities (i.e. flex), push Flex menu
-          if (activities) {
-            // Insert Flex Menu Here lol
-          } else {
-            // ...else push bell info popup
-            context.pushPopup(bellInfo(context, schedule, bell));
-          }
-        },
-        // Bell Info Tile itself
-        child: Container(
+    //Returns Tile w/ margin
+    return Container(
             height: height,
             margin: EdgeInsets.only(top: margin),
             // Transparent background matching vanity color
             color: color.withAlpha(40),
             // Tile contents wrapped in Showcase
-            child: ScheduleDisplay.tutorialSystem.showcase(
-              context: context,
-              tutorial: _tutorial(date, bell),
-              uniqueNull: true,
-              child: Row(
-                children: [
-                  // Left color nib; if no setting set, displays as grey
-                  Container(
-                    width: 10,
-                    color: color,
-                  ),
-                  const SizedBox(width: 8),
-                  // If tile is not too short, displays emoji circle as Stack
-                  if (height > 25)
-                    Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        // Background colored circle
-                        CircleAvatar(
-                          backgroundColor: Colors.black.withValues(alpha: .2),
-                          radius: height * 3 / 7 - 5,
-                        ),
-                        // Emoji Text
-                        Text(
-                          // If no emoji set in settings, displays default book emoji
-                          vanity['emoji'] ?? '📚',
-                          style: TextStyle(
-                              fontSize: height * 3 / 7,
-                              color: colorScheme.onSurface),
-                        )
-                      ],
+            child: InkWell(
+              // When Tile is tapped, will display popup with more info
+              onTap: () {
+                // If bell has activities (i.e. flex), push Flex menu
+                if (activities) {
+                  // Insert Flex Menu Here lol
+                } else {
+                  // ...else push bell info popup
+                  context.pushPopup(bellInfo(context, schedule, bell));
+                }
+              },
+              child: ScheduleDisplay.tutorialSystem.showcase(
+                context: context,
+                tutorial: _tutorial(date, bell),
+                uniqueNull: true,
+                child: Row(
+                  children: [
+                    // Left color nib; if no setting set, displays as grey
+                    Container(
+                      width: 10,
+                      color: color,
                     ),
-                  // Text (with line skips) wrapped in FittedBox
-                  Container(
-                    margin: const EdgeInsets.only(left: 8),
-                    width: mediaQuery.size.width - 136 - (height * 6 / 7 - 10),
-                    alignment: Alignment.centerLeft,
-                    // Column of expanded components (name and time range)
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Name Text Widget fitted to Expanded box
-                        Expanded(
-                            child: Container(
-                          // Forces close to second row
-                          alignment: Alignment.bottomLeft,
-                          child: Text(
-                            // If there won't be room for time range line, include it in this line
-                            '${(vanity['name'] ?? bell) ?? ''}${height <= 50 ? ':     $timeRange' : ''}',
+                    const SizedBox(width: 8),
+                    // If tile is not too short, displays emoji circle as Stack
+                    if (height > 25)
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          // Background colored circle
+                          CircleAvatar(
+                            backgroundColor: Colors.black.withValues(alpha: .2),
+                            radius: height * 3 / 7 - 5,
+                          ),
+                          // Emoji Text
+                          Text(
+                            // If no emoji set in settings, displays default book emoji
+                            vanity['emoji'] ?? '📚',
                             style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                fontFamily: "Inter",
+                                fontSize: height * 3 / 7,
                                 color: colorScheme.onSurface),
-                          ).fit(),
-                        )),
-                        // If there is space, display time range as separate line
-                        if (height > 50)
+                          )
+                        ],
+                      ),
+                    // Text (with line skips) wrapped in FittedBox
+                    Container(
+                      margin: const EdgeInsets.only(left: 8),
+                      width: mediaQuery.size.width - 136 - (height * 6 / 7 - 10),
+                      alignment: Alignment.centerLeft,
+                      // Column of expanded components (name and time range)
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Name Text Widget fitted to Expanded box
                           Expanded(
                               child: Container(
-                            margin: const EdgeInsets.only(top: 2),
-                            // Forces close to top row
-                            alignment: Alignment.topLeft,
-                            child: Text(
-                              timeRange,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontFamily: "Inter",
-                                  color: colorScheme.onSurface),
-                            ).fit(),
-                          ))
-                      ],
+                                // Forces close to second row
+                                alignment: Alignment.bottomLeft,
+                                child: Text(
+                                  // If there won't be room for time range line, include it in this line
+                                  '${(vanity['name'] ?? bell) ?? ''}${height <= 50 ? ':     $timeRange' : ''}',
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: "Inter",
+                                      color: colorScheme.onSurface),
+                                ).fit(),
+                              )),
+                          // If there is space, display time range as separate line
+                          if (height > 50)
+                            Expanded(
+                                child: Container(
+                                  margin: const EdgeInsets.only(top: 2),
+                                  // Forces close to top row
+                                  alignment: Alignment.topLeft,
+                                  child: Text(
+                                    timeRange,
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        fontFamily: "Inter",
+                                        color: colorScheme.onSurface),
+                                  ).fit(),
+                                ))
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            )));
+            ));
   }
 
   // Builds the bell info popup
@@ -167,7 +176,20 @@ class BellDisplay {
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
     // Gets vanity data of bell
-    final Map<String, dynamic> vanity = Schedule.bellVanity[bell] ?? {};
+    Map<String, dynamic> vanity = Schedule.bellVanity[bell] ?? {};
+    // Suffix after base bell String
+    String suffix = bell.length <= 1 ? ' Bell' : '';
+
+    // If schedule fits alternate bell conditions, set vanity map as alternate
+    for(String day in vanity['alt_days'] ?? []){
+      if(schedule.name.toLowerCase().contains(day.toLowerCase())){
+        vanity = vanity['alt'];
+        // Adds alt suffix
+        suffix = '$suffix - Alt';
+        break;
+      }
+    }
+
     // Clock Map of bell ('start' and 'end')
     final Map<String, Clock?> times = schedule.clockMap(bell) ?? {};
     // Aligns on center of screen w/ shadowed background
@@ -231,7 +253,7 @@ class BellDisplay {
                                       color: colorScheme.onSurface,
                                       //bold
                                       fontWeight: FontWeight.w600),
-                                ).expandedFit(),
+                                ).expandedFit(alignment: Alignment.centerLeft),
                                 if (vanity['teacher'] != null)
                                   Text(
                                     vanity['teacher'],
@@ -239,7 +261,7 @@ class BellDisplay {
                                         fontSize: 18,
                                         color: colorScheme.onSurface,
                                         fontWeight: FontWeight.w500),
-                                  ).expandedFit(),
+                                  ).expandedFit(alignment: Alignment.centerLeft),
                                 if (vanity['location'] != null)
                                   Text(
                                     vanity['location'],
@@ -247,7 +269,7 @@ class BellDisplay {
                                         fontSize: 18,
                                         color: colorScheme.onSurface,
                                         fontWeight: FontWeight.w500),
-                                  ).expandedFit()
+                                  ).expandedFit(alignment: Alignment.centerLeft)
                               ],
                             ),
                           )
@@ -261,16 +283,16 @@ class BellDisplay {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              //Displays bell name or nothing (if null)
+                              //Displays bell name w/ spacing
                               Text(
-                                '$bell${bell.length <= 1 ? ' Bell' : ''}:   ',
+                                '$bell$suffix:   ',
                                 style: TextStyle(
                                     height: 0.9,
                                     fontSize: 25,
                                     color: colorScheme.onSurface,
                                     fontWeight: FontWeight.w500),
                               ),
-                              //Displays the time length (time length cannot be null)
+                              // Displays the time length (time length cannot be null)
                               Text(
                                 '${times['start']?.display()} - ${times['end']?.display()}',
                                 style: TextStyle(

@@ -16,6 +16,17 @@ class Schedule {
       Map<String, Map<String, dynamic>>.from(
           json.decode(localStorage.getItem("scheduleSettings") ?? '{}'));
 
+  /// const Map (&lt;Day Title, Order>) of standard day structures.
+  static const Map<String, List<String>> sampleDays = {
+    "A Day": ["A", "B", "C", "Flex", "D", "E", "F"],
+    "G Day": ["G", "H", "A", "Flex", "B", "C", "D"],
+    "E Day": ["E", "F", "G", "Flex", "H", "A", "B"],
+    "C Day": ["C", "D", "E", "Flex", "F", "G", "H"],
+    "X Day": ["A", "B", "Flex", "C", "D"],
+    "Y Day": ["E", "F", "Flex", "G", "H"],
+    "All Meet": ["A", "B", "C", "D", "Flex", "E", "F", "G", "H"],
+  };
+
   /// Schedule from bell hashmap
   Schedule(
       {required this.bells, this.start, this.end, this.name = 'No Classes'}) {
@@ -37,11 +48,13 @@ class Schedule {
 
   /// The DateTime for the start of the day
   final DateTime? start;
+
   /// The DateTime for the end of the day
   final DateTime? end;
 
   /// The String value of the first standard bell, if it exists (i.e. A)
   String? firstBell;
+
   /// The String value of the first flex bell, it it exists (i.e. Flex, Flex 1)
   String? firstFlex;
 
