@@ -11,8 +11,6 @@ import 'package:xschedule/global/static_content/extensions/build_context_extensi
 import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
 import 'package:xschedule/personal/credits.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_display.dart';
-
-import '../global/dynamic_content/schedule.dart';
 import '../schedule/schedule_settings/schedule_settings.dart';
 
 /// Current Settings page of the app. <p>

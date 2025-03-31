@@ -18,20 +18,15 @@ class GitHub {
 
   /// loads and interprets the values of github.json
   static Future<void> loadGithubJson() async {
-    try {
-      // Reads json file as String value
-      final String jsonString =
-      await rootBundle.loadString("assets/data/github.json");
-      // Decodes String into hashmap
-      final Map<String, dynamic> json = jsonDecode(jsonString);
+    // Reads json file as String value
+    final String jsonString =
+        await rootBundle.loadString("assets/data/github.json");
+    // Decodes String into hashmap
+    final Map<String, dynamic> json = jsonDecode(jsonString);
 
-      // Assigns comm. values
-      apiUrl = json['api_url'];
-      apiKey = json['api_key'];
-    } catch (e){
-      // Warns developer of missing file
-      print("*** GitHub Json not found! ***\n${e.toString()}");
-    }
+    // Assigns comm. values
+    apiUrl = json['api_url'];
+    apiKey = json['api_key'];
   }
 
   /// posts an issue to the X-Schedule GitHub organization
@@ -40,7 +35,7 @@ class GitHub {
   /// [String? body]: Optional body of the issue
   static Future<void> postIssue(
       {required String title,
-        required BuildContext context,
+      required BuildContext context,
       String? body}) async {
     // Parse URI
     final Uri url = Uri.parse(apiUrl);
@@ -59,7 +54,7 @@ class GitHub {
           body: jsonEncode({"title": "$dateStamp: title", "body": body}));
     } catch (_) {
       // Reports http error
-      if(context.mounted){
+      if (context.mounted) {
         context.showSnackBar("Failed to publish issue report.");
       }
     }

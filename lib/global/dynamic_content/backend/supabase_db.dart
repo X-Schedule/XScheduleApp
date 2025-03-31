@@ -21,20 +21,15 @@ class SupaBaseDB {
 
   // Loads and reads supabase.json file
   static Future<void> loadSupabaseJson() async {
-    try {
-      // Reads json file as String
-      final String jsonString =
-          await rootBundle.loadString("assets/data/supabase.json");
-      // Decodes String as hashmap
-      final Map<String, dynamic> json = jsonDecode(jsonString);
+    // Reads json file as String
+    final String jsonString =
+        await rootBundle.loadString("assets/data/supabase.json");
+    // Decodes String as hashmap
+    final Map<String, dynamic> json = jsonDecode(jsonString);
 
-      // Assigns comm. values
-      url = json['url'];
-      apiKey = json['api_key'];
-    } catch (e) {
-      // Warns developer of missing supabase.json
-      print("*** Supabase Json not found! ***\n${e.toString()}");
-    }
+    // Assigns comm. values
+    url = json['url'];
+    apiKey = json['api_key'];
   }
 
   // Supabase initialization method

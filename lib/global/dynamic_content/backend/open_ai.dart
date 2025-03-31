@@ -23,23 +23,18 @@ class OpenAI {
 
   // Loads and reads the open_ai.json file
   static Future<void> loadOpenAIJson() async {
-    try {
-      // Reads json file as String
-      final String jsonString =
-          await rootBundle.loadString("assets/data/open_ai.json");
-      // Decodes String as hashmap
-      final Map<String, dynamic> json = jsonDecode(jsonString);
+    // Reads json file as String
+    final String jsonString =
+        await rootBundle.loadString("assets/data/open_ai.json");
+    // Decodes String as hashmap
+    final Map<String, dynamic> json = jsonDecode(jsonString);
 
-      // Assigns comm. values
-      apiUrl = json['api_url'];
-      apiKey = json['api_key'];
-      model = json['model'];
-      instructions = json['schedule_instructions'];
-      params = json['params'];
-    } catch (e) {
-      // Warns developer of missing open_ai.json
-      print("*** OpenAI Json not found! ***\n${e.toString()}");
-    }
+    // Assigns comm. values
+    apiUrl = json['api_url'];
+    apiKey = json['api_key'];
+    model = json['model'];
+    instructions = json['schedule_instructions'];
+    params = json['params'];
   }
 
   // Converts an image of a given file path into base64
