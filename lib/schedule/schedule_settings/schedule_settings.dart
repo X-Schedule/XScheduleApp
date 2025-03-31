@@ -73,11 +73,37 @@ class ScheduleSettings extends StatefulWidget {
     'tutorial_settings_bell_help':
         'If you ever need help, press this button here.'
   };
+
+  static const Map<String, String> bellAltTutorials = {
+    // Cheat and have same ID for two texts to re-use Widget
+    'tutorial_settings_bell':
+        "In this menu, you'll be able to specify an alternate bell dependent on the day.",
+    'tutorial_settings_bell_alt_day':
+        "Down here, you can scroll through all the days this bell appears on and select when to replace the normal settings for this bell.",
+    'tutorial_settings_bell_alt_vanity':
+        "Up here, you can customize the alternate bell using the same settings as normal.",
+    'tutorial_settings_bell_alt_alternate':
+        "When you're done, tap this button up here to return to the standard bell settings.",
+    'tutorial_settings_bell_alt_help':
+        "...and if you ever need help, press this button here.",
+  };
+
   static final TutorialSystem bellTutorialSystem = TutorialSystem({
     'tutorial_settings_bell': bellTutorials['tutorial_settings_bell']!,
     'tutorial_settings_bell_help':
         bellTutorials['tutorial_settings_bell_help']!,
   });
+
+  /// Refreshes the keys and tutorial text of Setting's tutorial systems.
+  static void resetTutorials() {
+    tutorialSystem.refreshKeys();
+    bellTutorialSystem.set({
+      'tutorial_settings_bell': bellTutorials['tutorial_settings_bell']!,
+      'tutorial_settings_bell_help':
+          bellTutorials['tutorial_settings_bell_help']!,
+    });
+    bellTutorialSystem.refreshKeys();
+  }
 
   /// Clears all temporary bell values from settings
   static void clearSettings() {
@@ -463,15 +489,18 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
   }
 
   // Restarts the tutorial of the bell configuration menu
-  void _startBellTutorial(BuildContext context) {
-    // Clears tutorialSystem of tutorial values
-    ScheduleSettings.bellTutorialSystem.tutorials.clear();
-    // Re-adds all tutorials to tutorialSystem
-    ScheduleSettings.bellTutorialSystem.tutorials
-        .addAll(ScheduleSettings.bellTutorials);
+  void _startBellTutorial(BuildContext context, bool alt,
+      {bool storeCompletion = false}) {
+    // Clears tutorialSystem of tutorial values and Re-adds all tutorials to tutorialSystem
+    if (alt) {
+      ScheduleSettings.bellTutorialSystem
+          .set(ScheduleSettings.bellAltTutorials);
+    } else {
+      ScheduleSettings.bellTutorialSystem.set(ScheduleSettings.bellTutorials);
+    }
     // Starts tutorial
     ScheduleSettings.bellTutorialSystem
-        .showTutorials(context, storeCompletion: false);
+        .showTutorials(context, storeCompletion: storeCompletion);
   }
 
   // Builds the bell configuration popup
@@ -520,6 +549,12 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                 return ScheduleSettings.bellTutorialSystem.showcase(
                     context: context,
                     tutorial: 'tutorial_settings_bell',
+                    onTap: () async {
+                      setLocalState(() {
+                        dayPicker = true;
+                      });
+                      await Future.delayed(const Duration(milliseconds: 150));
+                    },
                     // The popup as a flippable card with Columns of content
                     child: FlipCard(
                         key: cardKey,
@@ -555,7 +590,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                                                   // Restarts bell tutorial
                                                   onPressed: () =>
                                                       _startBellTutorial(
-                                                          context),
+                                                          context, false),
                                                   // Help Icon
                                                   icon: Icon(
                                                       Icons
@@ -579,16 +614,35 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                                               tutorial:
                                                   "tutorial_settings_bell_alternate",
                                               circular: true,
-                                              child: IconButton(
-                                                  onPressed: () {
-                                                    cardKey.currentState
-                                                        ?.toggleCard();
-                                                  },
-                                                  // Tuning Icon
-                                                  icon: Icon(Icons.autorenew,
-                                                      size: 30,
-                                                      color: colorScheme
-                                                          .onSurface)),
+                                              child: Schedule
+                                                      .sampleDays['All Meet']!
+                                                      .contains(bell)
+                                                  ? IconButton(
+                                                      onPressed: () async {
+                                                        cardKey.currentState
+                                                            ?.toggleCard();
+                                                        await Future.delayed(
+                                                            const Duration(
+                                                                milliseconds:
+                                                                    1000));
+                                                        if (context.mounted) {
+                                                          _startBellTutorial(
+                                                              context, true,
+                                                              storeCompletion:
+                                                                  true);
+                                                        }
+                                                      },
+                                                      // Tuning Icon
+                                                      icon: Icon(
+                                                          Icons.autorenew,
+                                                          size: 30,
+                                                          color: colorScheme
+                                                              .onSurface))
+                                                  : CircleAvatar(
+                                                      radius: 20,
+                                                      backgroundColor:
+                                                          Colors.transparent,
+                                                    ),
                                             )
                                           ],
                                         )),
@@ -669,7 +723,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                                                   // Restarts bell tutorial
                                                   onPressed: () =>
                                                       _startBellTutorial(
-                                                          context),
+                                                          context, true),
                                                   // Help Icon
                                                   icon: Icon(
                                                       Icons
@@ -706,133 +760,168 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                                             )
                                           ],
                                         )),
-                                    AnimatedContainer(
-                                      duration:
-                                          const Duration(milliseconds: 250),
-                                      curve: Curves.easeInOut,
-                                      constraints: BoxConstraints(
-                                          maxHeight: dayPicker
-                                              ? 50
-                                              : mediaQuery.size.height * .75),
-                                      child: SingleChildScrollView(
-                                        physics: NeverScrollableScrollPhysics(),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            InkWell(
-                                              onTap: () {
-                                                setLocalState(() {
-                                                  dayPicker = !dayPicker;
-                                                });
-                                              },
-                                              child: Container(
-                                                height: 50,
-                                                alignment: Alignment.center,
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 8),
-                                                child: Row(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
+                                    ScheduleSettings.bellTutorialSystem
+                                        .showcase(
+                                            context: context,
+                                            tutorial:
+                                                "tutorial_settings_bell_alt_vanity",
+                                            child: AnimatedContainer(
+                                              duration: const Duration(
+                                                  milliseconds: 250),
+                                              curve: Curves.easeInOut,
+                                              constraints: BoxConstraints(
+                                                  maxHeight: dayPicker
+                                                      ? 50
+                                                      : mediaQuery.size.height *
+                                                          .75),
+                                              child: SingleChildScrollView(
+                                                physics:
+                                                    NeverScrollableScrollPhysics(),
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
                                                   children: [
-                                                    Text("Appearance",
-                                                            style: TextStyle(
-                                                                fontSize: 25,
-                                                                color: colorScheme
-                                                                    .onSurface,
-                                                                fontFamily:
-                                                                    "Georama",
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600))
-                                                        .expandedFit(),
-                                                    Icon(
-                                                      dayPicker
-                                                          ? Icons
-                                                              .keyboard_arrow_up
-                                                          : Icons
-                                                              .keyboard_arrow_down,
-                                                      color:
-                                                          colorScheme.onSurface,
-                                                      size: 32,
-                                                    )
+                                                    InkWell(
+                                                      onTap: () {
+                                                        setLocalState(() {
+                                                          dayPicker =
+                                                              !dayPicker;
+                                                        });
+                                                      },
+                                                      child: Container(
+                                                        height: 50,
+                                                        alignment:
+                                                            Alignment.center,
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                                horizontal: 8),
+                                                        child: Row(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .center,
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            Text("Appearance",
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            25,
+                                                                        color: colorScheme
+                                                                            .onSurface,
+                                                                        fontFamily:
+                                                                            "Georama",
+                                                                        fontWeight:
+                                                                            FontWeight.w600))
+                                                                .expandedFit(),
+                                                            Icon(
+                                                              dayPicker
+                                                                  ? Icons
+                                                                      .keyboard_arrow_up
+                                                                  : Icons
+                                                                      .keyboard_arrow_down,
+                                                              color: colorScheme
+                                                                  .onSurface,
+                                                              size: 32,
+                                                            )
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    _buildBellSettings(
+                                                        context,
+                                                        bell,
+                                                        setLocalState,
+                                                        true),
                                                   ],
                                                 ),
                                               ),
-                                            ),
-                                            _buildBellSettings(context, bell,
-                                                setLocalState, true),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
+                                            )),
                                     Divider(
                                         color: colorScheme.onSurface,
                                         height: 8),
-                                    AnimatedContainer(
-                                      duration:
-                                          const Duration(milliseconds: 250),
-                                      curve: Curves.easeInOut,
-                                      constraints: BoxConstraints(
-                                          maxHeight: dayPicker
-                                              ? mediaQuery.size.height * .75
-                                              : 50),
-                                      child: SingleChildScrollView(
-                                        physics: NeverScrollableScrollPhysics(),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            InkWell(
-                                              onTap: () {
-                                                setLocalState(() {
-                                                  dayPicker = !dayPicker;
-                                                });
-                                              },
-                                              child: Container(
-                                                height: 50,
-                                                alignment: Alignment.center,
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 8),
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
+                                    ScheduleSettings.bellTutorialSystem
+                                        .showcase(
+                                            context: context,
+                                            tutorial:
+                                                "tutorial_settings_bell_alt_day",
+                                            onTap: () async {
+                                              setLocalState(() {
+                                                dayPicker = false;
+                                              });
+                                              await Future.delayed(
+                                                  const Duration(
+                                                      milliseconds: 150));
+                                            },
+                                            child: AnimatedContainer(
+                                              duration: const Duration(
+                                                  milliseconds: 250),
+                                              curve: Curves.easeInOut,
+                                              constraints: BoxConstraints(
+                                                  maxHeight: dayPicker
+                                                      ? mediaQuery.size.height *
+                                                          .75
+                                                      : 50),
+                                              child: SingleChildScrollView(
+                                                physics:
+                                                    NeverScrollableScrollPhysics(),
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
                                                   children: [
-                                                    Text("Program",
-                                                            style: TextStyle(
-                                                                fontSize: 25,
-                                                                fontFamily:
-                                                                    "Georama",
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
-                                                                color: colorScheme
-                                                                    .onSurface))
-                                                        .expandedFit(),
-                                                    Icon(
-                                                      dayPicker
-                                                          ? Icons
-                                                              .keyboard_arrow_down
-                                                          : Icons
-                                                              .keyboard_arrow_up,
-                                                      color:
-                                                          colorScheme.onSurface,
-                                                      size: 32,
-                                                    )
+                                                    InkWell(
+                                                      onTap: () {
+                                                        setLocalState(() {
+                                                          dayPicker =
+                                                              !dayPicker;
+                                                        });
+                                                      },
+                                                      child: Container(
+                                                        height: 50,
+                                                        alignment:
+                                                            Alignment.center,
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                                horizontal: 8),
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            Text("Program",
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            25,
+                                                                        fontFamily:
+                                                                            "Georama",
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .w600,
+                                                                        color: colorScheme
+                                                                            .onSurface))
+                                                                .expandedFit(),
+                                                            Icon(
+                                                              dayPicker
+                                                                  ? Icons
+                                                                      .keyboard_arrow_down
+                                                                  : Icons
+                                                                      .keyboard_arrow_up,
+                                                              color: colorScheme
+                                                                  .onSurface,
+                                                              size: 32,
+                                                            )
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    _buildDaySelector(context,
+                                                        bell, setLocalState)
                                                   ],
                                                 ),
                                               ),
-                                            ),
-                                            _buildDaySelector(
-                                                context, bell, setLocalState)
-                                          ],
-                                        ),
-                                      ),
-                                    ),
+                                            )),
                                   ],
                                 )))));
               })));
@@ -1192,10 +1281,10 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                       ),
                     ),
                     Checkbox(
-                      activeColor: colorScheme.primary,
+                        activeColor: colorScheme.primary,
                         value:
                             ScheduleSettings.altDays[bell]!.contains(dayTitle),
-                        onChanged: (_){})
+                        onChanged: (_) {})
                   ]),
                 ),
               );
@@ -1278,7 +1367,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Padding(
-                  padding: const EdgeInsets.only(left: 16, right: 16, top: 5),
+                  padding: const EdgeInsets.only(left: 16, right: 16, top: 8),
                   // Title wrapped in FittedBox
                   child: Text(
                     "Schedule from Image",
@@ -1286,7 +1375,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                         fontFamily: "Exo2",
                         fontSize: 35,
                         fontWeight: FontWeight.w600),
-                  ).expandedFit(alignment: Alignment.centerLeft)),
+                  ).fit()),
               // Image display wrapped in button
               InkWell(
                 highlightColor: colorScheme.onSurface,

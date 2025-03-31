@@ -133,9 +133,7 @@ class Personal extends StatelessWidget {
     // Clears localStorage
     localStorage.clear();
     // Resets storage variables
-    Schedule.bellVanity = {};
-    ScheduleSettings.tutorialSystem.refreshKeys();
-    ScheduleSettings.bellTutorialSystem.refreshKeys();
+    ScheduleSettings.resetTutorials();
     ScheduleDisplay.tutorialSystem.refreshKeys();
     ScheduleDisplay.tutorialDate = null;
     // Forward to SplashPage

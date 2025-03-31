@@ -40,7 +40,8 @@ class TutorialSystem {
   /// [bool dense = false]: If the tutorial display should be condensed <p>
   /// [bool uniqueNull = false]: If a non-existent id's placeholder should be unique <p>
   /// [bool circular = false]: If the target during the tutorial should have a circular border <p>
-  /// [EdgeInsets? targetPadding]: Padding of the target from its border in the tutorial
+  /// [EdgeInsets? targetPadding]: Padding of the target from its border in the tutorial <p>
+  /// [voud Function()? onTap]: Method to run on tapped to progress
   Showcase showcase(
       {required BuildContext context,
       required String tutorial,
@@ -48,8 +49,9 @@ class TutorialSystem {
       bool dense = false,
       bool uniqueNull = false,
       bool circular = false,
-      EdgeInsets? targetPadding}) {
+      EdgeInsets? targetPadding, Future<void> Function()? onTap}) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    onTap ??= () async {};
 
     // Returns Showcase widget w/ settings matching system
     return Showcase(
@@ -61,6 +63,7 @@ class TutorialSystem {
         // Simulates tap on shaded region
         onBarrierClick: () async {
           // Brief delay to make tap appear more natural
+          await onTap!();
           await Future.delayed(const Duration(milliseconds: 100));
           if (tutorial != tutorials.keys.lastOrNull && context.mounted) {
             ShowCaseWidget.of(context).next();
@@ -70,9 +73,7 @@ class TutorialSystem {
         onTargetClick: () async {
           // Brief delay to make tap appear more natural
           await Future.delayed(const Duration(milliseconds: 100));
-          if (tutorial != tutorials.keys.lastOrNull && context.mounted) {
-            ShowCaseWidget.of(context).next();
-          }
+          simulateTap();
         },
         disposeOnTap: false,
         // Style condensed if set as dense
@@ -196,5 +197,12 @@ class TutorialSystem {
   /// Sets the finished state of the system to true
   void finish() {
     finished = true;
+  }
+
+  /// Adds updates the system to include specified tutorials.
+  void set(Map<String, String> setTutorials){
+    tutorials.clear();
+    tutorials.addAll(setTutorials);
+    finished = false;
   }
 }
