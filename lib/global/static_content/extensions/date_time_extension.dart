@@ -75,4 +75,10 @@ extension DateTimeExtension on DateTime {
   int monthDiff(DateTime dateTime) {
     return (year * 12 + month) - (dateTime.year * 12 + dateTime.month);
   }
+
+  /// DateTime extension <p>
+  /// Returns a DateTime instance with time variables set to 0
+  DateTime dateOnly(){
+    return DateTime(year, month, day);
+  }
 }

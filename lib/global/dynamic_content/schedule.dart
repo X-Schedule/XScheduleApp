@@ -27,56 +27,46 @@ class Schedule {
     "All Meet": ["A", "B", "C", "D", "Flex", "E", "F", "G", "H"],
   };
 
-  /// Schedule from bell hashmap
-  Schedule(
-      {required this.bells, this.start, this.end, this.name = 'No Classes'}) {
-    // Assigns firstBell and firstFlex Strings
-    for (String bell in bells.keys) {
-      if (bell.toLowerCase().contains('flex')) {
-        firstFlex ??= bell;
-      } else {
-        firstBell ??= bell;
+  void writeBells(Map<String, String>? bells) {
+    if(bells != null) {
+      this.bells = bells;
+      // Assigns firstBell and firstFlex Strings
+      for (String bell in bells.keys) {
+        if (bell.toLowerCase().contains('flex')) {
+          firstFlex ??= bell;
+        } else {
+          firstBell ??= bell;
+        }
       }
     }
   }
 
+  void writeInfo(Map<String, dynamic>? info) {
+    if(info != null){
+      this.info = info;
+    }
+  }
+
+  void writeName(String? name){
+    if(name != null){
+      this.name = name;
+    }
+  }
+
+  /// Hashmap containing data of schedule (i.e. uniform, lunch, etc.)
+  Map<String, dynamic> info = {};
+
   /// Hashmap (&lt;Bell, Map&lt;ValueName, value>>) of bells of Schedule
-  final Map<String, String> bells;
+  Map<String, String> bells = {};
 
   /// The String label of the Schedule (i.e. A Day)
-  final String name;
-
-  /// The DateTime for the start of the day
-  final DateTime? start;
-
-  /// The DateTime for the end of the day
-  final DateTime? end;
+  String name = "No Classes";
 
   /// The String value of the first standard bell, if it exists (i.e. A)
   String? firstBell;
 
   /// The String value of the first flex bell, it it exists (i.e. Flex, Flex 1)
   String? firstFlex;
-
-  /// Empty schedule class; used for null safety
-  static Schedule empty() {
-    return Schedule(bells: {});
-  }
-
-  /// Gets the absolute value of the difference of the start and end times, then returns day length
-  Clock? dayLength() {
-    // If start or end times are undefined, returns null
-    if (start != null && end != null) {
-      // Difference between start and end DateTimes
-      final int? minutes = start?.difference(end!).inMinutes;
-      if (minutes != null) {
-        // Returns difference as Clock
-        final Clock clock = Clock(minutes: minutes.abs());
-        return clock;
-      }
-    }
-    return null;
-  }
 
   /// Returns the 'start' and 'end' times of the inputted bell
   Map<String, Clock?>? clockMap(String bell) {
@@ -100,27 +90,7 @@ class Schedule {
     return null;
   }
 
-  /// Converts the Schedule's start DateTime into a Clock
-  Clock? startClock() {
-    // If start undefined, returns null
-    if (start != null) {
-      final Clock startClock = Clock.fromDateTime(start!);
-      // Converts early-PM hours into military time
-      startClock.estimate24hrTime();
-      return startClock;
-    }
-    return null;
-  }
-
-  /// Converts the Schedule's end DateTime into a Clock
-  Clock? endClock() {
-    //If end undefined, returns null
-    if (end != null) {
-      final Clock endClock = Clock.fromDateTime(end!);
-      // Converts early-PM hours into military time
-      endClock.estimate24hrTime();
-      return endClock;
-    }
-    return null;
+  Map<String, dynamic> toJsonEntry() {
+    return {"name": name, "bells": bells, "info": info};
   }
 }

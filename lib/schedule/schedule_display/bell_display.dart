@@ -8,7 +8,7 @@ import 'package:xschedule/global/static_content/extensions/build_context_extensi
 import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_display.dart';
 
-import '../../global/dynamic_content/backend/schedule_data.dart';
+import '../../global/dynamic_content/backend/schedule_directory.dart';
 import '../../global/dynamic_content/clock.dart';
 import '../../global/dynamic_content/schedule.dart';
 import '../../global/static_content/extensions/color_extension.dart';
@@ -21,8 +21,7 @@ class BellDisplay {
     // Checks if date matches selected tutorialDate
     if (date == ScheduleDisplay.tutorialDate) {
       // The Schedule of the date
-      final Schedule schedule =
-          ScheduleData.schedules[date] ?? Schedule.empty();
+      final Schedule schedule = ScheduleDirectory.readSchedule(date);
       // Checks if bell matches first bell or flex bell
       if (bell == schedule.firstBell) {
         return 'tutorial_schedule_bell';
@@ -42,7 +41,7 @@ class BellDisplay {
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
     // The Schedule the bell is in
-    final Schedule schedule = ScheduleData.schedules[date] ?? Schedule.empty();
+    final Schedule schedule = ScheduleDirectory.readSchedule(date);
 
     // Vanity info of bell
     Map<String, dynamic> vanity = Schedule.bellVanity[bell] ?? {};

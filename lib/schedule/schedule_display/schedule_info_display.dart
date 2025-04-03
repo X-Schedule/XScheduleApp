@@ -3,7 +3,7 @@
   StatelessWidget of a popup which displays the daily information of a given date from the database.
 */
 import 'package:flutter/material.dart';
-import 'package:xschedule/global/dynamic_content/backend/schedule_data.dart';
+import 'package:xschedule/global/dynamic_content/backend/schedule_directory.dart';
 import 'package:xschedule/global/static_content/extensions/date_time_extension.dart';
 import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
 
@@ -32,8 +32,8 @@ class ScheduleInfoDisplay extends StatelessWidget {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     // Gets the schedules and dailyInfo based on the given date
-    final Schedule schedule = ScheduleData.schedules[date] ?? Schedule.empty();
-    final Map<String, dynamic> dailyInfo = ScheduleData.dailyInfo[date] ?? {};
+    final Schedule schedule = ScheduleDirectory.readSchedule(date);
+    final Map<String, dynamic> dailyInfo = schedule.info;
 
     // Returns dailyInfo popup
     return WidgetExtension.popup(
@@ -73,6 +73,7 @@ class ScheduleInfoDisplay extends StatelessWidget {
               ).fit(),
               // Row of quarter and dress code
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   // If variable is null, do not display
                   if (dailyInfo['quarter'] != null)
@@ -95,7 +96,7 @@ class ScheduleInfoDisplay extends StatelessWidget {
                           color: colorScheme.onSurface),
                     ).expandedFit()
                 ],
-              ).fit(),
+              ),
               // Checks to display lunch divider and header
               if ((dailyInfo['lunchPasta'] ?? '').isNotEmpty ||
                   (dailyInfo['lunchBox'] ?? '').isNotEmpty ||
@@ -126,6 +127,7 @@ class ScheduleInfoDisplay extends StatelessWidget {
                       ).fit(),
                     // Row containing lunchPasta and lunchBox Texts
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         // If lunchPasta value exists, display
                         if ((dailyInfo['lunchPasta'] ?? '').isNotEmpty)

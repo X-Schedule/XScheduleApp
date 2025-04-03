@@ -8,7 +8,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:showcaseview/showcaseview.dart';
-import 'package:xschedule/global/dynamic_content/backend/schedule_data.dart';
+import 'package:xschedule/global/dynamic_content/backend/schedule_directory.dart';
 import 'package:xschedule/global/dynamic_content/schedule.dart';
 import 'package:xschedule/global/dynamic_content/stream_signal.dart';
 import 'package:xschedule/global/static_content/extensions/build_context_extension.dart';
@@ -27,8 +27,7 @@ class ScheduleDisplay extends StatefulWidget {
   const ScheduleDisplay({super.key});
 
   // The current date, ignoring time
-  static DateTime initialDate =
-      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+  static DateTime initialDate = DateTime.now().dateOnly();
 
   // A date verified to have a schedule for the tutorial; TBD
   static DateTime? tutorialDate;
@@ -88,7 +87,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
   // Method which begins the ScheduleDisplay tutorial
   Future<void> _showTutorial(BuildContext context) async {
     // awaits the fetching of schedule data before starting
-    while (ScheduleData.schedules.isEmpty) {
+    while (ScheduleDirectory.schedules.isEmpty) {
       // wait .1 seconds before checking again for Thread resting
       await Future.delayed(Duration(milliseconds: 100));
     }
@@ -117,8 +116,11 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
           return;
         }
         // ...else set tutorialDate to found schedule
-        ScheduleDisplay.tutorialDate =
-            ScheduleDisplay.initialDate.addDay(index);
+        setState(() {
+          ScheduleDisplay.tutorialDate =
+              ScheduleDisplay.initialDate.addDay(index);
+        });
+        return;
       }
       // if animation needs to occur, run it and end
       if (index != ScheduleDisplay.pageIndex && index != 0) {
@@ -145,7 +147,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     ScheduleDisplay.tutorialSystem.removeFinished();
 
     // Runs addDailyData asynchronously on page moved; may do nothing at all if ranges overlap
-    ScheduleData.addDailyData(
+    ScheduleDirectory.addDailyData(
         ScheduleDisplay.initialDate.addDay(ScheduleDisplay.pageIndex - 25),
         ScheduleDisplay.initialDate.addDay(ScheduleDisplay.pageIndex + 25));
     // Refreshes stream
@@ -267,17 +269,17 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                 SizedBox(
                   width: mediaQuery.size.width - 220,
                   child: Text(
-                      ScheduleDisplay.initialDate
-                          .addDay(ScheduleDisplay.pageIndex)
-                          .dateText(),
-                      style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 32.5,
-                          color: colorScheme.onSurface),
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                    ).fit(),
-                  ),
+                    ScheduleDisplay.initialDate
+                        .addDay(ScheduleDisplay.pageIndex)
+                        .dateText(),
+                    style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 32.5,
+                        color: colorScheme.onSurface),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                  ).fit(),
+                ),
                 // Right Arrow IconButton
                 _buildNavButton(context, 1),
               ],
@@ -387,11 +389,11 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                         offset: const Offset(2.25, 2.25))
                   ]),
               // If schedule data is empty, return FutureBuilder for schedule, else simply display schedule
-              child: ScheduleData.schedules.isEmpty
+              child: ScheduleDirectory.schedules.isEmpty
                   // FutureBuilder, which displays placeholder (loading wheel) while data is fetched asynchronously, then replaced by schedule
                   ? FutureBuilder(
                       // Fetches schedule data (limited by default so single request)
-                      future: ScheduleData.getDailyOrder(),
+                      future: ScheduleDirectory.getDailyOrder(),
                       // Builder which updates on method status change
                       builder: (context, snapshot) {
                         // If method loading, display loading wheel
@@ -406,7 +408,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                           return _buildLoading(context);
                         }
                         // If no failure, add schedule data and return schedule card
-                        ScheduleData.schedules.addAll(snapshot.data ?? {});
+                        ScheduleDirectory.schedules.addAll(snapshot.data ?? {});
                         return _buildSchedule(context, date);
                       })
                   // ...else simply display schedule
@@ -434,7 +436,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     }
 
     // Schedule variables from date (by now, schedule cannot be null)
-    final Schedule schedule = ScheduleData.schedules[date]!;
+    final Schedule schedule = ScheduleDirectory.schedules[date]!;
     final Map<String, String> bells = schedule.bells;
 
     // The height (in pxs) that each minute will be on the screen, based on the devices screen size etc.
@@ -462,13 +464,17 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                     Stack(
                       // Generated list of Text widgets
                       children: List<Widget>.generate(8, (i) {
+                        int hour = (i + 8) % 12;
+                        if (hour == 0) {
+                          hour = 12;
+                        }
                         // Vertical padding incremental to index
                         return Padding(
                             padding:
                                 EdgeInsets.only(top: minuteHeight * i * 60),
                             child: Text(
                               // Time text incremental to index
-                              '${((i + 8) % 12).multiDecimal()} - ',
+                              '${hour.multiDecimal()} - ',
                               style: TextStyle(
                                   fontSize: 15,
                                   height: 0.9,
@@ -488,7 +494,8 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                         children: List<Widget>.generate(bells.keys.length, (i) {
                           // Returns Schedule 'Tile' based on schedule info, cycling through bell keys
                           final String key = bells.keys.toList()[i];
-                          return BellDisplay.bellTile(context, date, key, minuteHeight);
+                          return BellDisplay.bellTile(
+                              context, date, key, minuteHeight);
                         }),
                       ),
                     )),
@@ -550,7 +557,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
 
   // Checks that all info of the schedule of a given date is proper
   bool _schedule(DateTime date, {bool tutorial = false}) {
-    final Schedule schedule = ScheduleData.schedules[date] ?? Schedule.empty();
+    final Schedule schedule = ScheduleDirectory.readSchedule(date);
     // If checking for tutorial, ensure that there is a flex and standard bell
     if (tutorial) {
       if (schedule.firstBell == null || schedule.firstFlex == null) {
@@ -565,7 +572,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     List<String> keys = schedule.bells.keys.toList();
     for (String key in keys) {
       if (schedule.clockMap(key) == null) {
-        ScheduleData.schedules[date]!.bells.remove(key);
+        ScheduleDirectory.schedules[date]!.bells.remove(key);
       }
     }
     return true;
@@ -617,207 +624,207 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
           width: width,
           height: 69 + height,
           child: Card(
-            color: colorScheme.surface,
-            // Forces contents to match Card border shape
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Title row consisting of month text amd navigator buttons
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Left Arrow IconButton
-                    IconButton(
-                        iconSize: 25,
-                        onPressed: () {
-                          // Assuming destination within bounds, animates page one to teh left
-                          if (monthIndex > -18) {
-                            setState(() {
-                              monthIndex--;
-                            });
-                            calController.animateToPage(
-                                calController.page!.round() - 1,
-                                duration: const Duration(milliseconds: 200),
-                                curve: Curves.easeInOut);
-                          }
-                        },
-                        // Simple left arrow icon
-                        icon: Icon(Icons.arrow_back_ios,
-                            color: colorScheme.onSurface)),
-                    // Month text fitted to set size
-                    SizedBox(
-                      width: width - 200,
-                      height: 50,
-                      child: Text(
-                        // Text in Month Year format
-                        "${newMonth.monthText()} ${newMonth.year}",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 24,
-                            color: colorScheme.onSurface),
-                        textAlign: TextAlign.center,
-                        maxLines: 1,
-                      ).fit(),
-                    ),
-                    // Right Arrow IconButton
-                    IconButton(
-                        iconSize: 25,
-                        onPressed: () {
-                          // If destination within bounds, animate one page right
-                          if (monthIndex < 18) {
-                            setState(() {
-                              monthIndex++;
-                            });
-                            calController.animateToPage(
-                                calController.page!.round() + 1,
-                                duration: const Duration(milliseconds: 200),
-                                curve: Curves.easeInOut);
-                          }
-                        },
-                        // Simple right arrow icon
-                        icon: Icon(
-                          Icons.arrow_forward_ios,
-                          color: colorScheme.onSurface,
-                        )),
-                  ],
-                ),
-                // Calendar view wrapped in GestureDetector
-                GestureDetector(
-                  // On long tap, return to starting month (similar to schedule PageView)
-                  onLongPress: () {
-                    setState(() {
-                      monthIndex = 0;
-                    });
-                    calController.animateToPage(18,
-                        duration: const Duration(milliseconds: 200),
-                        curve: Curves.easeInOut);
-                  },
-                  // On horizontal swipe, animate to next/last month
-                  onHorizontalDragEnd: (details) {
-                    // If destination within bounds, animate to 1 page away
-                    if ((details.primaryVelocity!.sign > 0 &&
-                        monthIndex > -18) ||
-                        (details.primaryVelocity!.sign < 0 &&
-                            monthIndex < 18)) {
+              color: colorScheme.surface,
+              // Forces contents to match Card border shape
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Title row consisting of month text amd navigator buttons
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Left Arrow IconButton
+                      IconButton(
+                          iconSize: 25,
+                          onPressed: () {
+                            // Assuming destination within bounds, animates page one to teh left
+                            if (monthIndex > -18) {
+                              setState(() {
+                                monthIndex--;
+                              });
+                              calController.animateToPage(
+                                  calController.page!.round() - 1,
+                                  duration: const Duration(milliseconds: 200),
+                                  curve: Curves.easeInOut);
+                            }
+                          },
+                          // Simple left arrow icon
+                          icon: Icon(Icons.arrow_back_ios,
+                              color: colorScheme.onSurface)),
+                      // Month text fitted to set size
+                      SizedBox(
+                        width: width - 200,
+                        height: 50,
+                        child: Text(
+                          // Text in Month Year format
+                          "${newMonth.monthText()} ${newMonth.year}",
+                          style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 24,
+                              color: colorScheme.onSurface),
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                        ).fit(),
+                      ),
+                      // Right Arrow IconButton
+                      IconButton(
+                          iconSize: 25,
+                          onPressed: () {
+                            // If destination within bounds, animate one page right
+                            if (monthIndex < 18) {
+                              setState(() {
+                                monthIndex++;
+                              });
+                              calController.animateToPage(
+                                  calController.page!.round() + 1,
+                                  duration: const Duration(milliseconds: 200),
+                                  curve: Curves.easeInOut);
+                            }
+                          },
+                          // Simple right arrow icon
+                          icon: Icon(
+                            Icons.arrow_forward_ios,
+                            color: colorScheme.onSurface,
+                          )),
+                    ],
+                  ),
+                  // Calendar view wrapped in GestureDetector
+                  GestureDetector(
+                    // On long tap, return to starting month (similar to schedule PageView)
+                    onLongPress: () {
                       setState(() {
-                        monthIndex -= details.primaryVelocity!.sign.round();
+                        monthIndex = 0;
                       });
-                      // Animates to page -sign() away from current page
-                      calController.animateToPage(
-                          calController.page!.round() -
-                              details.primaryVelocity!.sign.round(),
+                      calController.animateToPage(18,
                           duration: const Duration(milliseconds: 200),
                           curve: Curves.easeInOut);
-                    }
-                  },
-                  // Calendar view (generative PageView of set dimensions)
-                  child: Container(
-                    color: colorScheme.surfaceContainer,
-                    height: height,
-                    width: width,
-                    child: PageView(
-                      controller: calController,
-                      // Ignore standard scrolling; use GestureDetector for snappier physics
-                      physics: const NeverScrollableScrollPhysics(),
-                      // Generates pages of columns and rows of date dots
-                      children: List<Widget>.generate(37, (i) {
-                        // Month index from current month
-                        final int d = i - (monthIndex + 18);
-                        // DT month of page
-                        final DateTime iMonth =
-                        DateTime(newMonth.year, newMonth.month + d);
+                    },
+                    // On horizontal swipe, animate to next/last month
+                    onHorizontalDragEnd: (details) {
+                      // If destination within bounds, animate to 1 page away
+                      if ((details.primaryVelocity!.sign > 0 &&
+                              monthIndex > -18) ||
+                          (details.primaryVelocity!.sign < 0 &&
+                              monthIndex < 18)) {
+                        setState(() {
+                          monthIndex -= details.primaryVelocity!.sign.round();
+                        });
+                        // Animates to page -sign() away from current page
+                        calController.animateToPage(
+                            calController.page!.round() -
+                                details.primaryVelocity!.sign.round(),
+                            duration: const Duration(milliseconds: 200),
+                            curve: Curves.easeInOut);
+                      }
+                    },
+                    // Calendar view (generative PageView of set dimensions)
+                    child: Container(
+                      color: colorScheme.surfaceContainer,
+                      height: height,
+                      width: width,
+                      child: PageView(
+                        controller: calController,
+                        // Ignore standard scrolling; use GestureDetector for snappier physics
+                        physics: const NeverScrollableScrollPhysics(),
+                        // Generates pages of columns and rows of date dots
+                        children: List<Widget>.generate(37, (i) {
+                          // Month index from current month
+                          final int d = i - (monthIndex + 18);
+                          // DT month of page
+                          final DateTime iMonth =
+                              DateTime(newMonth.year, newMonth.month + d);
 
-                        // Returns column of generated rows
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          // Generated rows within column
-                          children: List<Widget>.generate(6, (e) {
-                            // DT month of row start
-                            final eMonth = DateTime(iMonth.year, iMonth.month,
-                                e * 7 - iMonth.weekday + 1);
-                            // Checks if week row being generated contains >= 1 date within the page's month
-                            if (eMonth.month != iMonth.month &&
-                                eMonth.addDay(6).month != iMonth.month) {
-                              return Container();
-                            }
-                            return Row(
-                              children: List<Widget>.generate(7, (n) {
-                                // DT of date dot
-                                DateTime dotDate = eMonth.addDay(n);
+                          // Returns column of generated rows
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            // Generated rows within column
+                            children: List<Widget>.generate(6, (e) {
+                              // DT month of row start
+                              final eMonth = DateTime(iMonth.year, iMonth.month,
+                                  e * 7 - iMonth.weekday + 1);
+                              // Checks if week row being generated contains >= 1 date within the page's month
+                              if (eMonth.month != iMonth.month &&
+                                  eMonth.addDay(6).month != iMonth.month) {
+                                return Container();
+                              }
+                              return Row(
+                                children: List<Widget>.generate(7, (n) {
+                                  // DT of date dot
+                                  DateTime dotDate = eMonth.addDay(n);
 
-                                // Determines opacity of date dot
-                                double opacity = 0;
-                                // If date in main month, add 5%
-                                if (dotDate.month == iMonth.month) {
-                                  opacity += 0.05;
-                                }
-                                // If date has schedule, add 15%
-                                if (_schedule(dotDate)) {
-                                  opacity += 0.15;
-                                }
+                                  // Determines opacity of date dot
+                                  double opacity = 0;
+                                  // If date in main month, add 5%
+                                  if (dotDate.month == iMonth.month) {
+                                    opacity += 0.05;
+                                  }
+                                  // If date has schedule, add 15%
+                                  if (_schedule(dotDate)) {
+                                    opacity += 0.15;
+                                  }
 
-                                // Determines color of date dot
-                                Color dotColor = Colors.black
-                                    .withValues(alpha: 0.05 + opacity);
-                                Color textColor = Colors.black;
-                                // Primary for selected date
-                                if (dotDate == date) {
-                                  dotColor = colorScheme.primary
-                                      .withValues(alpha: 0.60 + opacity);
-                                  textColor = colorScheme.onPrimary;
-                                  // Secondary for current date
-                                } else if (dotDate ==
-                                    ScheduleDisplay.initialDate) {
-                                  dotColor = colorScheme.secondary
-                                      .withValues(alpha: 0.60 + opacity);
-                                  textColor = colorScheme.onSecondary;
-                                }
-                                // Returns Date Dot
-                                return InkWell(
-                                  // Pops popup and animates schedule to selected date
-                                    onTap: () {
-                                      Navigator.pop(context);
-                                      final int change = ScheduleDisplay.initialDate
-                                          .addDay(ScheduleDisplay.pageIndex)
-                                          .difference(dotDate)
-                                          .inDays;
-                                      _controller.animateToPage(
-                                          _controller.page!.round() - change,
-                                          duration: Duration(
-                                              milliseconds: change.abs() < 10
-                                                  ? 250
-                                                  : 1000),
-                                          curve: Curves.easeInOut);
-                                    },
-                                    // Date Dot
-                                    child: Padding(
-                                      padding: EdgeInsets.all(radius),
-                                      // Stack of background dot and date text
-                                      child: Stack(
-                                        alignment: Alignment.center,
-                                        children: [
-                                          CircleAvatar(
-                                            backgroundColor: dotColor,
-                                            radius: radius,
-                                          ),
-                                          Text(dotDate.day.toString(),
-                                              style:
-                                              TextStyle(color: textColor))
-                                        ],
-                                      ),
-                                    ));
-                              }),
-                            );
-                          }),
-                        );
-                      }),
+                                  // Determines color of date dot
+                                  Color dotColor = Colors.black
+                                      .withValues(alpha: 0.05 + opacity);
+                                  Color textColor = Colors.black;
+                                  // Primary for selected date
+                                  if (dotDate == date) {
+                                    dotColor = colorScheme.primary
+                                        .withValues(alpha: 0.60 + opacity);
+                                    textColor = colorScheme.onPrimary;
+                                    // Secondary for current date
+                                  } else if (dotDate ==
+                                      ScheduleDisplay.initialDate) {
+                                    dotColor = colorScheme.secondary
+                                        .withValues(alpha: 0.60 + opacity);
+                                    textColor = colorScheme.onSecondary;
+                                  }
+                                  // Returns Date Dot
+                                  return InkWell(
+                                      // Pops popup and animates schedule to selected date
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                        final int change = ScheduleDisplay
+                                            .initialDate
+                                            .addDay(ScheduleDisplay.pageIndex)
+                                            .difference(dotDate)
+                                            .inDays;
+                                        _controller.animateToPage(
+                                            _controller.page!.round() - change,
+                                            duration: Duration(
+                                                milliseconds: change.abs() < 10
+                                                    ? 250
+                                                    : 1000),
+                                            curve: Curves.easeInOut);
+                                      },
+                                      // Date Dot
+                                      child: Padding(
+                                        padding: EdgeInsets.all(radius),
+                                        // Stack of background dot and date text
+                                        child: Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            CircleAvatar(
+                                              backgroundColor: dotColor,
+                                              radius: radius,
+                                            ),
+                                            Text(dotDate.day.toString(),
+                                                style:
+                                                    TextStyle(color: textColor))
+                                          ],
+                                        ),
+                                      ));
+                                }),
+                              );
+                            }),
+                          );
+                        }),
+                      ),
                     ),
-                  ),
-                )
-              ],
-            ).clip(borderRadius: BorderRadius.circular(12))
-          ),
+                  )
+                ],
+              ).clip(borderRadius: BorderRadius.circular(12))),
         ),
       );
     });
@@ -848,17 +855,19 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     // Returns FutureBuilder, changing opacity of button as more info becomes available
-    return FutureBuilder(future: ScheduleData.awaitCondition(() {
-      return ScheduleData.dailyInfo[
-              ScheduleDisplay.initialDate.addDay(ScheduleDisplay.pageIndex)] !=
-          null;
+    return FutureBuilder(future: ScheduleDirectory.awaitCondition(() {
+      return ScheduleDirectory.readSchedule(
+              ScheduleDisplay.initialDate.addDay(ScheduleDisplay.pageIndex))
+          .info
+          .isEmpty;
     }), builder: (context, snapshot) {
       // Returns IconCircle of info button
       return WidgetExtension.iconCircle(
-        // Simple info icon
+          // Simple info icon
           icon: Icons.info_outline,
           // Icon opacity changes w/ info available
-          iconColor: colorScheme.onSurface.withAlpha(snapshot.connectionState == ConnectionState.waiting ? 102 : 255),
+          iconColor: colorScheme.onSurface.withAlpha(
+              snapshot.connectionState == ConnectionState.waiting ? 102 : 255),
           color: colorScheme.tertiary.withAlpha(102),
           radius: 20,
           padding: 5,

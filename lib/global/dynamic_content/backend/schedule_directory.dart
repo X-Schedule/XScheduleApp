@@ -1,5 +1,5 @@
 /*
-  * schedule_data.dart *
+  * schedule_directory.dart *
   In charge of managing schedule data from various sources.
   See supabase_db.dart for more db comm. methods.
  */
@@ -11,15 +11,26 @@ import 'package:http/http.dart';
 import 'package:icalendar_parser/icalendar_parser.dart';
 import 'package:xschedule/global/dynamic_content/backend/supabase_db.dart';
 import 'package:xschedule/global/dynamic_content/schedule.dart';
+import 'package:xschedule/global/static_content/extensions/date_time_extension.dart';
 
 /// class for managing schedule data from various different sources. <p>
 /// See SupabaseDB for more methods.
-class ScheduleData {
+class ScheduleDirectory {
   /// Schedule objects of each date
   static Map<DateTime, Schedule> schedules = {};
 
-  /// DailyInfo (Uniform, lunch, etc.) of each date
-  static Map<DateTime, Map<String, dynamic>> dailyInfo = {};
+  static void writeSchedule(DateTime date,
+      {String? name, Map<String, String>? bells, Map<String, dynamic>? info}) {
+    schedules[date] ??= Schedule();
+    schedules[date]!.writeInfo(info);
+    schedules[date]!.writeBells(bells);
+    schedules[date]!.writeName(name);
+  }
+
+  static Schedule readSchedule(DateTime date) {
+    schedules[date] ??= Schedule();
+    return schedules[date]!;
+  }
 
   /// Co-curriculars of each date
   static Map<DateTime, List<Map<String, dynamic>>> coCurriculars = {};
@@ -73,10 +84,11 @@ class ScheduleData {
         // RegExp used for decoding schedule
         final RegExp regexp = RegExp(
           r"""([A-Za-z0-9\-]+)""" // Group 1: Portion of any length containing only alphanumeric characters (i.e. A, HR, Flex 1)
-          r"""\s+"""              // Portion of white space >= 1 in character length
-          r"""(\d{1,2}:\d{2})"""  // Group 2: Portion of text in following formats : H:MM or HH:MM (i.e. 7:30, 3:05)
-          r"""\s*-\s*"""          // Portion of text containing dash (-) w/ optional whitespace on either side
-          r"""(\d{1,2}:\d{2})""", // Group 3: Portion of text in following formats : H:MM or HH:MM (i.e. 7:30, 3:05)
+          r"""\s+""" // Portion of white space >= 1 in character length
+          r"""(\d{1,2}:\d{2})""" // Group 2: Portion of text in following formats : H:MM or HH:MM (i.e. 7:30, 3:05)
+          r"""\s*-\s*""" // Portion of text containing dash (-) w/ optional whitespace on either side
+          r"""(\d{1,2}:\d{2})""",
+          // Group 3: Portion of text in following formats : H:MM or HH:MM (i.e. 7:30, 3:05)
           multiLine: true,
         );
 
@@ -88,27 +100,25 @@ class ScheduleData {
           // Gets the base String describing the day layout
           final String rawSchedule = instance['description'];
           // The return schedule of this for loop
-          final Map<String, String> forSchedule = {};
+          final Map<String, String> bells = {};
           // Analyzes string to find all instances of regexp matching, and stores as result
-          for (RegExpMatch match in regexp.allMatches(rawSchedule.replaceAll(r'\n', '_'))) {
+          for (RegExpMatch match
+              in regexp.allMatches(rawSchedule.replaceAll(r'\n', '_'))) {
             // Title of bell
-              String title = match.group(1)!;
-              // If title is int, specify as Flex bell
-              if (int.tryParse(title) != null) {
-                title = 'Flex $title';
-              }
-              // Store bell in result
-              forSchedule[title] = '${match.group(2)!}-${match.group(3)!}';
+            String title = match.group(1)!;
+            // If title is int, specify as Flex bell
+            if (int.tryParse(title) != null) {
+              title = 'Flex $title';
+            }
+            // Store bell in result
+            bells[title] = '${match.group(2)!}-${match.group(3)!}';
           }
           // Date of the data
           final DateTime date = instance['dtstart'].toDateTime();
           // Adds the forSchedule to our schedule data Map, under the DateTime (ignoring time)
-          if (forSchedule.isNotEmpty) {
-            result[DateTime(date.year, date.month, date.day)] = Schedule(
-                bells: forSchedule,
-                name: instance['summary'],
-                start: date,
-                end: instance['dtend'].toDateTime());
+          if (bells.isNotEmpty) {
+            writeSchedule(date.dateOnly(),
+                bells: bells, name: instance['summary']);
           }
         }
         // Sets request state to completed
@@ -146,9 +156,8 @@ class ScheduleData {
     // For each date data, inserts the schedule data Map into out schedule Map under the key of the date
     for (Map instance in clubs) {
       DateTime date = instance['dtstart'].toDateTime();
-      DateTime calDate = DateTime(date.year, date.month, date.day);
-      result[calDate] ??= [];
-      result[calDate]!.add({
+      result[date.dateOnly()] ??= [];
+      result[date.dateOnly()]!.add({
         'summary': instance['summary'],
         'dtStart': instance['dtstart'].toDateTime(),
         'dtEnd': instance['dtend'].toDateTime(),
@@ -181,8 +190,10 @@ class ScheduleData {
     final List<Map<String, dynamic>> dailyInfoResult =
         await SupaBaseDB.getDailyData(start, end);
     // Adds all fetched data to dailyInfo
-    for (Map<String, dynamic> data in dailyInfoResult) {
-      dailyInfo[DateTime.parse(data["day"])] = data;
+    for (Map<String, dynamic> info in dailyInfoResult) {
+      // Gets the DateTime from the date String in the hashmap
+      final DateTime date = DateTime.parse(info["day"]);
+      writeSchedule(date, info: info);
     }
   }
 

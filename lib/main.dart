@@ -9,10 +9,12 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:xschedule/display/splash_page.dart';
 import 'package:xschedule/display/themes.dart';
 import 'package:xschedule/global/dynamic_content/backend/github.dart';
-import 'package:xschedule/global/dynamic_content/backend/schedule_data.dart';
+import 'package:xschedule/global/dynamic_content/backend/schedule_directory.dart';
 import 'package:xschedule/global/dynamic_content/backend/supabase_db.dart';
+import 'package:xschedule/global/dynamic_content/stream_signal.dart';
 import 'package:xschedule/global/static_content/extensions/date_time_extension.dart';
 import 'package:xschedule/personal/credits.dart';
+import 'package:xschedule/schedule/schedule_display/schedule_display.dart';
 
 import 'global/dynamic_content/backend/open_ai.dart';
 
@@ -36,7 +38,10 @@ Future<void> init() async {
   GitHub.loadGithubJson();
   OpenAI.loadOpenAIJson();
   Credits.loadCreditsJson();
-  await ScheduleData.loadRSSJson();
+  await ScheduleDirectory.loadRSSJson();
+
+  ScheduleDirectory.getDailyOrder().then((_) => StreamSignal.updateStream(
+      streamController: ScheduleDisplay.scheduleStream));
 
   // Reads supabase.json and then initializes communication with the Supabase database
   SupaBaseDB.loadSupabaseJson().then((_) => SupaBaseDB.initialize());
@@ -46,11 +51,11 @@ Future<void> init() async {
 
   // Fetches schedule info from X via RSS and database for closest 101 days
   final DateTime now = DateTime.now();
-  ScheduleData.addDailyData(now.addDay(-50), now.addDay(50));
+  ScheduleDirectory.addDailyData(now.addDay(-50), now.addDay(50));
 
   // Fetches co-curricular data from X via RSS
-  ScheduleData.getCoCurriculars().then((result) {
-    ScheduleData.coCurriculars = result;
+  ScheduleDirectory.getCoCurriculars().then((result) {
+    ScheduleDirectory.coCurriculars = result;
   });
 }
 
