@@ -240,21 +240,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                 tutorial: 'tutorial_settings_complete',
                 // "Done" button
                 child: ElevatedButton(
-                    onPressed: () {
-                      // Saves the schedule vanity data to local storage
-                      localStorage.setItem(
-                          "scheduleSettings", json.encode(Schedule.bellVanity));
-                      // Confirms that the user's progress is marked as "logged"
-                      localStorage.setItem("state", "logged");
-                      // Returns to HomePage
-                      Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (_) => HomePage()),
-                          (_) => false);
-                      // Refreshed HomePage stream
-                      StreamSignal.updateStream(
-                          streamController: ScheduleDisplay.scheduleStream);
-                    },
+                    onPressed: _saveBells,
                     // Button styled to fit theme colors
                     style: ElevatedButton.styleFrom(
                         overlayColor: colorScheme.onPrimary,
@@ -369,6 +355,22 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
         'color': ScheduleSettings.colors[altBell]!.toColor().toHex(),
       }
     };
+  }
+
+  void _saveBells(){
+    // Saves the schedule vanity data to local storage
+    localStorage.setItem(
+        "scheduleSettings", json.encode(Schedule.bellVanity));
+    // Confirms that the user's progress is marked as "logged"
+    localStorage.setItem("state", "logged");
+    // Returns to HomePage
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => HomePage()),
+            (_) => false);
+    // Refreshed HomePage stream
+    StreamSignal.updateStream(
+        streamController: ScheduleDisplay.scheduleStream);
   }
 
   // Builds the bell tiles displayed in ScrollView
@@ -663,6 +665,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                                                       setState(() {
                                                         // Sets global bellVanity values to match selected ones
                                                         _saveBell(bell);
+                                                        _saveBells();
                                                       });
                                                       // Pops popup, returning to settings page
                                                       Navigator.pop(context);
