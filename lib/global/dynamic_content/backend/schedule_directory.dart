@@ -49,7 +49,7 @@ class ScheduleDirectory {
   static Future<void> loadRSSJson() async {
     // Reads json as String
     final String jsonString =
-        await rootBundle.loadString("assets/data/rss.json");
+    await rootBundle.loadString("assets/data/rss.json");
     // Interprets json String as hashmap
     final Map<String, dynamic> json = jsonDecode(jsonString);
 
@@ -84,7 +84,7 @@ class ScheduleDirectory {
         // RegExp used for decoding schedule
         final RegExp regexp = RegExp(
           r"""([A-Za-z0-9\-]+)""" // Group 1: Portion of any length containing only alphanumeric characters (i.e. A, HR, Flex 1)
-          r"""\s+""" // Portion of white space >= 1 in character length
+          r"""\s*-?\s*""" // Portion of white space >= 1 in character length
           r"""(\d{1,2}:\d{2})""" // Group 2: Portion of text in following formats : H:MM or HH:MM (i.e. 7:30, 3:05)
           r"""\s*-\s*""" // Portion of text containing dash (-) w/ optional whitespace on either side
           r"""(\d{1,2}:\d{2})""",
@@ -103,7 +103,7 @@ class ScheduleDirectory {
           final Map<String, String> bells = {};
           // Analyzes string to find all instances of regexp matching, and stores as result
           for (RegExpMatch match
-              in regexp.allMatches(rawSchedule.replaceAll(r'\n', '_'))) {
+          in regexp.allMatches(rawSchedule.replaceAll(r'\n', '_'))) {
             // Title of bell
             String title = match.group(1)!;
             // If title is int, specify as Flex bell
@@ -140,7 +140,7 @@ class ScheduleDirectory {
 
   /// Reads Co-curriculars RSS via http
   static Future<Map<DateTime, List<Map<String, dynamic>>>>
-      getCoCurriculars() async {
+  getCoCurriculars() async {
     // Result map tbd
     final Map<DateTime, List<Map<String, dynamic>>> result = {};
 
@@ -188,7 +188,7 @@ class ScheduleDirectory {
 
     // Runs getDailyData
     final List<Map<String, dynamic>> dailyInfoResult =
-        await SupaBaseDB.getDailyData(start, end);
+    await SupaBaseDB.getDailyData(start, end);
     // Adds all fetched data to dailyInfo
     for (Map<String, dynamic> info in dailyInfoResult) {
       // Gets the DateTime from the date String in the hashmap

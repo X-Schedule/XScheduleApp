@@ -240,7 +240,14 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                 tutorial: 'tutorial_settings_complete',
                 // "Done" button
                 child: ElevatedButton(
-                    onPressed: _saveBells,
+                    onPressed: (){
+                      _saveBells();
+                      // Returns to HomePage
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (_) => HomePage()),
+                              (_) => false);
+                    },
                     // Button styled to fit theme colors
                     style: ElevatedButton.styleFrom(
                         overlayColor: colorScheme.onPrimary,
@@ -363,11 +370,6 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
         "scheduleSettings", json.encode(Schedule.bellVanity));
     // Confirms that the user's progress is marked as "logged"
     localStorage.setItem("state", "logged");
-    // Returns to HomePage
-    Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => HomePage()),
-            (_) => false);
     // Refreshed HomePage stream
     StreamSignal.updateStream(
         streamController: ScheduleDisplay.scheduleStream);
