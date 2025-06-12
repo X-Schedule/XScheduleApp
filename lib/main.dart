@@ -54,9 +54,11 @@ Future<void> init() async {
   ScheduleDirectory.addDailyData(now.addDay(-50), now.addDay(50));
 
   // Fetches co-curricular data from X via RSS
+  /*
   ScheduleDirectory.getCoCurriculars().then((result) {
     ScheduleDirectory.coCurriculars = result;
   });
+   */
 }
 
 /// The base Flutter app <p>

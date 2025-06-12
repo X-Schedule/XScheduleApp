@@ -49,7 +49,7 @@ class ScheduleDirectory {
   static Future<void> loadRSSJson() async {
     // Reads json as String
     final String jsonString =
-    await rootBundle.loadString("assets/data/rss.json");
+        await rootBundle.loadString("assets/data/rss.json");
     // Interprets json String as hashmap
     final Map<String, dynamic> json = jsonDecode(jsonString);
 
@@ -83,12 +83,12 @@ class ScheduleDirectory {
 
         // RegExp used for decoding schedule
         final RegExp regexp = RegExp(
-          r"""([A-Za-z0-9\-]+)""" // Group 1: Portion of any length containing only alphanumeric characters (i.e. A, HR, Flex 1)
-          r"""\s*-?\s*""" // Portion of white space >= 1 in character length
+          r"""\s*""" // Portion of preceding white space.
+          r"""([A-Za-z0-9\- ]*?[A-Za-z0-9])""" // Group 1: Portion of any length containing and ending with only alphanumeric characters (i.e. A, HR, Flex 1)
+          r"""[\s\-:]*""" // Portion of white space, dashes, and/or colons.
           r"""(\d{1,2}:\d{2})""" // Group 2: Portion of text in following formats : H:MM or HH:MM (i.e. 7:30, 3:05)
           r"""\s*-\s*""" // Portion of text containing dash (-) w/ optional whitespace on either side
-          r"""(\d{1,2}:\d{2})""",
-          // Group 3: Portion of text in following formats : H:MM or HH:MM (i.e. 7:30, 3:05)
+          r"""(\d{1,2}:\d{2})""", // Group 3: Portion of text in following formats : H:MM or HH:MM (i.e. 7:30, 3:05)
           multiLine: true,
         );
 
@@ -97,28 +97,30 @@ class ScheduleDirectory {
 
         // For each date data, inserts the schedule data Map into our schedule Map under the key of the date
         for (Map<String, dynamic> instance in schedules) {
-          // Gets the base String describing the day layout
-          final String rawSchedule = instance['description'];
-          // The return schedule of this for loop
-          final Map<String, String> bells = {};
-          // Analyzes string to find all instances of regexp matching, and stores as result
-          for (RegExpMatch match
-          in regexp.allMatches(rawSchedule.replaceAll(r'\n', '_'))) {
-            // Title of bell
-            String title = match.group(1)!;
-            // If title is int, specify as Flex bell
-            if (int.tryParse(title) != null) {
-              title = 'Flex $title';
+          if (instance['type'] == "VEVENT") {
+            // Gets the base String describing the day layout
+            final String rawSchedule = instance['description'];
+            // The return schedule of this for loop
+            final Map<String, String> bells = {};
+            // Analyzes string to find all instances of regexp matching, and stores as result
+            for (RegExpMatch match
+                in regexp.allMatches(rawSchedule.replaceAll(r'\n', '_').replaceAll("Bell", ""))) {
+              // Title of bell
+              String title = match.group(1)!;
+              // If title is int, specify as Flex bell
+              if (int.tryParse(title) != null) {
+                title = 'Flex $title';
+              }
+              // Store bell in result
+              bells[title] = '${match.group(2)!}-${match.group(3)!}';
             }
-            // Store bell in result
-            bells[title] = '${match.group(2)!}-${match.group(3)!}';
-          }
-          // Date of the data
-          final DateTime date = instance['dtstart'].toDateTime();
-          // Adds the forSchedule to our schedule data Map, under the DateTime (ignoring time)
-          if (bells.isNotEmpty) {
-            writeSchedule(date.dateOnly(),
-                bells: bells, name: instance['summary']);
+            // Date of the data
+            final DateTime date = instance['dtstart'].toDateTime();
+            // Adds the forSchedule to our schedule data Map, under the DateTime (ignoring time)
+            if (bells.isNotEmpty) {
+              writeSchedule(date.dateOnly(),
+                  bells: bells, name: instance['summary']);
+            }
           }
         }
         // Sets request state to completed
@@ -140,7 +142,7 @@ class ScheduleDirectory {
 
   /// Reads Co-curriculars RSS via http
   static Future<Map<DateTime, List<Map<String, dynamic>>>>
-  getCoCurriculars() async {
+      getCoCurriculars() async {
     // Result map tbd
     final Map<DateTime, List<Map<String, dynamic>>> result = {};
 
@@ -188,7 +190,7 @@ class ScheduleDirectory {
 
     // Runs getDailyData
     final List<Map<String, dynamic>> dailyInfoResult =
-    await SupaBaseDB.getDailyData(start, end);
+        await SupaBaseDB.getDailyData(start, end);
     // Adds all fetched data to dailyInfo
     for (Map<String, dynamic> info in dailyInfoResult) {
       // Gets the DateTime from the date String in the hashmap

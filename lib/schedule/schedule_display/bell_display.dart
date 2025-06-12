@@ -62,10 +62,10 @@ class BellDisplay {
 
     // Height of bell base don start and end times
     final double height =
-        minuteHeight * times['end']!.difference(times['start']!);
+        minuteHeight * times['end']!.difference(times['start']!).abs();
     // Margin from top of schedule based on start time
     final double margin =
-        times['start']!.difference(Clock(hours: 8)) * minuteHeight;
+        times['start']!.difference(Clock(hours: 8)).abs() * minuteHeight;
 
     // Time range text to be displayed
     final String timeRange =
