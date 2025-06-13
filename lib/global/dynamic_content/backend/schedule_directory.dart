@@ -83,12 +83,15 @@ class ScheduleDirectory {
 
         // RegExp used for decoding schedule
         final RegExp regexp = RegExp(
-          r"""\s*""" // Portion of preceding white space.
-          r"""([A-Za-z0-9\- ]*?[A-Za-z0-9])""" // Group 1: Portion of any length containing and ending with only alphanumeric characters (i.e. A, HR, Flex 1)
-          r"""[\s\-:]*""" // Portion of white space, dashes, and/or colons.
-          r"""(\d{1,2}:\d{2})""" // Group 2: Portion of text in following formats : H:MM or HH:MM (i.e. 7:30, 3:05)
-          r"""\s*-\s*""" // Portion of text containing dash (-) w/ optional whitespace on either side
-          r"""(\d{1,2}:\d{2})""", // Group 3: Portion of text in following formats : H:MM or HH:MM (i.e. 7:30, 3:05)
+          r"""(?:""" // Establishes an OR condition
+          r"""_\s*([A-Za-z0-9\- ]*?[A-Za-z0-9])\s*_""" // Group 1: Portion of any length containing and ending with only alphanumeric characters, surrounded with line skips, or...
+          r"""|\s*""" // Portion of preceding white space.
+          r"""([A-Za-z0-9\- ]*?[A-Za-z0-9])""" // Group 2: Portion of any length containing and ending with only alphanumeric characters (i.e. A, HR, Flex 1)
+          r"""[\s\-–—−:]*""" // Portion of white space, dashes, and/or colons.
+          r"""(\d{1,2}:\d{2})""" // Group 3: Portion of text in following formats : H:MM or HH:MM (i.e. 7:30, 3:05)
+          r"""[\s\-–—−:]*""" // Portion of white space, dashes, and/or colons.
+          r"""(\d{1,2}:\d{2})?""" // Group 4: Optional portion of text in following formats : H:MM or HH:MM (i.e. 7:30, 3:05)
+          r""")""",
           multiLine: true,
         );
 
@@ -99,25 +102,60 @@ class ScheduleDirectory {
         for (Map<String, dynamic> instance in schedules) {
           if (instance['type'] == "VEVENT") {
             // Gets the base String describing the day layout
-            final String rawSchedule = instance['description'];
+            final String rawSchedule = instance['description']
+                .replaceAll(r'\n', '_')
+                .replaceAll("–", "-")
+                .replaceAll("—", "-")
+                .replaceAll("Bell", "");
             // The return schedule of this for loop
             final Map<String, String> bells = {};
             // Analyzes string to find all instances of regexp matching, and stores as result
-            for (RegExpMatch match
-                in regexp.allMatches(rawSchedule.replaceAll(r'\n', '_').replaceAll("Bell", ""))) {
+            final List<String> titles = [];
+            final List<String?> starts = [];
+            final List<String?> ends = [];
+            for (RegExpMatch match in regexp.allMatches(rawSchedule)) {
               // Title of bell
-              String title = match.group(1)!;
+              String title = match.group(1) ?? match.group(2)!;
               // If title is int, specify as Flex bell
               if (int.tryParse(title) != null) {
-                title = 'Flex $title';
+                title = 'FLEX $title';
               }
-              // Store bell in result
-              bells[title] = '${match.group(2)!}-${match.group(3)!}';
+              titles.add(title);
+              starts.add(match.group(3));
+              ends.add(match.group(4));
             }
-            // Date of the data
-            final DateTime date = instance['dtstart'].toDateTime();
-            // Adds the forSchedule to our schedule data Map, under the DateTime (ignoring time)
-            if (bells.isNotEmpty) {
+            if (titles.isNotEmpty) {
+              starts[0] ??= "8:00";
+              ends[ends.length - 1] ??= "3:05";
+              for (int n = 0; n < 10; n++) {
+                if (!starts.contains(null) && !ends.contains(null)) {
+                  break;
+                }
+                for (int i = 0; i < titles.length; i++) {
+                  if (i > 0) {
+                    starts[i] ??= ends[i - 1];
+                  }
+                  if (i + 1 < titles.length) {
+                    ends[i] ??= starts[i + 1];
+                  }
+                }
+              }
+
+              for (int i = 0; i < titles.length; i++) {
+                if (starts[i] != null && ends[i] != null) {
+                  String upperCaseTitle = titles[i].toUpperCase();
+                  if (Schedule.sampleBells.contains(upperCaseTitle) ||
+                      upperCaseTitle.contains("FLEX") ||
+                      upperCaseTitle.contains("HOMEROOM")) {
+                    titles[i] = upperCaseTitle.replaceAll("HOMEROOM", "HR");
+                  }
+                  bells[titles[i]] = "${starts[i]}-${ends[i]}";
+                }
+              }
+
+              // Date of the data
+              final DateTime date = instance['dtstart'].toDateTime();
+              // Adds the forSchedule to our schedule data Map, under the DateTime (ignoring time)
               writeSchedule(date.dateOnly(),
                   bells: bells, name: instance['summary']);
             }

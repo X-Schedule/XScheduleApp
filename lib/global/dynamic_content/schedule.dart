@@ -18,14 +18,18 @@ class Schedule {
 
   /// const Map (&lt;Day Title, Order>) of standard day structures.
   static const Map<String, List<String>> sampleDays = {
-    "A Day": ["A", "B", "C", "Flex", "D", "E", "F"],
-    "G Day": ["G", "H", "A", "Flex", "B", "C", "D"],
-    "E Day": ["E", "F", "G", "Flex", "H", "A", "B"],
-    "C Day": ["C", "D", "E", "Flex", "F", "G", "H"],
-    "X Day": ["A", "B", "Flex", "C", "D"],
-    "Y Day": ["E", "F", "Flex", "G", "H"],
-    "All Meet": ["A", "B", "C", "D", "Flex", "E", "F", "G", "H"],
+    "A Day": ["A", "B", "C", "FLEX", "D", "E", "F"],
+    "G Day": ["G", "H", "A", "FLEX", "B", "C", "D"],
+    "E Day": ["E", "F", "G", "FLEX", "H", "A", "B"],
+    "C Day": ["C", "D", "E", "FLEX", "F", "G", "H"],
+    "X Day": ["A", "B", "FLEX", "C", "D"],
+    "Y Day": ["E", "F", "FLEX", "G", "H"],
+    "All Meet": ["A", "B", "C", "D", "FLEX", "E", "F", "G", "H"],
   };
+
+  static const List<String> sampleBells = [
+    "A", "B", "C", "D", "E", "F", "G", "H", "HR", "FLEX"
+  ];
 
   void writeBells(Map<String, String>? bells) {
     if(bells != null) {

@@ -5,6 +5,7 @@
 */
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flip_card/flip_card.dart';
@@ -240,13 +241,13 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                 tutorial: 'tutorial_settings_complete',
                 // "Done" button
                 child: ElevatedButton(
-                    onPressed: (){
+                    onPressed: () {
                       _saveBells();
                       // Returns to HomePage
                       Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => HomePage()),
-                              (_) => false);
+                          (_) => false);
                     },
                     // Button styled to fit theme colors
                     style: ElevatedButton.styleFrom(
@@ -281,6 +282,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                 _buildBellTile(context, 'G'),
                 _buildBellTile(context, 'H'),
                 _buildBellTile(context, 'HR'),
+                _buildBellTile(context, 'FLEX'),
                 // Bottom padding og 60px to add blank space for button to rest
                 const SizedBox(height: 60)
               ],
@@ -300,12 +302,20 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
       Schedule.bellVanity[bell]!['alt'] ??= {};
       Schedule.bellVanity[bell]!['alt_days'] ??= [];
       // Defines color values
-      Schedule.bellVanity[bell]!['color'] ??= "#006aff";
+      if (bell == "FLEX") {
+        Schedule.bellVanity[bell]!['color'] ??= "#888888";
+      } else {
+        Schedule.bellVanity[bell]!['color'] ??= "#006aff";
+      }
       // Defines emoji values
-      Schedule.bellVanity[bell]!['emoji'] ??= bell.replaceAll('HR', '📚');
+      if (bell == "FLEX" || bell == "HR") {
+        Schedule.bellVanity[bell]!['emoji'] ??= '📚';
+      } else {
+        Schedule.bellVanity[bell]!['emoji'] ??= bell;
+      }
       // Defines name values
       Schedule.bellVanity[bell]!['name'] ??=
-          '$bell Bell'.replaceAll('HR Bell', 'Homeroom');
+          '$bell Bell'.replaceAll('HR Bell', 'Homeroom').replaceAll('FLEX Bell', 'FLEX');
       // Defines teacher values
       Schedule.bellVanity[bell]!['teacher'] ??= '';
       // Defines location values
@@ -364,15 +374,13 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
     };
   }
 
-  void _saveBells(){
+  void _saveBells() {
     // Saves the schedule vanity data to local storage
-    localStorage.setItem(
-        "scheduleSettings", json.encode(Schedule.bellVanity));
+    localStorage.setItem("scheduleSettings", json.encode(Schedule.bellVanity));
     // Confirms that the user's progress is marked as "logged"
     localStorage.setItem("state", "logged");
     // Refreshed HomePage stream
-    StreamSignal.updateStream(
-        streamController: ScheduleDisplay.scheduleStream);
+    StreamSignal.updateStream(streamController: ScheduleDisplay.scheduleStream);
   }
 
   // Builds the bell tiles displayed in ScrollView
@@ -512,6 +520,8 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
+    final double width = min(mediaQuery.size.width, 500);
+
     // Allows remote calling of FlipCard
     final GlobalKey<FlipCardState> cardKey = GlobalKey<FlipCardState>();
 
@@ -567,7 +577,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                         front: Card(
                             child: Container(
                                 padding: const EdgeInsets.all(8),
-                                width: mediaQuery.size.width * .95,
+                                width: width * .95,
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -575,7 +585,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                                   children: [
                                     // Row of set size at the top for misc. actions
                                     SizedBox(
-                                        width: mediaQuery.size.width * .9,
+                                        width: width * .9,
                                         child: Row(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.center,
@@ -701,7 +711,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                         back: Card(
                             child: Container(
                                 padding: const EdgeInsets.all(8),
-                                width: mediaQuery.size.width * .95,
+                                width: width * .95,
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -709,7 +719,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                                   children: [
                                     // Row of set size at the top for misc. actions
                                     SizedBox(
-                                        width: mediaQuery.size.width * .9,
+                                        width: width * .9,
                                         child: Row(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.center,
@@ -1071,6 +1081,8 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
+    final double width = min(mediaQuery.size.width, 500);
+
     // ScrollController of the Color ScrollView
     final ScrollController controller = ScrollController();
 
@@ -1096,7 +1108,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
         // ScrollView constrained within set-width container
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8),
-          width: mediaQuery.size.width * .7,
+          width: width * .7,
           // Stack containing ScrollView and edge-fading overlays
           child: Stack(
             alignment: Alignment.centerLeft,
@@ -1196,7 +1208,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
       {FocusNode? focusNode}) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
-    final double size = mediaQuery.size.width * 5 / 6;
+    final double size = min(mediaQuery.size.width, 500) * 5 / 6;
 
     // Returns a TextFormField constrained by a set-width Container
     return Container(
@@ -1276,11 +1288,11 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                         children: List<Widget>.generate(day.length, (e) {
                           final String dayBell = day[e];
                           return Container(
-                            height: dayBell == "Flex" ? 25 : bellHeight,
+                            height: dayBell == "FLEX" ? 25 : bellHeight,
                             color: dayBell == bell
                                 ? colorScheme.primary
                                 : colorScheme.onSurface
-                                    .withAlpha(dayBell == "Flex" ? 64 : 96),
+                                    .withAlpha(dayBell == "FLEX" ? 64 : 96),
                           );
                         }),
                       ),
@@ -1351,7 +1363,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
-    final double width = mediaQuery.size.width;
+    final double width = min(mediaQuery.size.width, 500);
 
     // Status booleans
     bool uploaded = false;
