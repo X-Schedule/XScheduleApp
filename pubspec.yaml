@@ -49,6 +49,7 @@ dependencies:
   keyboard_avoider: ^0.2.0 # Adds widget to move objects with keyboard movement
   flutter_launcher_icons: ^0.14.3 # Manages the app's icon more effectively
   flip_card: ^0.7.0 # Adds Card with flipping animation used in popups.
+  qr_flutter: ^4.1.0
 
 dev_dependencies:
   flutter_test:
