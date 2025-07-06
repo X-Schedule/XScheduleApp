@@ -38,13 +38,13 @@ class ScheduleSettings extends StatefulWidget {
   // Tutorial systems used on ScheduleSettings page
   static final TutorialSystem tutorialSystem = TutorialSystem({
     'tutorial_settings':
-        "In this menu, you'll be able to customize your schedule to match the classes you have.",
+    "In this menu, you'll be able to customize your schedule to match the classes you have.",
     'tutorial_settings_button':
-        "Click on any individual bell to change its name, information, and appearance.",
-    'tutorial_settings_ai':
-        "... or try uploading a picture of your schedule to let AI interpret it for you!",
+    "Click on any individual bell to change its name, information, and appearance.",
+    'tutorial_settings_qr':
+    "... or try sharing your schedules through QR codes!",
     'tutorial_settings_complete':
-        "Once you're satisfied with your schedule, tap the button down here to move on."
+    "Once you're satisfied with your schedule, tap the button down here to move on."
   });
 
   /// Refreshes the keys and tutorial text of Setting's tutorial systems.
@@ -70,12 +70,11 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
   // Default color of color wheels.
   final Color pickerColor = Colors.blue;
 
-
-
-
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme
+        .of(context)
+        .colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
     // Refreshes the global keys of each tutorial element
@@ -135,7 +134,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
               child: Text(
                 "Customize Bell Appearance",
                 style: TextStyle(
-                    //Custom font Goerama
+                  //Custom font Goerama
                     fontFamily: "Georama",
                     fontSize: 25,
                     fontWeight: FontWeight.w600,
@@ -163,7 +162,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                       Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => HomePage()),
-                          (_) => false);
+                              (_) => false);
                     },
                     // Button styled to fit theme colors
                     style: ElevatedButton.styleFrom(
@@ -190,7 +189,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                         context: context,
                         tutorial: 'tutorial_settings_button',
                         child:
-                            _buildBellTile(context, Schedule.sampleBells[i]));
+                        _buildBellTile(context, Schedule.sampleBells[i]));
                   }
                   return _buildBellTile(context, Schedule.sampleBells[i]);
                 }),
@@ -203,9 +202,18 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
   }
 
   // Builds the bell tiles displayed in ScrollView
-  Widget _buildBellTile(BuildContext context, String bell) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+  Widget _buildBellTile(BuildContext context, String bell,
+      {double? width, IconData icon = Icons.settings, void Function()? onTap}) {
+    final ColorScheme colorScheme = Theme
+        .of(context)
+        .colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
+
+    width ??= mediaQuery.size.width * .95;
+    onTap ??= () {
+      // Pushes the bell configuration popup
+      context.pushPopup(BellSettings(bell: bell, setState: setState));
+    };
 
     // Ensures no null values
     BellSettings.defineBell(bell);
@@ -215,18 +223,15 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
 
     // Returns "Settings Tile", which displays current bell info and ability to edit bell
     return Container(
-      margin: const EdgeInsets.all(10),
-      width: mediaQuery.size.width * .95,
+      margin: const EdgeInsets.all(8),
+      width: width,
       height: 100,
       // Tap-able card leading to bell config menu
       child: Card(
         color: colorScheme.surface,
         child: InkWell(
           highlightColor: colorScheme.onPrimary,
-          onTap: () {
-            // Pushes the bell configuration popup
-            context.pushPopup(BellSettings(bell: bell, setState: setState));
-          },
+          onTap: onTap,
           child: Row(
             children: [
               // Left color nib w/ rounded edges; selected color of bell
@@ -234,7 +239,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                 decoration: BoxDecoration(
                   // Rounds the left edges to match the Card
                   borderRadius:
-                      const BorderRadius.horizontal(left: Radius.circular(10)),
+                  const BorderRadius.horizontal(left: Radius.circular(10)),
                   color: ColorExtension.fromHex(vanity['color']!),
                 ),
                 width: 10,
@@ -261,8 +266,9 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                       ],
                     ),
                     // Container including all text widgets
+                    const SizedBox(width: 4),
                     Container(
-                      width: mediaQuery.size.width * .95 - 180,
+                      width: width - 184,
                       height: 70,
                       alignment: Alignment.centerLeft,
                       padding: const EdgeInsets.only(left: 5),
@@ -271,34 +277,37 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Text set to fit Expanded container
-                          Text(
-                            vanity['name'],
-                            style: TextStyle(
-                                height: 1,
-                                fontSize: 25,
-                                overflow: TextOverflow.ellipsis,
-                                //bold
-                                fontWeight: FontWeight.w600,
-                                color: colorScheme.onSurface),
-                          ).expandedFit(alignment: Alignment.centerLeft),
-                          Text(
-                            vanity['teacher'],
-                            style: TextStyle(
-                                fontSize: 18,
-                                height: 1,
-                                overflow: TextOverflow.ellipsis,
-                                fontWeight: FontWeight.w500,
-                                color: colorScheme.onSurface),
-                          ).expandedFit(alignment: Alignment.centerLeft),
-                          Text(
-                            vanity['location'],
-                            style: TextStyle(
-                                fontSize: 18,
-                                height: 1,
-                                overflow: TextOverflow.ellipsis,
-                                fontWeight: FontWeight.w500,
-                                color: colorScheme.onSurface),
-                          ).expandedFit(alignment: Alignment.centerLeft)
+                          if (vanity['name'].isNotEmpty)
+                            Text(
+                              vanity['name'],
+                              style: TextStyle(
+                                  height: 1,
+                                  fontSize: 25,
+                                  overflow: TextOverflow.ellipsis,
+                                  //bold
+                                  fontWeight: FontWeight.w600,
+                                  color: colorScheme.onSurface),
+                            ).expandedFit(alignment: Alignment.centerLeft),
+                          if (vanity['teacher'].isNotEmpty)
+                            Text(
+                              vanity['teacher'],
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  height: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  fontWeight: FontWeight.w500,
+                                  color: colorScheme.onSurface),
+                            ).expandedFit(alignment: Alignment.centerLeft),
+                          if (vanity['location'].isNotEmpty)
+                            Text(
+                              vanity['location'],
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  height: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  fontWeight: FontWeight.w500,
+                                  color: colorScheme.onSurface),
+                            ).expandedFit(alignment: Alignment.centerLeft)
                         ],
                       ),
                     ),
@@ -306,8 +315,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                     Container(
                       alignment: Alignment.center,
                       width: 70,
-                      child: Icon(Icons.settings,
-                          size: 45, color: colorScheme.onSurface),
+                      child: Icon(icon, size: 45, color: colorScheme.onSurface),
                     )
                   ],
                 ),
@@ -321,7 +329,9 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
 
   // Builds the popup for selecting and uploading an image
   Widget _buildQrPopup(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme
+        .of(context)
+        .colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
     final double width = min(mediaQuery.size.width, 500);
@@ -334,13 +344,6 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(
-              width: width * .75,
-              child: QrImageView(
-                  data: jsonEncode(Schedule.bellVanity['A']),
-                  embeddedImage:
-                      AssetImage("assets/images/xschedule_transparent.png")),
-            ),
             Container(
               margin: const EdgeInsets.symmetric(vertical: 15),
               padding: EdgeInsets.symmetric(horizontal: width * .08),
@@ -385,7 +388,9 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
               padding: EdgeInsets.symmetric(horizontal: width * .08),
               width: width * 4 / 5,
               child: ElevatedButton(
-                  onPressed: () async {},
+                  onPressed: () async {
+                    context.pushPopup(_buildQrSelect(context));
+                  },
                   // Button styled dependent on status
                   style: ElevatedButton.styleFrom(
                       overlayColor: colorScheme.onPrimary,
@@ -421,5 +426,155 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
             )
           ],
         ));
+  }
+
+  Widget _buildQrSelect(BuildContext context) {
+    final ColorScheme colorScheme = Theme
+        .of(context)
+        .colorScheme;
+    final MediaQueryData mediaQuery = MediaQuery.of(context);
+
+    return WidgetExtension.popup(
+        context,
+        Container(
+            height: mediaQuery.size.height * .75,
+            width: mediaQuery.size.width * .8,
+            color: colorScheme.primaryContainer,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Padding(padding: const EdgeInsets.all(16),
+                    child: Text(
+                      "Export Bell as QR Code", style: TextStyle(fontSize: 30, fontFamily: "Exo2", fontWeight: FontWeight.w600, color: colorScheme.onSurface),).fit()),
+                Expanded(child: SingleChildScrollView(
+                    child: Column(
+                        children:
+                        List<Widget>.generate(Schedule.sampleBells.length, (i) {
+                          String bell = Schedule.sampleBells[i];
+                          return _buildBellTile(context, bell,
+                              width: mediaQuery.size.width * .8 - 16,
+                              icon: Icons.qr_code_2_outlined, onTap: () {
+                                context.pushPopup(_displayQr(context, bell),
+                                    begin: Offset(0, 1));
+                              });
+                        })))),
+                Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      // Button styled dependent on status
+                      style: ElevatedButton.styleFrom(
+                          overlayColor: colorScheme.onPrimary,
+                          // If image is selected, primary button, else secondary button color scheme
+                          backgroundColor: colorScheme.primary,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(15)))),
+                      // Displays Shimmer dependent on status w/ text
+                      child: Container(
+                          alignment: Alignment.center,
+                          height: 37.5,
+                          width: mediaQuery.size.width * .7,
+                          child:
+                          Text(
+                            // If image has been selected, display scan image text, else upload image text
+                            " Done",
+                            style: TextStyle(
+                                fontSize: 25,
+                                fontFamily: "Georama",
+                                color: colorScheme.onPrimary),
+                          ))),
+                )
+              ],
+            )).clip(borderRadius: BorderRadius.circular(16)));
+  }
+
+  Widget _displayQr(BuildContext context, String bell) {
+    final MediaQueryData mediaQuery = MediaQuery.of(context);
+    final ColorScheme colorScheme = Theme
+        .of(context)
+        .colorScheme;
+
+    final Map<String, dynamic> bellVanity = Schedule.bellVanity[bell] ?? {};
+    final Map<String, Map<String, dynamic>> bellMap = {bell: bellVanity};
+    final String encodedBell = jsonEncode(bellMap);
+
+    final String emoji = bellVanity['emoji'];
+
+    return WidgetExtension.popup(
+        context,
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  if (emoji != bell)
+                    Text('$emoji ', style: TextStyle(fontSize: 30)),
+                  Container(
+                    constraints:
+                    BoxConstraints(maxWidth: mediaQuery.size.width * .5),
+                    child: Text(bellVanity['name'],
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 30,
+                            fontFamily: "Exo2",
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black))
+                        .fit(),
+                  ),
+                  if (emoji != bell)
+                    Text(' $emoji', style: TextStyle(fontSize: 30)),
+                ],
+              ),
+            ),
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: QrImageView(
+                  data: encodedBell,
+                  semanticsLabel: "X-Schedule",
+                  size: mediaQuery.size.width * .75,
+                  embeddedImage:
+                  AssetImage("assets/images/xschedule_transparent.png"),
+                  embeddedImageStyle: QrEmbeddedImageStyle(
+                    size: Size.square(mediaQuery.size.width * .25),
+                  ),
+                )),
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  // Button styled dependent on status
+                  style: ElevatedButton.styleFrom(
+                      overlayColor: colorScheme.onPrimary,
+                      // If image is selected, primary button, else secondary button color scheme
+                      backgroundColor: colorScheme.primary,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(15)))),
+                  // Displays Shimmer dependent on status w/ text
+                  child: Container(
+                      alignment: Alignment.center,
+                      height: 37.5,
+                      width: mediaQuery.size.width * .7,
+                      child:
+                      Text(
+                        // If image has been selected, display scan image text, else upload image text
+                        " Done",
+                        style: TextStyle(
+                            fontSize: 25,
+                            fontFamily: "Georama",
+                            color: colorScheme.onPrimary),
+                      ))),
+            )
+          ],
+        ),
+        color: const Color(0xfff4ecdb));
   }
 }
