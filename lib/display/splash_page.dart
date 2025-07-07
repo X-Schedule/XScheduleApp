@@ -7,7 +7,7 @@
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:xschedule/display/home_page.dart';
-import 'package:xschedule/global/static_content/static_load.dart';
+import 'package:xschedule/global/static_content/xschedule_materials/static_load.dart';
 
 import '../personal/welcome.dart';
 

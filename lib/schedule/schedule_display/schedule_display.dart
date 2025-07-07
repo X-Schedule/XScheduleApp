@@ -15,6 +15,7 @@ import 'package:xschedule/global/static_content/extensions/build_context_extensi
 import 'package:xschedule/global/static_content/extensions/date_time_extension.dart';
 import 'package:xschedule/global/static_content/extensions/int_extension.dart';
 import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
+import 'package:xschedule/global/static_content/xschedule_materials/styled_button.dart';
 import 'package:xschedule/schedule/schedule_display/bell_display.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_info_display.dart';
 import 'package:xschedule/schedule/schedule_settings/schedule_settings.dart';
@@ -191,26 +192,18 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                       child: ScheduleDisplay.tutorialSystem.showcase(
                           context: context,
                           tutorial: 'tutorial_schedule_settings',
-                          child: ElevatedButton(
-                              onPressed: () {
-                                // Push animated page of ScheduleSettings
-                                context.pushSwipePage(const ScheduleSettings(
-                                  backArrow: true,
-                                ));
-                              },
-                              // Button styles to be secondary
-                              style: ElevatedButton.styleFrom(
-                                  overlayColor: colorScheme.onPrimary,
-                                  backgroundColor: colorScheme.secondary),
-                              // Settings icon aligned at center
-                              child: Container(
-                                alignment: Alignment.center,
-                                width: mediaQuery.size.width * 3 / 5,
-                                child: Icon(
-                                  Icons.settings,
-                                  color: colorScheme.onSecondary,
-                                ),
-                              ))),
+                          child: StyledButton(
+                            width: mediaQuery.size.width * .6,
+                            icon: Icons.settings,
+                            backgroundColor: colorScheme.secondary,
+                            contentColor: colorScheme.onSecondary,
+                            onTap: (){
+                              // Push animated page of ScheduleSettings
+                              context.pushSwipePage(const ScheduleSettings(
+                                backArrow: true,
+                              ));
+                            },
+                          )),
                     ),
                     // Bottom padding of 8px
                     const SizedBox(height: 8)

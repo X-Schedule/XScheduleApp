@@ -6,6 +6,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
+import 'package:xschedule/global/static_content/xschedule_materials/styled_button.dart';
 import 'package:xschedule/schedule/schedule_settings/schedule_settings.dart';
 
 /// First-time-use destination page. <p>
@@ -68,29 +69,17 @@ class Welcome extends StatelessWidget {
                 // Button spaced 10px from vertical edges
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: ElevatedButton(
-                      onPressed: () {
-                        // Pushes ScheduleSettings to Navigator with animation
-                        Navigator.push(context,
-                            CupertinoPageRoute(builder: (context) {
-                          return const ScheduleSettings();
-                        }));
-                      },
-                      // Button styled with theme colors
-                      style: ElevatedButton.styleFrom(
-                          // Animated shimmer color
-                          overlayColor: colorScheme.onPrimary,
-                          backgroundColor: colorScheme.primary),
-                      // Container of set size with text aligned to center
-                      child: Container(
-                        alignment: Alignment.center,
-                        width: mediaQuery.size.width * 3 / 5,
-                        child: Text(
-                          "Get Started",
-                          style: TextStyle(
-                              fontSize: 25, color: colorScheme.onPrimary),
-                        ),
-                      )),
+                  child: StyledButton(
+                    text: "Get Started",
+                    width: mediaQuery.size.width * .6,
+                    onTap: () {
+                      // Pushes ScheduleSettings to Navigator with animation
+                      Navigator.push(context,
+                          CupertinoPageRoute(builder: (context) {
+                            return const ScheduleSettings();
+                          }));
+                    },
+                  ),
                 ),
               ],
             ),

@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:showcaseview/showcaseview.dart';
+import 'package:xschedule/global/static_content/xschedule_materials/styled_button.dart';
 
 class TutorialSystem {
   // Constructor
@@ -14,6 +15,7 @@ class TutorialSystem {
 
   /// Map of tutorials provided (&lt;id, text>)
   final Map<String, String> tutorials;
+
   /// Map of GlobalKeys per id (&lt;id, GlobalKey>)
   final Map<String, GlobalKey> keys = {};
 
@@ -49,7 +51,8 @@ class TutorialSystem {
       bool dense = false,
       bool uniqueNull = false,
       bool circular = false,
-      EdgeInsets? targetPadding, Future<void> Function()? onTap}) {
+      EdgeInsets? targetPadding,
+      Future<void> Function()? onTap}) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     onTap ??= () async {};
 
@@ -94,23 +97,18 @@ class TutorialSystem {
         tooltipActions: [
           // Custom ToolTip button; "Done" button which simulates tap on shaded region
           TooltipActionButton.custom(
-              button: ElevatedButton(
-                  onPressed: () async {
+              button: StyledButton(
+                  text: "Next",
+                  textStyle: TextStyle(
+                      color: colorScheme.onPrimary,
+                      fontSize: dense ? 15 : 17,
+                      height: dense ? 1 : null,
+                      fontFamily: 'Exo2'),
+                  onTap: () async {
                     // Brief delay to feel more natural
                     await Future.delayed(const Duration(milliseconds: 50));
                     simulateTap();
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: colorScheme.primary,
-                      overlayColor: colorScheme.onPrimary),
-                  child: Text(
-                    "Next",
-                    style: TextStyle(
-                        color: colorScheme.onPrimary,
-                        fontSize: dense ? 15 : 17,
-                        height: dense ? 1 : null,
-                        fontFamily: 'Exo2'),
-                  )))
+                  }))
         ],
         child: child);
   }
@@ -200,7 +198,7 @@ class TutorialSystem {
   }
 
   /// Adds updates the system to include specified tutorials.
-  void set(Map<String, String> setTutorials){
+  void set(Map<String, String> setTutorials) {
     tutorials.clear();
     tutorials.addAll(setTutorials);
     finished = false;

@@ -14,6 +14,7 @@ import 'package:xschedule/global/dynamic_content/tutorial_system.dart';
 import 'package:xschedule/global/static_content/extensions/build_context_extension.dart';
 import 'package:xschedule/global/static_content/extensions/color_extension.dart';
 import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
+import 'package:xschedule/global/static_content/xschedule_materials/styled_button.dart';
 
 import '../../global/dynamic_content/schedule.dart';
 import 'bell_settings.dart';
@@ -38,13 +39,13 @@ class ScheduleSettings extends StatefulWidget {
   // Tutorial systems used on ScheduleSettings page
   static final TutorialSystem tutorialSystem = TutorialSystem({
     'tutorial_settings':
-    "In this menu, you'll be able to customize your schedule to match the classes you have.",
+        "In this menu, you'll be able to customize your schedule to match the classes you have.",
     'tutorial_settings_button':
-    "Click on any individual bell to change its name, information, and appearance.",
+        "Click on any individual bell to change its name, information, and appearance.",
     'tutorial_settings_qr':
-    "... or try sharing your schedules through QR codes!",
+        "... or try sharing your schedules through QR codes!",
     'tutorial_settings_complete':
-    "Once you're satisfied with your schedule, tap the button down here to move on."
+        "Once you're satisfied with your schedule, tap the button down here to move on."
   });
 
   /// Refreshes the keys and tutorial text of Setting's tutorial systems.
@@ -73,8 +74,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme
-        .of(context)
-        .colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
     // Refreshes the global keys of each tutorial element
@@ -134,7 +134,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
               child: Text(
                 "Customize Bell Appearance",
                 style: TextStyle(
-                  //Custom font Goerama
+                    //Custom font Goerama
                     fontFamily: "Georama",
                     fontSize: 25,
                     fontWeight: FontWeight.w600,
@@ -155,28 +155,18 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                 context: context,
                 tutorial: 'tutorial_settings_complete',
                 // "Done" button
-                child: ElevatedButton(
-                    onPressed: () {
-                      BellSettings.saveBells();
-                      // Returns to HomePage
-                      Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (_) => HomePage()),
-                              (_) => false);
-                    },
-                    // Button styled to fit theme colors
-                    style: ElevatedButton.styleFrom(
-                        overlayColor: colorScheme.onPrimary,
-                        backgroundColor: colorScheme.primary),
-                    // Check Mark Icon aligned at center of button
-                    child: Container(
-                      alignment: Alignment.center,
-                      width: mediaQuery.size.width * 3 / 5,
-                      child: Icon(
-                        Icons.check,
-                        color: colorScheme.onPrimary,
-                      ),
-                    ))),
+                child: StyledButton(
+                  icon: Icons.check,
+                  borderRadius: null,
+                  onTap: () {
+                    BellSettings.saveBells();
+                    // Returns to HomePage
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (_) => HomePage()),
+                        (_) => false);
+                  },
+                )),
           ),
           // ScrollView of individual bell tiles
           body: SingleChildScrollView(
@@ -189,7 +179,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                         context: context,
                         tutorial: 'tutorial_settings_button',
                         child:
-                        _buildBellTile(context, Schedule.sampleBells[i]));
+                            _buildBellTile(context, Schedule.sampleBells[i]));
                   }
                   return _buildBellTile(context, Schedule.sampleBells[i]);
                 }),
@@ -204,9 +194,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
   // Builds the bell tiles displayed in ScrollView
   Widget _buildBellTile(BuildContext context, String bell,
       {double? width, IconData icon = Icons.settings, void Function()? onTap}) {
-    final ColorScheme colorScheme = Theme
-        .of(context)
-        .colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
     width ??= mediaQuery.size.width * .95;
@@ -239,7 +227,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                 decoration: BoxDecoration(
                   // Rounds the left edges to match the Card
                   borderRadius:
-                  const BorderRadius.horizontal(left: Radius.circular(10)),
+                      const BorderRadius.horizontal(left: Radius.circular(10)),
                   color: ColorExtension.fromHex(vanity['color']!),
                 ),
                 width: 10,
@@ -329,109 +317,68 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
 
   // Builds the popup for selecting and uploading an image
   Widget _buildQrPopup(BuildContext context) {
-    final ColorScheme colorScheme = Theme
-        .of(context)
-        .colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
-    final double width = min(mediaQuery.size.width, 500);
+    final double width = min(mediaQuery.size.width * .95, 500);
 
     // Returns popup wrapped in StatefulBuilder
     return WidgetExtension.popup(
         context,
         Column(
           mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              margin: const EdgeInsets.symmetric(vertical: 15),
-              padding: EdgeInsets.symmetric(horizontal: width * .08),
-              width: width * 4 / 5,
-              child: ElevatedButton(
-                  onPressed: () async {},
-                  // Button styled dependent on status
-                  style: ElevatedButton.styleFrom(
-                      overlayColor: colorScheme.onPrimary,
-                      // If image is selected, primary button, else secondary button color scheme
-                      backgroundColor: colorScheme.primary,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(15)))),
-                  // Displays Shimmer dependent on status w/ text
-                  child: Container(
-                      alignment: Alignment.center,
-                      height: 37.5,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          // Icon hint dependent on status
-                          Icon(
-                            Icons.download,
-                            size: 25,
-                            color: colorScheme.onPrimary,
-                          ),
-                          // Hint text dependent on status
-                          Text(
-                            // If image has been selected, display scan image text, else upload image text
-                            "  Import from QR Code",
-                            style: TextStyle(
-                                fontSize: 25,
-                                fontFamily: "Georama",
-                                color: colorScheme.onPrimary),
-                          )
-                        ],
-                      )).fit()),
+              constraints: BoxConstraints(maxWidth: width),
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+              child: Text("QR Code Manager",
+                style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: "Exo2"
+                ),
+              ).fit(),
             ),
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 15),
-              padding: EdgeInsets.symmetric(horizontal: width * .08),
-              width: width * 4 / 5,
-              child: ElevatedButton(
-                  onPressed: () async {
-                    context.pushPopup(_buildQrSelect(context));
-                  },
-                  // Button styled dependent on status
-                  style: ElevatedButton.styleFrom(
-                      overlayColor: colorScheme.onPrimary,
-                      // If image is selected, primary button, else secondary button color scheme
-                      backgroundColor: colorScheme.secondary,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(15)))),
-                  // Displays Shimmer dependent on status w/ text
-                  child: Container(
-                      alignment: Alignment.center,
-                      height: 37.5,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          // Icon hint dependent on status
-                          Icon(
-                            Icons.publish,
-                            size: 25,
-                            color: colorScheme.onPrimary,
-                          ),
-                          // Hint text dependent on status
-                          Text(
-                            // If image has been selected, display scan image text, else upload image text
-                            "  Export as QR Code",
-                            style: TextStyle(
-                                fontSize: 25,
-                                fontFamily: "Georama",
-                                color: colorScheme.onPrimary),
-                          )
-                        ],
-                      )).fit()),
-            )
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                        margin: const EdgeInsets.symmetric(vertical: 16),
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        width: width * 2 / 5,
+                        height: 100,
+                        child: StyledButton(
+                          vertical: true,
+                          iconSize: 40,
+                          text: "Scan",
+                          icon: Icons.qr_code_scanner_rounded,
+                          onTap: () {},
+                        )),
+                    Container(
+                        margin: const EdgeInsets.symmetric(vertical: 16),
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        width: width * 2 / 5,
+                        height: 100,
+                        child: StyledButton(
+                          vertical: true,
+                          iconSize: 40,
+                          text: "Share",
+                          icon: Icons.share_outlined,
+                          onTap: () async {
+                            context.pushPopup(_buildQrSelect(context));
+                          },
+                        )),
+                  ],
+                ))
           ],
         ));
   }
 
   Widget _buildQrSelect(BuildContext context) {
-    final ColorScheme colorScheme = Theme
-        .of(context)
-        .colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
     return WidgetExtension.popup(
@@ -443,48 +390,38 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Padding(padding: const EdgeInsets.all(16),
+                Padding(
+                    padding: const EdgeInsets.all(16),
                     child: Text(
-                      "Export Bell as QR Code", style: TextStyle(fontSize: 30, fontFamily: "Exo2", fontWeight: FontWeight.w600, color: colorScheme.onSurface),).fit()),
-                Expanded(child: SingleChildScrollView(
-                    child: Column(
-                        children:
-                        List<Widget>.generate(Schedule.sampleBells.length, (i) {
-                          String bell = Schedule.sampleBells[i];
-                          return _buildBellTile(context, bell,
-                              width: mediaQuery.size.width * .8 - 16,
-                              icon: Icons.qr_code_2_outlined, onTap: () {
-                                context.pushPopup(_displayQr(context, bell),
-                                    begin: Offset(0, 1));
-                              });
-                        })))),
+                      "Export Bell as QR Code",
+                      style: TextStyle(
+                          fontSize: 30,
+                          fontFamily: "Exo2",
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurface),
+                    ).fit()),
+                Expanded(
+                    child: SingleChildScrollView(
+                        child: Column(
+                            children: List<Widget>.generate(
+                                Schedule.sampleBells.length, (i) {
+                  String bell = Schedule.sampleBells[i];
+                  return _buildBellTile(context, bell,
+                      width: mediaQuery.size.width * .8 - 16,
+                      icon: Icons.qr_code_2_outlined, onTap: () {
+                    context.pushPopup(_displayQr(context, bell),
+                        begin: Offset(0, 1));
+                  });
+                })))),
                 Padding(
                   padding: const EdgeInsets.all(8),
-                  child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      // Button styled dependent on status
-                      style: ElevatedButton.styleFrom(
-                          overlayColor: colorScheme.onPrimary,
-                          // If image is selected, primary button, else secondary button color scheme
-                          backgroundColor: colorScheme.primary,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(15)))),
-                      // Displays Shimmer dependent on status w/ text
-                      child: Container(
-                          alignment: Alignment.center,
-                          height: 37.5,
-                          width: mediaQuery.size.width * .7,
-                          child:
-                          Text(
-                            // If image has been selected, display scan image text, else upload image text
-                            " Done",
-                            style: TextStyle(
-                                fontSize: 25,
-                                fontFamily: "Georama",
-                                color: colorScheme.onPrimary),
-                          ))),
+                  child: StyledButton(
+                    text: "Done",
+                    width: mediaQuery.size.width * .7,
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                  ),
                 )
               ],
             )).clip(borderRadius: BorderRadius.circular(16)));
@@ -492,9 +429,6 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
 
   Widget _displayQr(BuildContext context, String bell) {
     final MediaQueryData mediaQuery = MediaQuery.of(context);
-    final ColorScheme colorScheme = Theme
-        .of(context)
-        .colorScheme;
 
     final Map<String, dynamic> bellVanity = Schedule.bellVanity[bell] ?? {};
     final Map<String, Map<String, dynamic>> bellMap = {bell: bellVanity};
@@ -518,14 +452,14 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                     Text('$emoji ', style: TextStyle(fontSize: 30)),
                   Container(
                     constraints:
-                    BoxConstraints(maxWidth: mediaQuery.size.width * .5),
+                        BoxConstraints(maxWidth: mediaQuery.size.width * .5),
                     child: Text(bellVanity['name'],
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 30,
-                            fontFamily: "Exo2",
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black))
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 30,
+                                fontFamily: "Exo2",
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black))
                         .fit(),
                   ),
                   if (emoji != bell)
@@ -540,38 +474,20 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                   semanticsLabel: "X-Schedule",
                   size: mediaQuery.size.width * .75,
                   embeddedImage:
-                  AssetImage("assets/images/xschedule_transparent.png"),
+                      AssetImage("assets/images/xschedule_transparent.png"),
                   embeddedImageStyle: QrEmbeddedImageStyle(
                     size: Size.square(mediaQuery.size.width * .25),
                   ),
                 )),
             Padding(
               padding: const EdgeInsets.all(8),
-              child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  // Button styled dependent on status
-                  style: ElevatedButton.styleFrom(
-                      overlayColor: colorScheme.onPrimary,
-                      // If image is selected, primary button, else secondary button color scheme
-                      backgroundColor: colorScheme.primary,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(15)))),
-                  // Displays Shimmer dependent on status w/ text
-                  child: Container(
-                      alignment: Alignment.center,
-                      height: 37.5,
-                      width: mediaQuery.size.width * .7,
-                      child:
-                      Text(
-                        // If image has been selected, display scan image text, else upload image text
-                        " Done",
-                        style: TextStyle(
-                            fontSize: 25,
-                            fontFamily: "Georama",
-                            color: colorScheme.onPrimary),
-                      ))),
+              child: StyledButton(
+                text: "Done",
+                width: mediaQuery.size.width * .7,
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              ),
             )
           ],
         ),
