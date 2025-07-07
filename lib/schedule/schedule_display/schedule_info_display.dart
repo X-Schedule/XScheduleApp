@@ -8,6 +8,7 @@ import 'package:xschedule/global/static_content/extensions/date_time_extension.d
 import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
 
 import '../../global/dynamic_content/schedule.dart';
+import '../../global/static_content/xschedule_materials/popup_menu.dart';
 
 /// StatelessWidget which displays the popup containing the dailyInfo of a given date. <p>
 /// Displays all values which exist, with the popup divided into general info, lunch, and announcements.
@@ -36,9 +37,8 @@ class ScheduleInfoDisplay extends StatelessWidget {
     final Map<String, dynamic> dailyInfo = schedule.info;
 
     // Returns dailyInfo popup
-    return WidgetExtension.popup(
-        context,
-        Container(
+    return PopupMenu(
+        child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
           child: Column(
             mainAxisSize: MainAxisSize.min,

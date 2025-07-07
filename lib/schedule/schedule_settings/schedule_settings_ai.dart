@@ -6,10 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:xschedule/global/static_content/extensions/build_context_extension.dart';
 import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
+import 'package:xschedule/schedule/schedule_settings/bell_settings/bell_settings.dart';
 import 'package:xschedule/schedule/schedule_settings/schedule_settings.dart';
 
 import '../../global/dynamic_content/backend/open_ai.dart';
 import '../../global/dynamic_content/schedule.dart';
+import '../../global/static_content/xschedule_materials/popup_menu.dart';
 
 class ScheduleSettingsAi extends StatefulWidget {
   const ScheduleSettingsAi({super.key});
@@ -36,9 +38,8 @@ class _ScheduleSettingsAiState extends State<ScheduleSettingsAi> {
     isLoading = false;
 
     // Returns popup wrapped in StatefulBuilder
-    return WidgetExtension.popup(
-        context,
-        Column(
+    return PopupMenu(
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -159,11 +160,7 @@ class _ScheduleSettingsAiState extends State<ScheduleSettingsAi> {
                                 Map<String, Map<String, dynamic>>.from(aiScan);
 
                             // Clear all temporary values to be reset later
-                            ScheduleSettings.names.clear();
-                            ScheduleSettings.teachers.clear();
-                            ScheduleSettings.locations.clear();
-                            ScheduleSettings.colors.clear();
-                            ScheduleSettings.emojis.clear();
+                            BellSettings.clearSettings();
                           });
                           // Pops popup, returning to settings page
                           Navigator.pop(context);

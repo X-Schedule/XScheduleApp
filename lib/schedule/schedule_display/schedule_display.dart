@@ -16,11 +16,11 @@ import 'package:xschedule/global/static_content/extensions/date_time_extension.d
 import 'package:xschedule/global/static_content/extensions/int_extension.dart';
 import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
 import 'package:xschedule/global/static_content/xschedule_materials/styled_button.dart';
-import 'package:xschedule/schedule/schedule_display/bell_display.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_info_display.dart';
 import 'package:xschedule/schedule/schedule_settings/schedule_settings.dart';
 
 import '../../global/dynamic_content/tutorial_system.dart';
+import 'bell_display/bell_tile.dart';
 
 /// Main page which displays the schedules. <p>
 /// Features an AppBar with navigation and info and a PageView for all different schedules.
@@ -197,7 +197,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                             icon: Icons.settings,
                             backgroundColor: colorScheme.secondary,
                             contentColor: colorScheme.onSecondary,
-                            onTap: (){
+                            onTap: () {
                               // Push animated page of ScheduleSettings
                               context.pushSwipePage(const ScheduleSettings(
                                 backArrow: true,
@@ -487,8 +487,10 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                         children: List<Widget>.generate(bells.keys.length, (i) {
                           // Returns Schedule 'Tile' based on schedule info, cycling through bell keys
                           final String key = bells.keys.toList()[i];
-                          return BellDisplay.bellTile(
-                              context, date, key, minuteHeight);
+                          return BellTile(
+                              date: date,
+                              bell: key,
+                              minuteHeight: minuteHeight);
                         }),
                       ),
                     )),

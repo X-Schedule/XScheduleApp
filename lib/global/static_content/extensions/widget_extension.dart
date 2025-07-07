@@ -46,21 +46,6 @@ extension WidgetExtension on Widget {
   }
 
   /// Widget extension <p>
-  /// Widget which wraps a provided child Widget in a card aligned at the center of a screen.
-  static Widget popup(BuildContext context, Widget child, {Color? color}) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    color ??= colorScheme.surface;
-    // Returns child wrapped in card aligned at center
-    return Align(
-      alignment: Alignment.center,
-      child: Card(
-        color: color,
-        child: child,
-      ),
-    );
-  }
-
-  /// Widget extension <p>
   /// Returns a FittedBox set to scaleDown wrapping this widget.
   Widget fit() {
     // Returns child wrapped in FittedBox

@@ -33,9 +33,9 @@ extension BuildContextExtension on BuildContext {
 
   /// BuildContext extension <p>
   /// Pushes a gesture-dismissible page to the NavigatorState of the BuildContext
-  void pushSwipePage(Widget page) {
+  Future<void> pushSwipePage(Widget page) async {
     // Pushes page w/ horizontal swipe dismissing to Navigator
-    Navigator.of(this).push(CupertinoPageRoute(builder: (context) {
+    await Navigator.of(this).push(CupertinoPageRoute(builder: (context) {
       return GestureDetector(
         onHorizontalDragEnd: (details) {
           // If swipe right, dismiss.
@@ -50,9 +50,9 @@ extension BuildContextExtension on BuildContext {
 
   /// BuildContext extension <p>
   /// Pushes an animated popup to the NavigatorState of the BuildContext
-  void pushPopup(Widget widget, {Offset? begin}) {
+  Future<void> pushPopup(Widget widget, {Offset? begin}) async {
     // Pushes the popup to the app navigator
-    Navigator.of(this).push(PageRouteBuilder(
+    await Navigator.of(this).push(PageRouteBuilder(
       // See-through 'page'
       opaque: false,
       // Builds the popup; creates separate instance of BuildContext

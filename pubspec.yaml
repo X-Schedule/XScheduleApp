@@ -50,6 +50,7 @@ dependencies:
   flutter_launcher_icons: ^0.14.3 # Manages the app's icon more effectively
   flip_card: ^0.7.0 # Adds Card with flipping animation used in popups.
   qr_flutter: ^4.1.0
+  mobile_scanner: ^6.0.10
 
 dev_dependencies:
   flutter_test:

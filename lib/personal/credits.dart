@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
+import 'package:xschedule/global/static_content/xschedule_materials/popup_menu.dart';
 
 class Credits extends StatelessWidget {
   const Credits({super.key});
@@ -92,9 +93,8 @@ class Credits extends StatelessWidget {
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
     // Returns credits popup
-    return WidgetExtension.popup(
-        context,
-        SizedBox(
+    return PopupMenu(
+        child: SizedBox(
           width: mediaQuery.size.width * 4 / 5,
           height: mediaQuery.size.height * 2 / 3,
           // Contents displayed in Column
