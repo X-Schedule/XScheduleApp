@@ -9,7 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:icalendar_parser/icalendar_parser.dart';
-import 'package:xschedule/global/dynamic_content/backend/supabase_db.dart';
+import 'package:localstorage/localstorage.dart';
 import 'package:xschedule/global/dynamic_content/schedule.dart';
 import 'package:xschedule/global/static_content/extensions/date_time_extension.dart';
 
@@ -59,9 +59,15 @@ class ScheduleDirectory {
   }
 
   /// Reads dailyOrder RSS via http. <p>
-  /// [bool limitRequests = true]: Limits the number of active http requests to 1.
+  /// [bool limitRequests = true]: Limits the number of active http requests to 1. <p>
+  /// [bool writeResults = true]: Automatically writes the results in the Schedule Directory. <p>
+  /// [bool storeResults = false]: Automatically writes and stores the results locally. <p>
+  /// [bool override = false]: Automatically writes the replaces the Schedule Directory with the results.
   static Future<Map<DateTime, Schedule>> getDailyOrder(
-      {bool limitRequests = true}) async {
+      {bool limitRequests = true,
+      bool writeResults = true,
+      bool storeResults = false,
+      bool override = false}) async {
     // If restricted and request running, wait
     while (limitRequests && dailyOrderRequest) {
       await Future.delayed(const Duration(milliseconds: 100));
@@ -96,10 +102,10 @@ class ScheduleDirectory {
         );
 
         // Gets the calendar data as a list from the iCalendar
-        final List<Map<String, dynamic>> schedules = iCalendar.data;
+        final List<Map<String, dynamic>> calSchedules = iCalendar.data;
 
         // For each date data, inserts the schedule data Map into our schedule Map under the key of the date
-        for (Map<String, dynamic> instance in schedules) {
+        for (Map<String, dynamic> instance in calSchedules) {
           if (instance['type'] == "VEVENT") {
             // Gets the base String describing the day layout
             final String rawSchedule = instance['description']
@@ -165,6 +171,14 @@ class ScheduleDirectory {
         if (limitRequests) {
           dailyOrderRequest = false;
         }
+        if (override) {
+          schedules = result;
+        } else if (writeResults || storeResults) {
+          schedules.addAll(result);
+        }
+        if (storeResults) {
+          storeSchedule();
+        }
         return result;
       } catch (_) {
         // On error, set request state to inactive and rethrow error
@@ -208,6 +222,50 @@ class ScheduleDirectory {
     return result;
   }
 
+  static void readStoredSchedule() {
+    try {
+      String scheduleJsonString = localStorage.getItem("schedule")!;
+      Map<String, Map<String, dynamic>> scheduleJson =
+          Map<String, Map<String, dynamic>>.from(
+              jsonDecode(scheduleJsonString));
+
+      for (String key in scheduleJson.keys) {
+        DateTime date = DateTime.parse(key);
+        Map<String, dynamic> scheduleMap = scheduleJson[key] ?? {};
+
+        if (scheduleMap.isNotEmpty) {
+          writeSchedule(date,
+              name: scheduleMap['name'],
+              bells: Map<String, String>.from(scheduleMap['bells']));
+        }
+      }
+    } catch (e) {}
+  }
+
+  /// Stores the schedule as a json object.
+  static void storeSchedule() {
+    localStorage.setItem("schedule", jsonSchedule(100));
+  }
+
+  /// Converts schedules within a given range of the current date into a json map.
+  static String jsonSchedule(int range) {
+    Map<String, Map<String, dynamic>> result = {};
+
+    DateTime date = DateTime.now().dateOnly();
+    for (int i = 0; i < range; i++) {
+      DateTime iDate = date.addDay(i);
+      Schedule schedule = readSchedule(iDate);
+      if (schedule.bells.isNotEmpty) {
+        result[iDate.toIso8601String()] = {
+          'name': schedule.name,
+          'bells': schedule.bells
+        };
+      }
+    }
+
+    return jsonEncode(result);
+  }
+
   /// Fetches and stores supabase data in efficient manner
   static Future<void> addDailyData(DateTime start, DateTime end) async {
     // Checks prior supabase requests, and removes overlap in times
@@ -227,6 +285,7 @@ class ScheduleDirectory {
     dailyInfoRequests.add({"start": start, "end": end});
 
     // Runs getDailyData
+    /*
     final List<Map<String, dynamic>> dailyInfoResult =
         await SupaBaseDB.getDailyData(start, end);
     // Adds all fetched data to dailyInfo
@@ -235,6 +294,7 @@ class ScheduleDirectory {
       final DateTime date = DateTime.parse(info["day"]);
       writeSchedule(date, info: info);
     }
+    */
   }
 
   /// Method which doesn't complete until a provided condition is true.

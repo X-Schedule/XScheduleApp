@@ -80,7 +80,6 @@ flutter:
     - assets/images/xschedule.png
     - assets/images/xschedule_transparent.png
     - assets/images/x_building.jpg
-    - assets/data/open_ai.json
     - assets/data/credits.json
     - assets/data/github.json
     - assets/data/rss.json

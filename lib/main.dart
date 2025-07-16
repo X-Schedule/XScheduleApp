@@ -33,18 +33,22 @@ Future<void> init() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Initializes local storage; Runs synchronously since local storage is essential
   await initLocalStorage();
+  ScheduleDirectory.readStoredSchedule();
 
   // Reads the various data from local json files asynchronously
   GitHub.loadGithubJson();
-  OpenAI.loadOpenAIJson();
   Credits.loadCreditsJson();
   await ScheduleDirectory.loadRSSJson();
 
-  ScheduleDirectory.getDailyOrder().then((_) => StreamSignal.updateStream(
-      streamController: ScheduleDisplay.scheduleStream));
+  ScheduleDirectory.getDailyOrder(storeResults: true, override: true).then((_) {
+        StreamSignal.updateStream(
+            streamController: ScheduleDisplay.scheduleStream);
+  });
 
   // Reads supabase.json and then initializes communication with the Supabase database
+  /*
   SupaBaseDB.loadSupabaseJson().then((_) => SupaBaseDB.initialize());
+  */
 
   // Fetches information about the build of the app; miniscule run duration
   Credits.packageInfo = await PackageInfo.fromPlatform();

@@ -198,6 +198,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                             backgroundColor: colorScheme.secondary,
                             contentColor: colorScheme.onSecondary,
                             onTap: () {
+                              ScheduleDirectory.readStoredSchedule();
                               // Push animated page of ScheduleSettings
                               context.pushSwipePage(const ScheduleSettings(
                                 backArrow: true,
@@ -400,8 +401,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                               "An error occurred. Please try again later.");
                           return _buildLoading(context);
                         }
-                        // If no failure, add schedule data and return schedule card
-                        ScheduleDirectory.schedules.addAll(snapshot.data ?? {});
+                        // If no failure, return schedule card
                         return _buildSchedule(context, date);
                       })
                   // ...else simply display schedule

@@ -25,7 +25,7 @@ class ScheduleSettingsQr extends StatefulWidget {
 
 class _ScheduleSettingsQrState extends State<ScheduleSettingsQr> {
   final MobileScannerController _controller = MobileScannerController(
-      facing: CameraFacing.front, formats: [BarcodeFormat.qrCode]);
+      facing: CameraFacing.back, formats: [BarcodeFormat.qrCode]);
   bool _scanning = false;
 
   // Builds the popup for selecting and uploading an image
@@ -73,10 +73,9 @@ class _ScheduleSettingsQrState extends State<ScheduleSettingsQr> {
                     child: MobileScanner(
                       controller: _controller,
                       onDetect: (capture) {
-                        if (capture.barcodes.isNotEmpty) {
-                          String data =
-                              capture.barcodes.first.displayValue ?? '';
+                        for (Barcode barcode in capture.barcodes) {
                           try {
+                            String data = barcode.displayValue!;
                             Map<String, dynamic> map = jsonDecode(data);
                             String bell = map.keys.first;
 
@@ -87,6 +86,7 @@ class _ScheduleSettingsQrState extends State<ScheduleSettingsQr> {
                                 bell: bell,
                                 setState: widget.setSourceState,
                                 deleteButton: true));
+                            break;
                           } catch (e) {
                             BellSettings.clearSettings();
                             context.showSnackBar("Failed to scan QR Code.");
