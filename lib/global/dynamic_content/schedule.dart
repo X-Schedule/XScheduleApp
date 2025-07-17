@@ -14,7 +14,7 @@ class Schedule {
   /// Global Map (&lt;Bell, Map&lt;ValueName, value>>) of vanity values (Class name, location, color, etc.) of all bells
   static Map<String, Map<String, dynamic>> bellVanity =
       Map<String, Map<String, dynamic>>.from(
-          json.decode(localStorage.getItem("scheduleSettings") ?? '{}'));
+          json.decode(localStorage.getItem("bellVanity") ?? '{}'));
 
   /// const Map (&lt;Day Title, Order>) of standard day structures.
   static const Map<String, List<String>> sampleDays = {

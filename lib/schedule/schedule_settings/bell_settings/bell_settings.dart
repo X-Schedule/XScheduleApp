@@ -29,11 +29,11 @@ class BellSettings {
 
   static void saveBells() {
     // Saves the schedule vanity data to local storage
-    localStorage.setItem("scheduleSettings", json.encode(Schedule.bellVanity));
+    localStorage.setItem("bellVanity", json.encode(Schedule.bellVanity));
     // Confirms that the user's progress is marked as "logged"
     localStorage.setItem("state", "logged");
     // Refreshed HomePage stream
-    StreamSignal.updateStream(streamController: ScheduleDisplay.scheduleStream);
+    ScheduleDisplay.scheduleStream.updateStream();
   }
 
   static void writeBell(String bell, Map<String, dynamic> bellVanity) {

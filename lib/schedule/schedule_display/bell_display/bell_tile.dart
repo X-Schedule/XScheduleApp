@@ -10,7 +10,11 @@ import '../schedule_display.dart';
 import 'bell_info.dart';
 
 class BellTile extends StatelessWidget {
-  const BellTile({super.key, required this.date, required this.bell, required this.minuteHeight});
+  const BellTile(
+      {super.key,
+      required this.date,
+      required this.bell,
+      required this.minuteHeight});
 
   final DateTime date;
   final String bell;
@@ -64,7 +68,6 @@ class BellTile extends StatelessWidget {
     }
 
     final Color color = ColorExtension.fromHex(vanity['color'] ?? '#909090');
-    final bool activities = bell.contains("FLEX");
 
     // Clock values of bell ('start' and 'end' primarily)
     final Map<String, Clock?> times = schedule.clockMap(bell) ?? {};
@@ -90,13 +93,7 @@ class BellTile extends StatelessWidget {
         child: InkWell(
           // When Tile is tapped, will display popup with more info
           onTap: () {
-            // If bell has activities (i.e. flex), push Flex menu
-            if (activities && false) {
-              // Insert Flex Menu Here lol
-            } else {
-              // ...else push bell info popup
-              context.pushPopup(BellInfo(schedule: schedule, bell: bell));
-            }
+            context.pushPopup(BellInfo(schedule: schedule, bell: bell));
           },
           child: ScheduleDisplay.tutorialSystem.showcase(
             context: context,
@@ -142,33 +139,33 @@ class BellTile extends StatelessWidget {
                       // Name Text Widget fitted to Expanded box
                       Expanded(
                           child: Container(
-                            // Forces close to second row
-                            alignment: Alignment.bottomLeft,
-                            child: Text(
-                              // If there won't be room for time range line, include it in this line
-                              '${(vanity['name'] ?? bell) ?? ''}$suffix${height <= 50 ? ':     $timeRange' : ''}',
-                              style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  fontFamily: "Inter",
-                                  color: colorScheme.onSurface),
-                            ).fit(),
-                          )),
+                        // Forces close to second row
+                        alignment: Alignment.bottomLeft,
+                        child: Text(
+                          // If there won't be room for time range line, include it in this line
+                          '${(vanity['name'] ?? bell) ?? ''}$suffix${height <= 50 ? ':     $timeRange' : ''}',
+                          style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: "Inter",
+                              color: colorScheme.onSurface),
+                        ).fit(),
+                      )),
                       // If there is space, display time range as separate line
                       if (height > 50)
                         Expanded(
                             child: Container(
-                              margin: const EdgeInsets.only(top: 2),
-                              // Forces close to top row
-                              alignment: Alignment.topLeft,
-                              child: Text(
-                                timeRange,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                    fontFamily: "Inter",
-                                    color: colorScheme.onSurface),
-                              ).fit(),
-                            ))
+                          margin: const EdgeInsets.only(top: 2),
+                          // Forces close to top row
+                          alignment: Alignment.topLeft,
+                          child: Text(
+                            timeRange,
+                            style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Inter",
+                                color: colorScheme.onSurface),
+                          ).fit(),
+                        ))
                     ],
                   ),
                 ),

@@ -7,7 +7,6 @@ import 'package:shimmer/shimmer.dart';
 import 'package:xschedule/global/static_content/extensions/build_context_extension.dart';
 import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
 import 'package:xschedule/schedule/schedule_settings/bell_settings/bell_settings.dart';
-import 'package:xschedule/schedule/schedule_settings/schedule_settings.dart';
 
 import '../../global/dynamic_content/backend/open_ai.dart';
 import '../../global/dynamic_content/schedule.dart';

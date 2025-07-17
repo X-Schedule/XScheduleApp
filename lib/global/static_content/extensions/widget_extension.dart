@@ -78,4 +78,11 @@ extension WidgetExtension on Widget {
   Widget clip({BorderRadius borderRadius = BorderRadius.zero}){
     return ClipRRect(borderRadius: borderRadius, clipBehavior: Clip.hardEdge, child: this);
   }
+
+  /// Widget extension <p>
+  /// Returns this widget wrapped in an Opacity Widget of given opacity. <p>
+  /// [double opacity]: % opacity of widget <p>
+  Widget withOpacity(double opacity){
+    return Opacity(opacity: opacity, child: this);
+  }
 }

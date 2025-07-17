@@ -79,7 +79,7 @@ class _HomePageState extends State<HomePage> {
   Widget _buildNavBar(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     // Color used in navbar gradient
-    Color gradient = colorScheme.primary;
+    Color gradient = colorScheme.tertiary;
 
     // Returns NavBar wrapped in GestureDetector
     return GestureDetector(
@@ -119,14 +119,14 @@ class _HomePageState extends State<HomePage> {
               Align(
                 alignment: Alignment.topCenter,
                 child: Container(
-                  height: 10,
+                  height: 20,
                   decoration: BoxDecoration(
                       gradient: LinearGradient(colors: [
                     gradient.withValues(alpha: 0),
-                    gradient.withValues(alpha: 0.125),
                     gradient.withValues(alpha: 0.25),
+                    gradient.withValues(alpha: 0.125),
                     gradient.withValues(alpha: 0)
-                  ], begin: Alignment.bottomCenter, end: Alignment.topCenter)),
+                  ], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
                 ),
               ),
             ],

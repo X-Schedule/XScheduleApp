@@ -10,13 +10,12 @@ import 'package:xschedule/display/splash_page.dart';
 import 'package:xschedule/display/themes.dart';
 import 'package:xschedule/global/dynamic_content/backend/github.dart';
 import 'package:xschedule/global/dynamic_content/backend/schedule_directory.dart';
-import 'package:xschedule/global/dynamic_content/backend/supabase_db.dart';
 import 'package:xschedule/global/dynamic_content/stream_signal.dart';
 import 'package:xschedule/global/static_content/extensions/date_time_extension.dart';
 import 'package:xschedule/personal/credits.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_display.dart';
 
-import 'global/dynamic_content/backend/open_ai.dart';
+import 'global/dynamic_content/backend/rss.dart';
 
 Future<void> main() async {
   // Initializes several processes in the app
@@ -38,11 +37,10 @@ Future<void> init() async {
   // Reads the various data from local json files asynchronously
   GitHub.loadGithubJson();
   Credits.loadCreditsJson();
-  await ScheduleDirectory.loadRSSJson();
+  await RSS.loadRSSJson();
 
-  ScheduleDirectory.getDailyOrder(storeResults: true, override: true).then((_) {
-        StreamSignal.updateStream(
-            streamController: ScheduleDisplay.scheduleStream);
+  RSS.getDailyOrder(refreshStream: true, storeResults: true, overwrite: true).then((_) {
+        ScheduleDisplay.scheduleStream.updateStream();
   });
 
   // Reads supabase.json and then initializes communication with the Supabase database
@@ -69,6 +67,8 @@ Future<void> init() async {
 /// Sets the theme, default text style, and default destination
 class XScheduleApp extends StatelessWidget {
   const XScheduleApp({super.key});
+
+  static const bool beta = bool.fromEnvironment("BETA", defaultValue: false);
 
   @override
   Widget build(BuildContext context) {

@@ -8,6 +8,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:showcaseview/showcaseview.dart';
+import 'package:xschedule/global/dynamic_content/backend/rss.dart';
 import 'package:xschedule/global/dynamic_content/backend/schedule_directory.dart';
 import 'package:xschedule/global/dynamic_content/schedule.dart';
 import 'package:xschedule/global/dynamic_content/stream_signal.dart';
@@ -385,25 +386,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
               // If schedule data is empty, return FutureBuilder for schedule, else simply display schedule
               child: ScheduleDirectory.schedules.isEmpty
                   // FutureBuilder, which displays placeholder (loading wheel) while data is fetched asynchronously, then replaced by schedule
-                  ? FutureBuilder(
-                      // Fetches schedule data (limited by default so single request)
-                      future: ScheduleDirectory.getDailyOrder(),
-                      // Builder which updates on method status change
-                      builder: (context, snapshot) {
-                        // If method loading, display loading wheel
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return _buildLoading(context);
-                        }
-                        // If method fails (has error), display loading and error message
-                        if (snapshot.hasError) {
-                          context.showSnackBar(
-                              "An error occurred. Please try again later.");
-                          return _buildLoading(context);
-                        }
-                        // If no failure, return schedule card
-                        return _buildSchedule(context, date);
-                      })
+                  ? _buildLoading(context)
                   // ...else simply display schedule
                   : _buildSchedule(context, date),
             ),
@@ -849,21 +832,26 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
   Widget _buildInfoButton(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
-    // Returns FutureBuilder, changing opacity of button as more info becomes available
-    return FutureBuilder(future: ScheduleDirectory.awaitCondition(() {
-      return ScheduleDirectory.readSchedule(
-              ScheduleDisplay.initialDate.addDay(ScheduleDisplay.pageIndex))
-          .info
-          .isEmpty;
-    }), builder: (context, snapshot) {
+    final Schedule schedule = ScheduleDirectory.readSchedule(
+        ScheduleDisplay.initialDate.addDay(ScheduleDisplay.pageIndex));
+
+    Color iconColor = colorScheme.onSurface;
+    Color backgroundColor = colorScheme.tertiary.withAlpha(128);
+
+    if(RSS.offline){
+      iconColor = colorScheme.onError;
+      backgroundColor = colorScheme.error.withAlpha(194);
+    } else if(schedule.info.isEmpty){
+      iconColor = iconColor.withAlpha(128);
+    }
+
       // Returns IconCircle of info button
       return WidgetExtension.iconCircle(
           // Simple info icon
           icon: Icons.info_outline,
           // Icon opacity changes w/ info available
-          iconColor: colorScheme.onSurface.withAlpha(
-              snapshot.connectionState == ConnectionState.waiting ? 102 : 255),
-          color: colorScheme.tertiary.withAlpha(102),
+          iconColor: iconColor,
+          color: backgroundColor,
           radius: 20,
           padding: 5,
           // OnTap, pushes info popup
@@ -872,6 +860,5 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
                 date: ScheduleDisplay.initialDate
                     .addDay(ScheduleDisplay.pageIndex)));
           });
-    });
   }
 }

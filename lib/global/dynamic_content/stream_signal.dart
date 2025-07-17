@@ -27,11 +27,13 @@ class StreamSignal{
 
   /// Data transmitted through StreamSignal
   late final Map<String, dynamic> data;
+}
 
-  /// Sends a StreamSignal through a StreamController
-  static void updateStream({required StreamController<StreamSignal> streamController, Map<String, dynamic>? newData}){
+extension StreamSignalExtension on StreamController<StreamSignal> {
+  /// Sends a StreamSignal through a controller
+  void updateStream({Map<String, dynamic>? newData}){
     newData ??= {};
     newData['key'] = GlobalKey();
-    streamController.add(StreamSignal(streamController: streamController, data: newData));
+    add(StreamSignal(streamController: this, data: newData));
   }
 }
