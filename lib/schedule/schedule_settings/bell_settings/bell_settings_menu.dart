@@ -14,11 +14,10 @@ import '../../../global/dynamic_content/tutorial_system.dart';
 import 'bell_settings.dart';
 
 class BellSettingsMenu extends StatefulWidget {
-  BellSettingsMenu(
-      {super.key,
-        required this.bell,
-        required this.setState,
-        this.deleteButton = false}) {
+  BellSettingsMenu({super.key,
+    required this.bell,
+    required this.setState,
+    this.deleteButton = false}) {
     // Refreshes the GlobalKeys of the bell tutorial system.
     bellTutorialSystem.refreshKeys();
   }
@@ -120,7 +119,9 @@ class _BellSettingsMenuState extends State<BellSettingsMenu> {
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme
+        .of(context)
+        .colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
     final double width = min(mediaQuery.size.width, 500);
@@ -266,8 +267,7 @@ class _BellSettingsMenuState extends State<BellSettingsMenu> {
                                                       .delete_forever_rounded,
                                                   backgroundColor:
                                                   Colors.red,
-                                                  width: mediaQuery
-                                                      .size.width *
+                                                  width: width *
                                                       .3,
                                                   onTap: () {
                                                     BellSettings
@@ -283,7 +283,7 @@ class _BellSettingsMenuState extends State<BellSettingsMenu> {
                                                 backgroundColor:
                                                 Colors.green,
                                                 width:
-                                                mediaQuery.size.width *
+                                                width *
                                                     (widget.deleteButton
                                                         ? .3
                                                         : .6),
@@ -543,7 +543,8 @@ class _BellSettingsMenuState extends State<BellSettingsMenu> {
       {bool storeCompletion = false}) {
     // Clears tutorialSystem of tutorial values and Re-adds all tutorials to tutorialSystem
     if (alt) {
-      BellSettingsMenu.bellTutorialSystem.set(BellSettingsMenu.bellAltTutorials);
+      BellSettingsMenu.bellTutorialSystem.set(
+          BellSettingsMenu.bellAltTutorials);
     } else {
       BellSettingsMenu.bellTutorialSystem.set(BellSettingsMenu.bellTutorials);
     }
@@ -601,7 +602,9 @@ class _BellSettingsMenuState extends State<BellSettingsMenu> {
 
   // Builds the Color Wheel displayed in the bell configuration menu
   Widget _buildColorWheel(BuildContext context, String bell, bool alternate) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme
+        .of(context)
+        .colorScheme;
 
     final String tutorialKey = alternate ? "_alt" : "";
 
@@ -682,9 +685,11 @@ class _BellSettingsMenuState extends State<BellSettingsMenu> {
   }
 
   // Builds the Color Scroll displayed in the bell configuration menu
-  Widget _buildColorSelection(
-      BuildContext context, String bell, List<String> hexColors) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+  Widget _buildColorSelection(BuildContext context, String bell,
+      List<String> hexColors) {
+    final ColorScheme colorScheme = Theme
+        .of(context)
+        .colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
     final double width = min(mediaQuery.size.width, 500);
@@ -812,7 +817,9 @@ class _BellSettingsMenuState extends State<BellSettingsMenu> {
   Widget _buildTextForm(BuildContext context, TextEditingController controller,
       String display, int maxLength,
       {FocusNode? focusNode}) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme
+        .of(context)
+        .colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
     final double size = min(mediaQuery.size.width, 500) * 5 / 6;
 
@@ -844,7 +851,9 @@ class _BellSettingsMenuState extends State<BellSettingsMenu> {
   }
 
   Widget _buildDaySelector(BuildContext context, String bell) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme
+        .of(context)
+        .colorScheme;
 
     final List<String> meetDays = [];
     Schedule.sampleDays.forEach((key, value) {

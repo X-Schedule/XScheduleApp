@@ -236,7 +236,7 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
               // Calendar IconCircle (serves as button)
               child: WidgetExtension.iconCircle(
                   icon: Icons.calendar_month,
-                  iconColor: colorScheme.onTertiary,
+                  iconColor: colorScheme.onSurface,
                   color: colorScheme.tertiary.withValues(alpha: 0.4),
                   radius: 20,
                   padding: 10,

@@ -17,7 +17,7 @@ class Themes {
     secondary: Color(0xFF31ADFD),
     onSecondary: Color(0xFFE1E1E1),
     tertiary: Color(0xFF013089),
-    onTertiary: Color(0xFF1C1E21),
+    onTertiary: Color(0xFFFFFFFF),
     tertiaryContainer: Color(0xFF6E707C),
     surface: Color(0xFFE1E1E1),
     shadow: Color(0xFF3B3B3B),

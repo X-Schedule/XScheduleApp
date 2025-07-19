@@ -72,6 +72,9 @@ class _ScheduleSettingsQrState extends State<ScheduleSettingsQr> {
                             Border.all(color: colorScheme.primary, width: 7.5)),
                     child: MobileScanner(
                       controller: _controller,
+                      errorBuilder: (context, error, _){
+                        return _buildCameraError();
+                      },
                       onDetect: (capture) {
                         for (Barcode barcode in capture.barcodes) {
                           try {
@@ -140,7 +143,7 @@ class _ScheduleSettingsQrState extends State<ScheduleSettingsQr> {
                             _scanning = false;
                           });
                         }
-                        context.pushPopup(_buildQrSelect(context));
+                        context.pushPopup(_buildQrSelect());
                       },
                     )),
               ],
@@ -149,7 +152,7 @@ class _ScheduleSettingsQrState extends State<ScheduleSettingsQr> {
     ));
   }
 
-  Widget _buildQrSelect(BuildContext context) {
+  Widget _buildQrSelect() {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
@@ -182,7 +185,7 @@ class _ScheduleSettingsQrState extends State<ScheduleSettingsQr> {
                       buttonWidth: mediaQuery.size.width * .8 - 16,
                       icon: Icons.qr_code_2_outlined,
                       onTap: () {
-                        context.pushPopup(_displayQr(context, bell),
+                        context.pushPopup(_displayQr(bell),
                             begin: Offset(0, 1));
                       });
                 })))),
@@ -200,7 +203,7 @@ class _ScheduleSettingsQrState extends State<ScheduleSettingsQr> {
             )).clip(borderRadius: BorderRadius.circular(16)));
   }
 
-  Widget _displayQr(BuildContext context, String bell) {
+  Widget _displayQr(String bell) {
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
     final Map<String, dynamic> bellVanity = Schedule.bellVanity[bell] ?? {};
@@ -264,5 +267,24 @@ class _ScheduleSettingsQrState extends State<ScheduleSettingsQr> {
             )
           ],
         ));
+  }
+  
+  Widget _buildCameraError(){
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    
+    return Container(
+      color: colorScheme.tertiary,
+      alignment: Alignment.center,
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(Icons.error_outline_rounded, color: colorScheme.onTertiary, size: 64),
+          const SizedBox(height: 8),
+          Text("Failed to access camera", textAlign: TextAlign.center, style: TextStyle(fontSize: 24, color: colorScheme.onTertiary)),
+        ],
+      ).fit(),
+    );
   }
 }

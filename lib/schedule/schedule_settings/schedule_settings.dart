@@ -157,6 +157,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
           body: SingleChildScrollView(
             physics: const ClampingScrollPhysics(),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 ...List<Widget>.generate(Schedule.sampleBells.length, (i) {
                   String bell = Schedule.sampleBells[i];
@@ -170,7 +171,7 @@ class _ScheduleSettingsState extends State<ScheduleSettings> {
                   return BellButton(bell: bell, onTap: () => _onBellTap(bell));
                 }),
                 // Bottom padding og 60px to add blank space for button to rest
-                const SizedBox(height: 60)
+                SizedBox(height: 60, width: mediaQuery.size.width)
               ],
             ),
           ));

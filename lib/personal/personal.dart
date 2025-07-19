@@ -69,26 +69,26 @@ class Personal extends StatelessWidget {
         // Simple Column containing list of options
         body: Column(children: [
           // ScheduleSettings button
-          _buildOption(context, "Customize Bell Appearances", () {
+          _buildOption(context, Icons.palette_outlined, "Customize Bell Appearances", () {
             context.pushSwipePage(const ScheduleSettings(backArrow: true));
           }),
           // Clear localData button
           if (XScheduleApp.beta)
-            _buildOption(context, "Clear Local Storage",
+            _buildOption(context, Icons.playlist_remove_outlined, "Clear Local Storage",
                 () => _clearLocalStorageDialog(context))
           else
-            _buildOption(context, "Clear Bell Settings",
+            _buildOption(context, Icons.refresh_rounded, "Reset Bell Appearances",
                 () => _clearBellSettingsDialog(context)),
           // Clear cache button
-          _buildOption(context, "Clear Schedule Cache",
+          _buildOption(context, Icons.folder_delete_outlined, "Clear Schedule Cache",
               () => _clearCacheDialog(context)),
           // Credits popup button
-          _buildOption(context, "Credits and Copyright", () {
+          _buildOption(context, Icons.info_outlined, "Credits and Copyright", () {
             context.pushPopup(Credits(), begin: Offset(1, 0));
           }),
           // Beta Report Google Form button
           if (XScheduleApp.beta)
-            _buildOption(context, "Submit Beta Report", () {
+            _buildOption(context, Icons.feedback_outlined, "Submit Beta Report", () {
               launchUrl(Uri.parse(betaReport));
             }),
         ]));
@@ -96,7 +96,7 @@ class Personal extends StatelessWidget {
 
   // builds the options which appear in the body column
   Widget _buildOption(
-      BuildContext context, String text, void Function() action) {
+      BuildContext context, IconData icon, String text, void Function() action) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     // GestureDetector to listen for tap and horizontal swipe
@@ -120,6 +120,8 @@ class Personal extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  Icon(icon, color: colorScheme.onSurface, size: 32,),
+                  const SizedBox(width: 12),
                   // Option title
                   Text(
                     text,
@@ -127,7 +129,7 @@ class Personal extends StatelessWidget {
                         fontSize: 20,
                         fontWeight: FontWeight.w500,
                         color: colorScheme.onSurface),
-                  ),
+                  ).expandedFit(alignment: Alignment.centerLeft),
                   // Simple arrow icon
                   Icon(
                     Icons.arrow_forward_ios,
