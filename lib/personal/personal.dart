@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:xschedule/display/splash_page.dart';
-import 'package:xschedule/global/dynamic_content/schedule.dart';
+import 'package:xschedule/schedule/schedule.dart';
 import 'package:xschedule/global/static_content/extensions/build_context_extension.dart';
 import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
 import 'package:xschedule/global/static_content/xschedule_materials/styled_button.dart';
@@ -36,7 +36,7 @@ class Personal extends StatelessWidget {
 
     // Simple Scaffold with title AppBar and Column body
     return Scaffold(
-        backgroundColor: colorScheme.primaryContainer,
+        backgroundColor: colorScheme.secondaryContainer,
         // Custom AppBar; features title
         appBar: PreferredSize(
             // Auto-adapts to fit device safe zone
@@ -110,8 +110,8 @@ class Personal extends StatelessWidget {
       },
       // Returns Container w/ row consisting of title and icon
       child: Container(
-        color: colorScheme.primaryContainer,
         padding: const EdgeInsets.symmetric(horizontal: 10),
+        color: colorScheme.secondaryContainer,
         child: Column(
           children: [
             SizedBox(

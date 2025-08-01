@@ -9,7 +9,7 @@ import 'package:xschedule/global/static_content/extensions/color_extension.dart'
 import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
 import 'package:xschedule/global/static_content/xschedule_materials/styled_button.dart';
 
-import '../../../global/dynamic_content/schedule.dart';
+import '../../schedule.dart';
 import '../../../global/dynamic_content/tutorial_system.dart';
 import 'bell_settings.dart';
 

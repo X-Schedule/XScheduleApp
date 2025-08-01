@@ -6,7 +6,7 @@
 import 'dart:convert';
 
 import 'package:localstorage/localstorage.dart';
-import 'package:xschedule/global/dynamic_content/schedule.dart';
+import 'package:xschedule/schedule/schedule.dart';
 import 'package:xschedule/global/static_content/extensions/date_time_extension.dart';
 
 /// class for managing schedule data from various different sources. <p>

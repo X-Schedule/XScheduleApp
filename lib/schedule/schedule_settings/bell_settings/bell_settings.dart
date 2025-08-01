@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:xschedule/global/static_content/extensions/color_extension.dart';
 
-import '../../../global/dynamic_content/schedule.dart';
+import '../../schedule.dart';
 import '../../../global/dynamic_content/stream_signal.dart';
 import '../../schedule_display/schedule_display.dart';
 

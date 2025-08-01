@@ -4,7 +4,7 @@ import 'package:xschedule/global/static_content/extensions/widget_extension.dart
 
 import '../../../global/dynamic_content/backend/schedule_directory.dart';
 import '../../../global/dynamic_content/clock.dart';
-import '../../../global/dynamic_content/schedule.dart';
+import '../../schedule.dart';
 import '../../../global/static_content/extensions/color_extension.dart';
 import '../schedule_display.dart';
 import 'bell_info.dart';

@@ -8,7 +8,7 @@ import 'package:xschedule/global/dynamic_content/backend/schedule_directory.dart
 import 'package:xschedule/global/static_content/extensions/date_time_extension.dart';
 import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
 
-import '../../global/dynamic_content/schedule.dart';
+import '../schedule.dart';
 import '../../global/static_content/xschedule_materials/popup_menu.dart';
 
 /// StatelessWidget which displays the popup containing the dailyInfo of a given date. <p>

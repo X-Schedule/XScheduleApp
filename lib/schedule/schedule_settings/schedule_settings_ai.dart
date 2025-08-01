@@ -9,7 +9,7 @@ import 'package:xschedule/global/static_content/extensions/widget_extension.dart
 import 'package:xschedule/schedule/schedule_settings/bell_settings/bell_settings.dart';
 
 import '../../global/dynamic_content/backend/open_ai.dart';
-import '../../global/dynamic_content/schedule.dart';
+import '../schedule.dart';
 import '../../global/static_content/xschedule_materials/popup_menu.dart';
 
 class ScheduleSettingsAi extends StatefulWidget {
@@ -36,7 +36,7 @@ class _ScheduleSettingsAiState extends State<ScheduleSettingsAi> {
     uploaded = imageFile != null;
     isLoading = false;
 
-    // Returns popup wrapped in StatefulBuilder
+    // Returns popup
     return PopupMenu(
         child: Column(
           mainAxisSize: MainAxisSize.min,

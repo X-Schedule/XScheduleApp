@@ -7,7 +7,7 @@ import 'dart:convert';
 
 import 'package:localstorage/localstorage.dart';
 
-import 'clock.dart';
+import '../global/dynamic_content/clock.dart';
 
 /// class for managing the various variables of each day's Schedule
 class Schedule {
@@ -96,5 +96,28 @@ class Schedule {
 
   Map<String, dynamic> toJsonEntry() {
     return {"name": name, "bells": bells, "info": info};
+  }
+
+  bool containsClasses({bool tutorial = false, bool clean = true}){
+    if (tutorial) {
+      if (firstBell == null || firstFlex == null) {
+        return false;
+      }
+    }
+    // Checks if schedule has bells
+    if (bells.isEmpty) {
+      return false;
+    }
+
+    if(clean) {
+      // Removes any bells with fault Clocks
+      List<String> keys = bells.keys.toList();
+      for (String key in keys) {
+        if (clockMap(key) == null) {
+          bells.remove(key);
+        }
+      }
+    }
+    return true;
   }
 }

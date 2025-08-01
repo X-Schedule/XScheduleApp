@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
 
 import '../../../global/dynamic_content/clock.dart';
-import '../../../global/dynamic_content/schedule.dart';
+import '../../schedule.dart';
 import '../../../global/static_content/extensions/color_extension.dart';
 import '../../../global/static_content/xschedule_materials/popup_menu.dart';
 

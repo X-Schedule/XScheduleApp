@@ -10,7 +10,7 @@ import 'package:xschedule/schedule/schedule_settings/bell_settings/bell_button.d
 import 'package:xschedule/schedule/schedule_settings/bell_settings/bell_settings.dart';
 import 'package:xschedule/schedule/schedule_settings/bell_settings/bell_settings_menu.dart';
 
-import '../../global/dynamic_content/schedule.dart';
+import '../schedule.dart';
 import '../../global/static_content/xschedule_materials/popup_menu.dart';
 import '../../global/static_content/xschedule_materials/styled_button.dart';
 
@@ -37,7 +37,7 @@ class _ScheduleSettingsQrState extends State<ScheduleSettingsQr> {
     final double width = min(mediaQuery.size.width * .95, 500);
     final double scannerSize = width * .6;
 
-    // Returns popup wrapped in StatefulBuilder
+    // Returns popup
     return PopupMenu(
         child: Column(
       mainAxisSize: MainAxisSize.min,

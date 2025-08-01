@@ -15,7 +15,7 @@ import 'package:xschedule/schedule/schedule_settings/bell_settings/bell_button.d
 import 'package:xschedule/schedule/schedule_settings/bell_settings/bell_settings_menu.dart';
 import 'package:xschedule/schedule/schedule_settings/schedule_settings_qr.dart';
 
-import '../../global/dynamic_content/schedule.dart';
+import '../schedule.dart';
 import 'bell_settings/bell_settings.dart';
 
 /// Settings page which allows the user to configure bell vanity. <p>

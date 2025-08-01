@@ -10,7 +10,7 @@ import 'package:xschedule/global/dynamic_content/stream_signal.dart';
 import 'package:xschedule/global/static_content/extensions/date_time_extension.dart';
 import 'package:xschedule/schedule/schedule_display/schedule_display.dart';
 
-import '../schedule.dart';
+import '../../../schedule/schedule.dart';
 
 class RSS {
   // rss.json variables TBD
