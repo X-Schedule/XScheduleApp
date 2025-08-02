@@ -46,3 +46,6 @@ app.*.map.json
 assets/data/open_ai.json
 assets/data/github.json
 assets/data/supabase.json
+
+# Keystore files
+/android/keystore/
