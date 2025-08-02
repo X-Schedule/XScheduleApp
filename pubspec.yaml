@@ -79,6 +79,7 @@ flutter:
     - assets/images/x.png
     - assets/images/xschedule.png
     - assets/images/xschedule_transparent.png
+    - assets/images/xschedule_small.png
     - assets/images/x_building.jpg
     - assets/data/credits.json
     - assets/data/github.json

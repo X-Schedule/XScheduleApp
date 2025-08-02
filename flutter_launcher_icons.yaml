@@ -11,6 +11,10 @@ flutter_launcher_icons:
 
   ios: true
   android: true
+
+  adaptive_icon_background: "#f3ecda"
+  adaptive_icon_foreground: "assets/images/xschedule_small.png"
+
   # image_path_ios: "assets/icon/icon.png"
   remove_alpha_channel_ios: true
   # image_path_ios_dark_transparent: "assets/icon/icon_dark.png"

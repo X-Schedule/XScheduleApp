@@ -103,7 +103,7 @@ class ScheduleDisplayCard extends StatelessWidget {
                   refreshDuration: const Duration(minutes: 1),
                   builder: (context) {
                     // Calculates the margin, from the top of the schedule, at which the current time indicator is placed
-                    final DateTime currentTime = DateTime(2025, 8, 14, 12);
+                    final DateTime currentTime = DateTime.now();
                     final double timeMargin =
                         currentTime.hour * 60 + currentTime.minute - 480;
 

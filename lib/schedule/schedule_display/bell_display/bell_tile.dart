@@ -83,6 +83,9 @@ class BellTile extends StatelessWidget {
     final String timeRange =
         '${times['start']!.display()} - ${times['end']!.display()}';
 
+    final bool dense = height <= 50;
+    final bool veryDense = height <= 25;
+
     //Returns Tile w/ margin
     return Container(
         height: height,
@@ -108,24 +111,17 @@ class BellTile extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 // If tile is not too short, displays emoji circle as Stack
-                if (height > 25)
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      // Background colored circle
-                      CircleAvatar(
-                        backgroundColor: Colors.black.withValues(alpha: .2),
-                        radius: height * 3 / 7 - 5,
-                      ),
-                      // Emoji Text
-                      Text(
-                        // If no emoji set in settings, displays default book emoji
-                        vanity['emoji'] ?? '📚',
-                        style: TextStyle(
-                            fontSize: height * 3 / 7,
-                            color: colorScheme.onSurface),
-                      )
-                    ],
+                if (!veryDense)
+                  CircleAvatar(
+                    backgroundColor: Colors.black.withValues(alpha: .2),
+                    radius: height * 3 / 7 - 5,
+                    child: Text(
+                      // If no emoji set in settings, displays default book emoji
+                      vanity['emoji'] ?? '📚',
+                      style: TextStyle(
+                          fontSize: height * 3 / 7,
+                          color: colorScheme.onSurface),
+                    ).fit(),
                   ),
                 // Text (with line skips) wrapped in FittedBox
                 Container(
@@ -140,10 +136,10 @@ class BellTile extends StatelessWidget {
                       Expanded(
                           child: Container(
                         // Forces close to second row
-                        alignment: Alignment.bottomLeft,
+                        alignment: dense ? Alignment.centerLeft : Alignment.bottomLeft,
                         child: Text(
                           // If there won't be room for time range line, include it in this line
-                          '${(vanity['name'] ?? bell) ?? ''}$suffix${height <= 50 ? ':     $timeRange' : ''}',
+                          '${(vanity['name'] ?? bell) ?? ''}$suffix${dense ? ':     $timeRange' : ''}',
                           style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
@@ -152,7 +148,7 @@ class BellTile extends StatelessWidget {
                         ).fit(),
                       )),
                       // If there is space, display time range as separate line
-                      if (height > 50)
+                      if (!dense)
                         Expanded(
                             child: Container(
                           margin: const EdgeInsets.only(top: 2),

@@ -4,6 +4,7 @@
 */
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:xschedule/display/splash_page.dart';
@@ -30,6 +31,8 @@ Future<void> main() async {
 Future<void> init() async {
   // Ensures Flutter is ready-to-go
   WidgetsFlutterBinding.ensureInitialized();
+
+  await configAndroid();
   // Initializes local storage; Runs synchronously since local storage is essential
   await initLocalStorage();
   ScheduleDirectory.readStoredSchedule();
@@ -61,6 +64,13 @@ Future<void> init() async {
     ScheduleDirectory.coCurriculars = result;
   });
    */
+}
+
+Future<void> configAndroid() async {
+  // Sets screen orientation
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp
+  ]);
 }
 
 /// The base Flutter app <p>

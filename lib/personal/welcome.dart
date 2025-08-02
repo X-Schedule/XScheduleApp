@@ -59,13 +59,15 @@ class Welcome extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Welcome text fitted to card
-                Text(
-                  "Welcome to X-Schedule",
-                  style: TextStyle(
-                      fontFamily: "SansitaSwashed",
-                      fontSize: 30,
-                      color: colorScheme.onSurface),
-                ).fit(),
+                Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Text(
+                      "Welcome to X-Schedule",
+                      style: TextStyle(
+                          fontFamily: "SansitaSwashed",
+                          fontSize: 30,
+                          color: colorScheme.onSurface),
+                    ).fit()),
                 // Button spaced 10px from vertical edges
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10),
@@ -76,8 +78,8 @@ class Welcome extends StatelessWidget {
                       // Pushes ScheduleSettings to Navigator with animation
                       Navigator.push(context,
                           CupertinoPageRoute(builder: (context) {
-                            return const ScheduleSettings();
-                          }));
+                        return const ScheduleSettings();
+                      }));
                     },
                   ),
                 ),

@@ -7,43 +7,6 @@ import 'package:flutter/material.dart';
 /// Widget extension <p>
 /// Provided static Widgets and fit methods for existing widgets.
 extension WidgetExtension on Widget {
-  /// Widget extension <p>
-  /// static Widget which provides an Icon with a filled, circular border around it. <p>
-  /// [required IconData icon]: The icon to be displayed <p>
-  /// [void Function()? onTap]: The method to run once the icon is tapped <p>
-  /// [double radius = 15]: The radius of the circle <p>
-  /// [double padding 5]: The padding of the circle and its icon <p>
-  /// [Color? color]: The color of the circle <p>
-  /// [Color? iconColor]: The color of the icon
-  static Widget iconCircle(
-      {required IconData icon,
-      void Function()? onTap,
-      double radius = 15,
-      double padding = 5,
-      Color? color,
-      Color? iconColor}) {
-    // Returns an InkWell w/ a Stack of circle on Icon
-    return InkWell(
-      onTap: onTap,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Background circle
-          CircleAvatar(
-            radius: radius,
-            backgroundColor: color,
-          ),
-          // Icon
-          Icon(
-            icon,
-            // Size decreases w/ padding increase
-            size: radius * 2 - padding,
-            color: iconColor,
-          )
-        ],
-      ),
-    );
-  }
 
   /// Widget extension <p>
   /// Returns a FittedBox set to scaleDown wrapping this widget.

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:xschedule/global/dynamic_content/backend/schedule_directory.dart';
 import 'package:xschedule/global/static_content/extensions/date_time_extension.dart';
@@ -76,7 +78,7 @@ class _CalendarNavigationState extends State<CalendarNavigation> {
                             color: colorScheme.onSurface)),
                     // Month text fitted to set size
                     SizedBox(
-                      width: width - 200,
+                      width: min(125, width - 150),
                       height: 50,
                       child: Text(
                         // Text in Month Year format
@@ -199,7 +201,7 @@ class _CalendarNavigationState extends State<CalendarNavigation> {
                     radius: radius,
                     child: Text(dotDate.day.toString(),
                         style:
-                        TextStyle(color: textColor, fontFamily: "Georama")),
+                        TextStyle(color: textColor, fontFamily: "Georama")).fit(),
                   ),
                 ));
           }),
