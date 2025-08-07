@@ -9,15 +9,16 @@ import 'package:xschedule/global/static_content/extensions/color_extension.dart'
 import 'package:xschedule/global/static_content/extensions/widget_extension.dart';
 import 'package:xschedule/global/static_content/xschedule_materials/styled_button.dart';
 
-import '../../schedule.dart';
 import '../../../global/dynamic_content/tutorial_system.dart';
+import '../../schedule.dart';
 import 'bell_settings.dart';
 
 class BellSettingsMenu extends StatefulWidget {
-  BellSettingsMenu({super.key,
-    required this.bell,
-    required this.setState,
-    this.deleteButton = false}) {
+  BellSettingsMenu(
+      {super.key,
+      required this.bell,
+      required this.setState,
+      this.deleteButton = false}) {
     // Refreshes the GlobalKeys of the bell tutorial system.
     bellTutorialSystem.refreshKeys();
   }
@@ -29,41 +30,41 @@ class BellSettingsMenu extends StatefulWidget {
   // All tutorials used in bell customization page; recalled when help button pressed
   static const Map<String, String> bellTutorials = {
     'tutorial_settings_bell':
-    "In this menu, you'll be able to customize any individual bell on your schedule.",
+        "In this menu, you'll be able to customize any individual bell on your schedule.",
     'tutorial_settings_bell_color_wheel':
-    "You can give each bell a distinctive color using the color wheel.",
+        "You can give each bell a distinctive color using the color wheel.",
     'tutorial_settings_bell_color_row':
-    "...or by selecting one from the available options.",
+        "...or by selecting one from the available options.",
     'tutorial_settings_bell_icon':
-    "Additionally, you can select an icon to represent each bell.",
+        "Additionally, you can select an icon to represent each bell.",
     'tutorial_settings_bell_info':
-    "As well, you can input the information about your class so that you can remember it later.",
+        "As well, you can input the information about your class so that you can remember it later.",
     'tutorial_settings_bell_alternate':
-    '...and if your class changes daily, you can add an "alternate" class for the bell.',
+        '...and if your class changes daily, you can add an "alternate" class for the bell.',
     'tutorial_settings_bell_complete':
-    "When you've finished customizing the bell, press this button to save your changes and exit.",
+        "When you've finished customizing the bell, press this button to save your changes and exit.",
     'tutorial_settings_bell_help':
-    'If you ever need help, press this button here.'
+        'If you ever need help, press this button here.'
   };
 
   static const Map<String, String> bellAltTutorials = {
     // Cheat and have same ID for two texts to re-use Widget
     'tutorial_settings_bell':
-    "In this menu, you'll be able to specify an alternate bell dependent on the day.",
+        "In this menu, you'll be able to specify an alternate bell dependent on the day.",
     'tutorial_settings_bell_alt_day':
-    "Down here, you can scroll through all the days this bell appears on and select when to replace the normal settings for this bell.",
+        "Down here, you can scroll through all the days this bell appears on and select when to replace the normal settings for this bell.",
     'tutorial_settings_bell_alt_vanity':
-    "Up here, you can customize the alternate bell using the same settings as normal.",
+        "Up here, you can customize the alternate bell using the same settings as normal.",
     'tutorial_settings_bell_alt_alternate':
-    "When you're done, tap this button up here to return to the standard bell settings.",
+        "When you're done, tap this button up here to return to the standard bell settings.",
     'tutorial_settings_bell_alt_help':
-    "...and if you ever need help, press this button here.",
+        "...and if you ever need help, press this button here.",
   };
 
   static final TutorialSystem bellTutorialSystem = TutorialSystem({
     'tutorial_settings_bell': bellTutorials['tutorial_settings_bell']!,
     'tutorial_settings_bell_help':
-    bellTutorials['tutorial_settings_bell_help']!,
+        bellTutorials['tutorial_settings_bell_help']!,
   });
 
   /// Refreshes the keys and tutorial text of Setting's tutorial systems.
@@ -71,7 +72,7 @@ class BellSettingsMenu extends StatefulWidget {
     bellTutorialSystem.set({
       'tutorial_settings_bell': bellTutorials['tutorial_settings_bell']!,
       'tutorial_settings_bell_help':
-      bellTutorials['tutorial_settings_bell_help']!,
+          bellTutorials['tutorial_settings_bell_help']!,
     });
     bellTutorialSystem.refreshKeys();
   }
@@ -105,23 +106,90 @@ class _BellSettingsMenuState extends State<BellSettingsMenu> {
     '#000000'
   ];
 
-  // FocusNodes used for bell customization UI elements; <Bell, FocusNode>
-  final FocusNode emojiFocus = FocusNode();
-  final FocusNode nameFocus = FocusNode();
-  final FocusNode teacherFocus = FocusNode();
-  final FocusNode locationFocus = FocusNode();
-
   // Allows remote calling of FlipCard
   final GlobalKey<FlipCardState> cardKey = GlobalKey<FlipCardState>();
 
   // bool for if day picker is displayed for alternate side
   bool dayPicker = true;
 
+  // FocusNodes and TextEditingControllers used for bell customization UI elements; <Bell, FocusNode>
+  final Map<String, TextEditingController> _controllers = {};
+  final Map<String, FocusNode> _focusNodes = {};
+
+  void _loadBell(String postfix) {
+    final bellKey = widget.bell + postfix;
+
+    _focusNodes["emoji$postfix"] = FocusNode();
+    _focusNodes["name$postfix"] = FocusNode();
+    _focusNodes["teacher$postfix"] = FocusNode();
+    _focusNodes["location$postfix"] = FocusNode();
+    _controllers['emoji$postfix'] =
+        TextEditingController(text: BellSettings.emojis[bellKey]);
+    _controllers['name$postfix'] =
+        TextEditingController(text: BellSettings.names[bellKey]);
+    _controllers['teacher$postfix'] =
+        TextEditingController(text: BellSettings.teachers[bellKey]);
+    _controllers['location$postfix'] =
+        TextEditingController(text: BellSettings.locations[bellKey]);
+  }
+
+  void _writeBell(String postfix) {
+    final bellKey = widget.bell + postfix;
+
+    BellSettings.emojis[bellKey] = _controllers['emoji$postfix']?.text ?? '';
+    BellSettings.names[bellKey] = _controllers['name$postfix']?.text ?? '';
+    BellSettings.teachers[bellKey] =
+        _controllers['teacher$postfix']?.text ?? '';
+    BellSettings.locations[bellKey] =
+        _controllers['location$postfix']?.text ?? '';
+  }
+
+  // Saves the temporary selected bell values to the bellVanity
+  void _saveBell() {
+    // The ID of the alt bell values
+    final String altBell = "${widget.bell}_alt";
+    _writeBell("");
+    _writeBell("_alt");
+
+    Schedule.bellVanity[widget.bell] = {
+      'name': BellSettings.names[widget.bell],
+      'teacher': BellSettings.teachers[widget.bell],
+      'location': BellSettings.locations[widget.bell],
+      'emoji': BellSettings.emojis[widget.bell],
+      'color': BellSettings.colors[widget.bell]!.toColor().toHex(),
+      'alt_days': BellSettings.altDays[widget.bell],
+      'alt': {
+        'name': BellSettings.names[altBell],
+        'teacher': BellSettings.teachers[altBell],
+        'location': BellSettings.locations[altBell],
+        'emoji': BellSettings.emojis[altBell],
+        'color': BellSettings.colors[altBell]!.toColor().toHex(),
+      }
+    };
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    BellSettings.defineBell(widget.bell);
+    BellSettings.defineBell(widget.bell, alternate: true);
+    _loadBell("");
+    _loadBell("_alt");
+  }
+
+  @override
+  void dispose() {
+    for (String key in _focusNodes.keys) {
+      _focusNodes[key]?.dispose();
+      _controllers[key]?.dispose();
+    }
+
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme
-        .of(context)
-        .colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
     final double width = min(mediaQuery.size.width, 500);
@@ -136,128 +204,119 @@ class _BellSettingsMenuState extends State<BellSettingsMenu> {
 
     return KeyboardAvoider(
         autoScroll: true,
-        // Aligns the popup at the center of the page
-        child: Align(
-            alignment: Alignment.center,
+        child: Center(
             // Popup wrapped in Showcase View Widget
             child: ShowCaseWidget(onFinish: () {
-              BellSettingsMenu.bellTutorialSystem.finish();
-            }, builder: (context) {
-              // Schedules the showcase to start after the Widget is built
-              if (!BellSettingsMenu.bellTutorialSystem.finished) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  BellSettingsMenu.bellTutorialSystem.showTutorials(context);
+          BellSettingsMenu.bellTutorialSystem.finish();
+        }, builder: (context) {
+          // Schedules the showcase to start after the Widget is built
+          if (!BellSettingsMenu.bellTutorialSystem.finished) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              BellSettingsMenu.bellTutorialSystem.showTutorials(context);
+            });
+          }
+          // Returns the popup wrapped in a Showcase
+          return BellSettingsMenu.bellTutorialSystem.showcase(
+              context: context,
+              tutorial: 'tutorial_settings_bell',
+              onTap: () async {
+                setState(() {
+                  dayPicker = true;
                 });
-              }
-              // Returns the popup wrapped in a Showcase
-              return BellSettingsMenu.bellTutorialSystem.showcase(
-                  context: context,
-                  tutorial: 'tutorial_settings_bell',
-                  onTap: () async {
-                    setState(() {
-                      dayPicker = true;
-                    });
-                    await Future.delayed(const Duration(milliseconds: 150));
-                  },
-                  // The popup as a flippable card with Columns of content
-                  child: FlipCard(
-                      key: cardKey,
-                      flipOnTouch: false,
-                      direction: FlipDirection.HORIZONTAL,
-                      front: Card(
-                          child: Container(
-                              padding: const EdgeInsets.all(8),
-                              width: width * .95,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  // Row of set size at the top for misc. actions
-                                  SizedBox(
-                                      width: width * .9,
-                                      child: Row(
-                                        crossAxisAlignment:
+                await Future.delayed(const Duration(milliseconds: 150));
+              },
+              // The popup as a flippable card with Columns of content
+              child: FlipCard(
+                  key: cardKey,
+                  flipOnTouch: false,
+                  direction: FlipDirection.HORIZONTAL,
+                  front: Card(
+                      child: Container(
+                          padding: const EdgeInsets.all(8),
+                          width: width * .95,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              // Row of set size at the top for misc. actions
+                              SizedBox(
+                                  width: width * .9,
+                                  child: Row(
+                                    crossAxisAlignment:
                                         CrossAxisAlignment.center,
-                                        // Items spaced evenly
-                                        mainAxisAlignment:
+                                    // Items spaced evenly
+                                    mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          // Help icon wrapped in Showcase
-                                          BellSettingsMenu.bellTutorialSystem
-                                              .showcase(
-                                            context: context,
-                                            tutorial:
-                                            "tutorial_settings_bell_help",
-                                            circular: true,
-                                            child: IconButton(
-                                              // Restarts bell tutorial
-                                                onPressed: () =>
-                                                    _startBellTutorial(
-                                                        context, false),
-                                                // Help Icon
-                                                icon: Icon(
-                                                    Icons.help_outline_rounded,
-                                                    size: 30,
-                                                    color:
-                                                    colorScheme.onSurface)),
-                                          ),
-                                          // Hint text widget
-                                          Text(hint,
-                                              style: TextStyle(
-                                                  fontSize: 25,
-                                                  height: 1,
-                                                  fontFamily: 'Exo2',
-                                                  color: colorScheme.onSurface
-                                                      .withAlpha(128))),
-                                          // Alternate-schedule configuration button wrapped in SHowcase
-                                          BellSettingsMenu.bellTutorialSystem
-                                              .showcase(
-                                            context: context,
-                                            tutorial:
+                                    children: [
+                                      // Help icon wrapped in Showcase
+                                      BellSettingsMenu.bellTutorialSystem
+                                          .showcase(
+                                        context: context,
+                                        tutorial: "tutorial_settings_bell_help",
+                                        circular: true,
+                                        child: IconButton(
+                                            // Restarts bell tutorial
+                                            onPressed: () => _startBellTutorial(
+                                                context, false),
+                                            // Help Icon
+                                            icon: Icon(
+                                                Icons.help_outline_rounded,
+                                                size: 30,
+                                                color: colorScheme.onSurface)),
+                                      ),
+                                      // Hint text widget
+                                      Text(hint,
+                                          style: TextStyle(
+                                              fontSize: 25,
+                                              height: 1,
+                                              fontFamily: 'Exo2',
+                                              color: colorScheme.onSurface
+                                                  .withAlpha(128))),
+                                      // Alternate-schedule configuration button wrapped in SHowcase
+                                      BellSettingsMenu.bellTutorialSystem
+                                          .showcase(
+                                        context: context,
+                                        tutorial:
                                             "tutorial_settings_bell_alternate",
-                                            circular: true,
-                                            child: Schedule
-                                                .sampleDays['All Meet']!
+                                        circular: true,
+                                        child: Schedule.sampleDays['All Meet']!
                                                 .contains(widget.bell)
-                                                ? IconButton(
+                                            ? IconButton(
                                                 onPressed: () async {
                                                   cardKey.currentState
                                                       ?.toggleCard();
                                                   await Future.delayed(
                                                       const Duration(
-                                                          milliseconds:
-                                                          1000));
+                                                          milliseconds: 1000));
                                                   if (context.mounted) {
                                                     _startBellTutorial(
                                                         context, true,
-                                                        storeCompletion:
-                                                        true);
+                                                        storeCompletion: true);
                                                   }
                                                 },
                                                 // Tuning Icon
                                                 icon: Icon(Icons.autorenew,
                                                     size: 30,
-                                                    color: colorScheme
-                                                        .onSurface))
-                                                : CircleAvatar(
-                                              radius: 20,
-                                              backgroundColor:
-                                              Colors.transparent,
-                                            ),
-                                          )
-                                        ],
-                                      )),
-                                  _buildBellSettings(
-                                      context, widget.bell, false),
-                                  // Submit Button wrapped in Showcase w/ padding
-                                  Padding(
-                                      padding: const EdgeInsets.only(top: 8),
-                                      child: BellSettingsMenu.bellTutorialSystem
-                                          .showcase(
+                                                    color:
+                                                        colorScheme.onSurface))
+                                            : CircleAvatar(
+                                                radius: 20,
+                                                backgroundColor:
+                                                    Colors.transparent,
+                                              ),
+                                      )
+                                    ],
+                                  )),
+                              _buildBellSettings(false),
+                              // Submit Button wrapped in Showcase w/ padding
+                              Padding(
+                                  padding: const EdgeInsets.only(top: 8),
+                                  child: BellSettingsMenu.bellTutorialSystem
+                                      .showcase(
                                           context: context,
                                           tutorial:
-                                          'tutorial_settings_bell_complete',
+                                              'tutorial_settings_bell_complete',
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
@@ -265,10 +324,8 @@ class _BellSettingsMenuState extends State<BellSettingsMenu> {
                                                 StyledButton(
                                                   icon: Icons
                                                       .delete_forever_rounded,
-                                                  backgroundColor:
-                                                  Colors.red,
-                                                  width: width *
-                                                      .3,
+                                                  backgroundColor: Colors.red,
+                                                  width: width * .3,
                                                   onTap: () {
                                                     BellSettings
                                                         .clearSettings();
@@ -280,10 +337,8 @@ class _BellSettingsMenuState extends State<BellSettingsMenu> {
                                               ],
                                               StyledButton(
                                                 icon: Icons.check,
-                                                backgroundColor:
-                                                Colors.green,
-                                                width:
-                                                width *
+                                                backgroundColor: Colors.green,
+                                                width: width *
                                                     (widget.deleteButton
                                                         ? .3
                                                         : .6),
@@ -291,9 +346,8 @@ class _BellSettingsMenuState extends State<BellSettingsMenu> {
                                                   // Resets state of settings page to include new values
                                                   widget.setState(() {
                                                     // Sets global bellVanity values to match selected ones
-                                                    _saveBell(widget.bell);
-                                                    BellSettings
-                                                        .saveBells();
+                                                    _saveBell();
+                                                    BellSettings.saveBells();
                                                   });
                                                   // Pops popup, returning to settings page
                                                   Navigator.pop(context);
@@ -301,241 +355,208 @@ class _BellSettingsMenuState extends State<BellSettingsMenu> {
                                               )
                                             ],
                                           ))),
-                                ],
-                              ))),
-                      back: Card(
-                          child: Container(
-                              padding: const EdgeInsets.all(8),
-                              width: width * .95,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  // Row of set size at the top for misc. actions
-                                  SizedBox(
-                                      width: width * .9,
-                                      child: Row(
-                                        crossAxisAlignment:
+                            ],
+                          ))),
+                  back: Card(
+                      child: Container(
+                          padding: const EdgeInsets.all(8),
+                          width: width * .95,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              // Row of set size at the top for misc. actions
+                              SizedBox(
+                                  width: width * .9,
+                                  child: Row(
+                                    crossAxisAlignment:
                                         CrossAxisAlignment.center,
-                                        // Items spaced evenly
-                                        mainAxisAlignment:
+                                    // Items spaced evenly
+                                    mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          // Help icon wrapped in Showcase
-                                          BellSettingsMenu.bellTutorialSystem
-                                              .showcase(
-                                            context: context,
-                                            tutorial:
+                                    children: [
+                                      // Help icon wrapped in Showcase
+                                      BellSettingsMenu.bellTutorialSystem
+                                          .showcase(
+                                        context: context,
+                                        tutorial:
                                             "tutorial_settings_bell_alt_help",
-                                            circular: true,
-                                            child: IconButton(
-                                              // Restarts bell tutorial
-                                                onPressed: () =>
-                                                    _startBellTutorial(
-                                                        context, true),
-                                                // Help Icon
-                                                icon: Icon(
-                                                    Icons.help_outline_rounded,
-                                                    size: 30,
-                                                    color:
-                                                    colorScheme.onSurface)),
-                                          ),
-                                          // Hint text widget
-                                          Text('$hint - Alternate',
-                                              style: TextStyle(
-                                                  fontSize: 25,
-                                                  height: 1,
-                                                  fontFamily: 'Exo2',
-                                                  color: colorScheme.onSurface
-                                                      .withAlpha(128))),
-                                          // Alternate-schedule configuration button wrapped in SHowcase
-                                          BellSettingsMenu.bellTutorialSystem
-                                              .showcase(
-                                            context: context,
-                                            tutorial:
+                                        circular: true,
+                                        child: IconButton(
+                                            // Restarts bell tutorial
+                                            onPressed: () => _startBellTutorial(
+                                                context, true),
+                                            // Help Icon
+                                            icon: Icon(
+                                                Icons.help_outline_rounded,
+                                                size: 30,
+                                                color: colorScheme.onSurface)),
+                                      ),
+                                      // Hint text widget
+                                      Text('$hint - Alternate',
+                                          style: TextStyle(
+                                              fontSize: 25,
+                                              height: 1,
+                                              fontFamily: 'Exo2',
+                                              color: colorScheme.onSurface
+                                                  .withAlpha(128))),
+                                      // Alternate-schedule configuration button wrapped in SHowcase
+                                      BellSettingsMenu.bellTutorialSystem
+                                          .showcase(
+                                        context: context,
+                                        tutorial:
                                             "tutorial_settings_bell_alt_alternate",
-                                            circular: true,
-                                            child: IconButton(
-                                                onPressed: () {
-                                                  cardKey.currentState
-                                                      ?.toggleCard();
-                                                },
-                                                // Tuning Icon
-                                                icon: Icon(Icons.autorenew,
-                                                    size: 30,
-                                                    color:
-                                                    colorScheme.onSurface)),
-                                          )
-                                        ],
-                                      )),
-                                  BellSettingsMenu.bellTutorialSystem.showcase(
-                                      context: context,
-                                      tutorial:
-                                      "tutorial_settings_bell_alt_vanity",
-                                      child: AnimatedContainer(
-                                        duration:
-                                        const Duration(milliseconds: 250),
-                                        curve: Curves.easeInOut,
-                                        constraints: BoxConstraints(
-                                            maxHeight: dayPicker
-                                                ? 50
-                                                : mediaQuery.size.height * .75),
-                                        child: SingleChildScrollView(
-                                          physics:
-                                          NeverScrollableScrollPhysics(),
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              InkWell(
-                                                onTap: () {
-                                                  setState(() {
-                                                    dayPicker = !dayPicker;
-                                                  });
-                                                },
-                                                child: Container(
-                                                  height: 50,
-                                                  alignment: Alignment.center,
-                                                  padding: const EdgeInsets
-                                                      .symmetric(horizontal: 8),
-                                                  child: Row(
-                                                    crossAxisAlignment:
-                                                    CrossAxisAlignment
-                                                        .center,
-                                                    mainAxisAlignment:
+                                        circular: true,
+                                        child: IconButton(
+                                            onPressed: () {
+                                              cardKey.currentState
+                                                  ?.toggleCard();
+                                            },
+                                            // Tuning Icon
+                                            icon: Icon(Icons.autorenew,
+                                                size: 30,
+                                                color: colorScheme.onSurface)),
+                                      )
+                                    ],
+                                  )),
+                              BellSettingsMenu.bellTutorialSystem.showcase(
+                                  context: context,
+                                  tutorial: "tutorial_settings_bell_alt_vanity",
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 250),
+                                    curve: Curves.easeInOut,
+                                    constraints: BoxConstraints(
+                                        maxHeight: dayPicker
+                                            ? 50
+                                            : mediaQuery.size.height * .75),
+                                    child: SingleChildScrollView(
+                                      physics: NeverScrollableScrollPhysics(),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          InkWell(
+                                            onTap: () {
+                                              setState(() {
+                                                dayPicker = !dayPicker;
+                                              });
+                                            },
+                                            child: Container(
+                                              height: 50,
+                                              alignment: Alignment.center,
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 8),
+                                              child: Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                mainAxisAlignment:
                                                     MainAxisAlignment
                                                         .spaceBetween,
-                                                    children: [
-                                                      Text("Appearance",
+                                                children: [
+                                                  Text("Appearance",
                                                           style: TextStyle(
                                                               fontSize: 25,
                                                               color: colorScheme
                                                                   .onSurface,
                                                               fontFamily:
-                                                              "Georama",
+                                                                  "Georama",
                                                               fontWeight:
-                                                              FontWeight
-                                                                  .w600))
-                                                          .expandedFit(),
-                                                      Icon(
-                                                        dayPicker
-                                                            ? Icons
+                                                                  FontWeight
+                                                                      .w600))
+                                                      .expandedFit(),
+                                                  Icon(
+                                                    dayPicker
+                                                        ? Icons
                                                             .keyboard_arrow_up
-                                                            : Icons
+                                                        : Icons
                                                             .keyboard_arrow_down,
-                                                        color: colorScheme
-                                                            .onSurface,
-                                                        size: 32,
-                                                      )
-                                                    ],
-                                                  ),
-                                                ),
+                                                    color:
+                                                        colorScheme.onSurface,
+                                                    size: 32,
+                                                  )
+                                                ],
                                               ),
-                                              _buildBellSettings(
-                                                  context, widget.bell, true),
-                                            ],
+                                            ),
                                           ),
-                                        ),
-                                      )),
-                                  Divider(
-                                      color: colorScheme.onSurface, height: 8),
-                                  BellSettingsMenu.bellTutorialSystem.showcase(
-                                      context: context,
-                                      tutorial:
-                                      "tutorial_settings_bell_alt_day",
-                                      onTap: () async {
-                                        setState(() {
-                                          dayPicker = false;
-                                        });
-                                        await Future.delayed(
-                                            const Duration(milliseconds: 150));
-                                      },
-                                      child: AnimatedContainer(
-                                        duration:
-                                        const Duration(milliseconds: 250),
-                                        curve: Curves.easeInOut,
-                                        constraints: BoxConstraints(
-                                            maxHeight: dayPicker
-                                                ? mediaQuery.size.height * .75
-                                                : 50),
-                                        child: SingleChildScrollView(
-                                          physics:
-                                          NeverScrollableScrollPhysics(),
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              InkWell(
-                                                onTap: () {
-                                                  setState(() {
-                                                    dayPicker = !dayPicker;
-                                                  });
-                                                },
-                                                child: Container(
-                                                  height: 50,
-                                                  alignment: Alignment.center,
-                                                  padding: const EdgeInsets
-                                                      .symmetric(horizontal: 8),
-                                                  child: Row(
-                                                    mainAxisAlignment:
+                                          _buildBellSettings(true),
+                                        ],
+                                      ),
+                                    ),
+                                  )),
+                              Divider(color: colorScheme.onSurface, height: 8),
+                              BellSettingsMenu.bellTutorialSystem.showcase(
+                                  context: context,
+                                  tutorial: "tutorial_settings_bell_alt_day",
+                                  onTap: () async {
+                                    setState(() {
+                                      dayPicker = false;
+                                    });
+                                    await Future.delayed(
+                                        const Duration(milliseconds: 150));
+                                  },
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 250),
+                                    curve: Curves.easeInOut,
+                                    constraints: BoxConstraints(
+                                        maxHeight: dayPicker
+                                            ? mediaQuery.size.height * .75
+                                            : 50),
+                                    child: SingleChildScrollView(
+                                      physics: NeverScrollableScrollPhysics(),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          InkWell(
+                                            onTap: () {
+                                              setState(() {
+                                                dayPicker = !dayPicker;
+                                              });
+                                            },
+                                            child: Container(
+                                              height: 50,
+                                              alignment: Alignment.center,
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 8),
+                                              child: Row(
+                                                mainAxisAlignment:
                                                     MainAxisAlignment
                                                         .spaceBetween,
-                                                    children: [
-                                                      Text("Program",
+                                                children: [
+                                                  Text("Program",
                                                           style: TextStyle(
                                                               fontSize: 25,
                                                               fontFamily:
-                                                              "Georama",
+                                                                  "Georama",
                                                               fontWeight:
-                                                              FontWeight
-                                                                  .w600,
+                                                                  FontWeight
+                                                                      .w600,
                                                               color: colorScheme
                                                                   .onSurface))
-                                                          .expandedFit(),
-                                                      Icon(
-                                                        dayPicker
-                                                            ? Icons
+                                                      .expandedFit(),
+                                                  Icon(
+                                                    dayPicker
+                                                        ? Icons
                                                             .keyboard_arrow_down
-                                                            : Icons
+                                                        : Icons
                                                             .keyboard_arrow_up,
-                                                        color: colorScheme
-                                                            .onSurface,
-                                                        size: 32,
-                                                      )
-                                                    ],
-                                                  ),
-                                                ),
+                                                    color:
+                                                        colorScheme.onSurface,
+                                                    size: 32,
+                                                  )
+                                                ],
                                               ),
-                                              _buildDaySelector(
-                                                  context, widget.bell)
-                                            ],
+                                            ),
                                           ),
-                                        ),
-                                      )),
-                                ],
-                              )))));
-            })));
-  }
-
-  // Saves the temporary selected bell values to the bellVanity
-  void _saveBell(String bell) {
-    // The ID of the alt bell values
-    final String altBell = "${bell}_alt";
-
-    Schedule.bellVanity[bell] = {
-      'name': BellSettings.names[bell]!.text,
-      'teacher': BellSettings.teachers[bell]!.text,
-      'location': BellSettings.locations[bell]!.text,
-      'emoji': BellSettings.emojis[bell]!.text,
-      'color': BellSettings.colors[bell]!.toColor().toHex(),
-      'alt_days': BellSettings.altDays[bell],
-      'alt': {
-        'name': BellSettings.names[altBell]!.text,
-        'teacher': BellSettings.teachers[altBell]!.text,
-        'location': BellSettings.locations[altBell]!.text,
-        'emoji': BellSettings.emojis[altBell]!.text,
-        'color': BellSettings.colors[altBell]!.toColor().toHex(),
-      }
-    };
+                                          _buildDaySelector()
+                                        ],
+                                      ),
+                                    ),
+                                  )),
+                            ],
+                          )))));
+        })));
   }
 
   // Restarts the tutorial of the bell configuration menu
@@ -543,8 +564,8 @@ class _BellSettingsMenuState extends State<BellSettingsMenu> {
       {bool storeCompletion = false}) {
     // Clears tutorialSystem of tutorial values and Re-adds all tutorials to tutorialSystem
     if (alt) {
-      BellSettingsMenu.bellTutorialSystem.set(
-          BellSettingsMenu.bellAltTutorials);
+      BellSettingsMenu.bellTutorialSystem
+          .set(BellSettingsMenu.bellAltTutorials);
     } else {
       BellSettingsMenu.bellTutorialSystem.set(BellSettingsMenu.bellTutorials);
     }
@@ -554,46 +575,42 @@ class _BellSettingsMenuState extends State<BellSettingsMenu> {
   }
 
   // Builds the base vanity settings Widget
-  Widget _buildBellSettings(BuildContext context, String bell, bool alternate) {
-    BellSettings.defineBell(bell, alternate: alternate);
-
-    final String tutorialKey = alternate ? "_alt" : '';
-    bell = "$bell$tutorialKey";
+  Widget _buildBellSettings(bool alternate) {
+    final String postfix = alternate ? "_alt" : '';
+    final String bell = "${widget.bell}$postfix";
 
     return Column(
       children: [
         // Color Wheel w/ Emoji Picker wrapped in Showcase
         BellSettingsMenu.bellTutorialSystem.showcase(
             context: context,
-            tutorial: 'tutorial_settings_bell${tutorialKey}_color_wheel',
-            child: _buildColorWheel(context, bell, alternate)),
+            tutorial: 'tutorial_settings_bell${postfix}_color_wheel',
+            child: _buildColorWheel(alternate)),
         // Color Scroll wrapped in Showcase
         BellSettingsMenu.bellTutorialSystem.showcase(
           context: context,
-          tutorial: 'tutorial_settings_bell${tutorialKey}_color_row',
-          child: _buildColorSelection(context, bell, hexColorOptions),
+          tutorial: 'tutorial_settings_bell${postfix}_color_row',
+          child: _buildColorSelection(bell, hexColorOptions),
         ),
         // Spacing of 16px
         const SizedBox(height: 16),
         // Column of text forms wrapped in Showcase
         BellSettingsMenu.bellTutorialSystem.showcase(
             context: context,
-            tutorial: 'tutorial_settings_bell${tutorialKey}_info',
+            tutorial: 'tutorial_settings_bell${postfix}_info',
             targetPadding: const EdgeInsets.all(8),
             child: Column(
               children: [
                 // Name TextField
-                _buildTextForm(
-                    context, BellSettings.names[bell]!, "Bell Name", 40,
-                    focusNode: nameFocus),
+                _buildTextForm(_controllers["name$postfix"]!, "Bell Name", 40,
+                    focusNode: _focusNodes["name$postfix"]!),
                 // Teacher TextField
-                _buildTextForm(
-                    context, BellSettings.teachers[bell]!, "Teacher", 25,
-                    focusNode: teacherFocus),
+                _buildTextForm(_controllers["teacher$postfix"]!, "Teacher", 25,
+                    focusNode: _focusNodes["teacher$postfix"]!),
                 // Location TextField
                 _buildTextForm(
-                    context, BellSettings.locations[bell]!, "Location", 20,
-                    focusNode: locationFocus),
+                    _controllers["location$postfix"]!, "Location", 20,
+                    focusNode: _focusNodes["location$postfix"]!),
               ],
             )),
       ],
@@ -601,26 +618,27 @@ class _BellSettingsMenuState extends State<BellSettingsMenu> {
   }
 
   // Builds the Color Wheel displayed in the bell configuration menu
-  Widget _buildColorWheel(BuildContext context, String bell, bool alternate) {
-    final ColorScheme colorScheme = Theme
-        .of(context)
-        .colorScheme;
+  Widget _buildColorWheel(bool alternate) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
-    final String tutorialKey = alternate ? "_alt" : "";
+    final String postfix = alternate ? "_alt" : "";
+    final String bell = "${widget.bell}$postfix";
 
     // Color Wheel and Emoji Selector Stack
     return SizedBox(
       width: 200,
       child: Stack(
-        alignment: Alignment.center,
+        alignment: Alignment.bottomCenter,
         children: [
           // Solid Color circle to display selected color
-          CircleAvatar(
-            backgroundColor:
-            // Color in variable type "HSVColor"; needs to be converted
-            BellSettings.colors[bell]!.toColor(),
-            radius: 95,
-          ),
+          Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: CircleAvatar(
+                backgroundColor:
+                    // Color in variable type "HSVColor"; needs to be converted
+                    BellSettings.colors[bell]!.toColor(),
+                radius: 95,
+              )),
           // Color Wheel picker
           WheelPicker(
             showPalette: false,
@@ -636,60 +654,66 @@ class _BellSettingsMenuState extends State<BellSettingsMenu> {
           // Emoji Picker wrapped in Showcase
           BellSettingsMenu.bellTutorialSystem.showcase(
               context: context,
-              tutorial: 'tutorial_settings_bell${tutorialKey}_icon',
+              tutorial: 'tutorial_settings_bell${postfix}_icon',
               circular: true,
               // Container w/ Emoji TextField
               child: Container(
-                  width: 125,
-                  height: 125,
+                width: 125,
+                height: 125,
+                alignment: Alignment.center,
+                margin: const EdgeInsets.only(bottom: 50),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
                   alignment: Alignment.center,
-                  margin: const EdgeInsets.only(bottom: 10),
-                  // IntrinsicWidth which serves as a Container of the smallest size possible based on child (TextField)
-                  child: TextField(
-                    controller: BellSettings.emojis[bell],
-                    enableInteractiveSelection: false,
-                    focusNode: emojiFocus,
-                    showCursor: false,
-                    decoration: const InputDecoration(
-                      isDense: true,
-                      border: InputBorder.none,
-                      // Removes the underline
-                      contentPadding: EdgeInsets.symmetric(
-                          vertical: 10.0), // Optional: adjust padding
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      minWidth: 80,
+                      maxWidth: 240,
                     ),
-                    style: TextStyle(
+                    child: TextField(
+                      controller: _controllers["emoji$postfix"]!,
+                      focusNode: _focusNodes["emoji$postfix"]!,
+                      showCursor: false,
+                      enableInteractiveSelection: false,
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      style: TextStyle(
                         fontSize: 120,
-                        // Large font size
-                        color: colorScheme.onSurface),
-                    onTapOutside: (_) {
-                      emojiFocus.unfocus();
-                    },
-                    onChanged: (String text) {
-                      //Ensured no empty values
-                      if (text.isEmpty) {
-                        text = '_';
-                      }
-                      //Ensures no values greater than one character; will use 2nd char so that you can quickly type
-                      //Use characters to ensure emojis work
-                      if (text.characters.length > 1) {
-                        text = text.characters.last;
-                      }
-                      setState(() {
-                        BellSettings.emojis[bell]!.text = text;
-                      });
-                    },
-                  ).intrinsicFit()))
+                        height: 1.2,
+                        color: colorScheme.onSurface,
+                        overflow: TextOverflow.visible,
+                      ),
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                      onTapOutside: (_) {
+                        _focusNodes["emoji$postfix"]?.unfocus();
+                      },
+                      onChanged: (String text) {
+                        if (text.isEmpty) {
+                          text = '_';
+                        }
+                        if (text.characters.length > 1) {
+                          text = text.characters.last;
+                        }
+                        setState(() {
+                          _controllers["emoji$postfix"]!.text = text;
+                        });
+                      },
+                    ).intrinsicFit(),
+                  ),
+                ),
+              ))
         ],
       ),
     );
   }
 
   // Builds the Color Scroll displayed in the bell configuration menu
-  Widget _buildColorSelection(BuildContext context, String bell,
-      List<String> hexColors) {
-    final ColorScheme colorScheme = Theme
-        .of(context)
-        .colorScheme;
+  Widget _buildColorSelection(String bell, List<String> hexColors) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
     final double width = min(mediaQuery.size.width, 500);
@@ -770,9 +794,9 @@ class _BellSettingsMenuState extends State<BellSettingsMenu> {
                       decoration: BoxDecoration(
                           gradient: LinearGradient(
                               colors: [
-                                colorScheme.surface,
-                                colorScheme.surface.withAlpha(0),
-                              ],
+                            colorScheme.surface,
+                            colorScheme.surface.withAlpha(0),
+                          ],
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight)))),
               // Fading container which ignores touch aligned right
@@ -786,9 +810,9 @@ class _BellSettingsMenuState extends State<BellSettingsMenu> {
                         decoration: BoxDecoration(
                             gradient: LinearGradient(
                                 colors: [
-                                  colorScheme.surface,
-                                  colorScheme.surface.withAlpha(0),
-                                ],
+                              colorScheme.surface,
+                              colorScheme.surface.withAlpha(0),
+                            ],
                                 end: Alignment.centerLeft,
                                 begin: Alignment.centerRight)))),
               )
@@ -814,12 +838,10 @@ class _BellSettingsMenuState extends State<BellSettingsMenu> {
   }
 
   // Builds a text form displayed in the bell configuration menu
-  Widget _buildTextForm(BuildContext context, TextEditingController controller,
-      String display, int maxLength,
+  Widget _buildTextForm(
+      TextEditingController controller, String display, int maxLength,
       {FocusNode? focusNode}) {
-    final ColorScheme colorScheme = Theme
-        .of(context)
-        .colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final MediaQueryData mediaQuery = MediaQuery.of(context);
     final double size = min(mediaQuery.size.width, 500) * 5 / 6;
 
@@ -850,14 +872,12 @@ class _BellSettingsMenuState extends State<BellSettingsMenu> {
     );
   }
 
-  Widget _buildDaySelector(BuildContext context, String bell) {
-    final ColorScheme colorScheme = Theme
-        .of(context)
-        .colorScheme;
+  Widget _buildDaySelector() {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     final List<String> meetDays = [];
     Schedule.sampleDays.forEach((key, value) {
-      if (value.contains(bell)) {
+      if (value.contains(widget.bell)) {
         meetDays.add(key);
       }
     });
@@ -881,19 +901,20 @@ class _BellSettingsMenuState extends State<BellSettingsMenu> {
                 child: InkWell(
                   onTap: () {
                     setState(() {
-                      if (BellSettings.altDays[bell]!.contains(dayTitle)) {
-                        BellSettings.altDays[bell]!.remove(dayTitle);
+                      if (BellSettings.altDays[widget.bell]!
+                          .contains(dayTitle)) {
+                        BellSettings.altDays[widget.bell]!.remove(dayTitle);
                       } else {
-                        BellSettings.altDays[bell]!.add(dayTitle);
+                        BellSettings.altDays[widget.bell]!.add(dayTitle);
                       }
                     });
                   },
                   child: Column(mainAxisSize: MainAxisSize.min, children: [
                     Text(dayTitle,
-                        style: TextStyle(
-                            fontSize: 24,
-                            color: colorScheme.onSurface,
-                            fontFamily: "Exo_2"))
+                            style: TextStyle(
+                                fontSize: 24,
+                                color: colorScheme.onSurface,
+                                fontFamily: "Exo_2"))
                         .fit(),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
@@ -903,17 +924,18 @@ class _BellSettingsMenuState extends State<BellSettingsMenu> {
                           final String dayBell = day[e];
                           return Container(
                             height: dayBell == "FLEX" ? 25 : bellHeight,
-                            color: dayBell == bell
+                            color: dayBell == widget.bell
                                 ? colorScheme.primary
                                 : colorScheme.onSurface
-                                .withAlpha(dayBell == "FLEX" ? 64 : 96),
+                                    .withAlpha(dayBell == "FLEX" ? 64 : 96),
                           );
                         }),
                       ),
                     ),
                     Checkbox(
                         activeColor: colorScheme.primary,
-                        value: BellSettings.altDays[bell]!.contains(dayTitle),
+                        value: BellSettings.altDays[widget.bell]!
+                            .contains(dayTitle),
                         onChanged: (_) {})
                   ]),
                 ),
@@ -927,9 +949,9 @@ class _BellSettingsMenuState extends State<BellSettingsMenu> {
             height: 230,
             decoration: BoxDecoration(
                 gradient: LinearGradient(colors: [
-                  colorScheme.surface,
-                  colorScheme.surface.withAlpha(0)
-                ], begin: Alignment.centerLeft, end: Alignment.centerRight)),
+              colorScheme.surface,
+              colorScheme.surface.withAlpha(0)
+            ], begin: Alignment.centerLeft, end: Alignment.centerRight)),
           ),
         ),
         Align(
@@ -940,9 +962,9 @@ class _BellSettingsMenuState extends State<BellSettingsMenu> {
               height: 230,
               decoration: BoxDecoration(
                   gradient: LinearGradient(colors: [
-                    colorScheme.surface,
-                    colorScheme.surface.withAlpha(0)
-                  ], begin: Alignment.centerRight, end: Alignment.centerLeft)),
+                colorScheme.surface,
+                colorScheme.surface.withAlpha(0)
+              ], begin: Alignment.centerRight, end: Alignment.centerLeft)),
             ),
           ),
         )

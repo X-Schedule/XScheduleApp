@@ -11,10 +11,10 @@ import '../../schedule_display/schedule_display.dart';
 class BellSettings {
   // Maps of temporary values used in editing bell vanity (<Bell, Value>)
   static final Map<String, HSVColor> colors = {};
-  static final Map<String, TextEditingController> emojis = {};
-  static final Map<String, TextEditingController> names = {};
-  static final Map<String, TextEditingController> teachers = {};
-  static final Map<String, TextEditingController> locations = {};
+  static final Map<String, String> emojis = {};
+  static final Map<String, String> names = {};
+  static final Map<String, String> teachers = {};
+  static final Map<String, String> locations = {};
   static final Map<String, List<String>> altDays = {};
 
   /// Clears all temporary bell values from settings
@@ -43,16 +43,16 @@ class BellSettings {
           HSVColor.fromColor(ColorExtension.fromHex(bellVanity['color']));
     }
     if(bellVanity['emoji'] != null) {
-      emojis[bell]!.text = bellVanity['emoji'];
+      emojis[bell] = bellVanity['emoji'];
     }
     if(bellVanity['name'] != null) {
-      names[bell]!.text = bellVanity['name'];
+      names[bell] = bellVanity['name'];
     }
     if(bellVanity['teacher'] != null) {
-      teachers[bell]!.text = bellVanity['teacher'];
+      teachers[bell] = bellVanity['teacher'];
     }
     if(bellVanity['location'] != null) {
-      locations[bell]!.text = bellVanity['location'];
+      locations[bell] = bellVanity['location'];
     }
     if(bellVanity['alt_days'] != null) {
       altDays[bell] = bellVanity['alt_days'].cast<String>();
@@ -68,16 +68,16 @@ class BellSettings {
             HSVColor.fromColor(ColorExtension.fromHex(altBellVanity['color']));
       }
       if(altBellVanity['emoji'] != null) {
-        emojis[altBell]!.text = altBellVanity['emoji'];
+        emojis[altBell] = altBellVanity['emoji'];
       }
       if(altBellVanity['name'] != null) {
-        names[altBell]!.text = altBellVanity['name'];
+        names[altBell] = altBellVanity['name'];
       }
       if(altBellVanity['teacher'] != null) {
-        teachers[altBell]!.text = altBellVanity['teacher'];
+        teachers[altBell] = altBellVanity['teacher'];
       }
       if(altBellVanity['location'] != null) {
-        locations[altBell]!.text = altBellVanity['location'];
+        locations[altBell] = altBellVanity['location'];
       }
     }
   }
@@ -129,10 +129,9 @@ class BellSettings {
     // Null-aware assignments of bell variables
     colors[bell] ??=
         HSVColor.fromColor(ColorExtension.fromHex(reference['color']));
-    emojis[bell] ??=
-        TextEditingController(text: reference['emoji'].replaceAll('HR', '📚'));
-    names[bell] ??= TextEditingController(text: reference['name']);
-    teachers[bell] ??= TextEditingController(text: reference['teacher']);
-    locations[bell] ??= TextEditingController(text: reference['location']);
+    emojis[bell] ??= reference['emoji'].replaceAll('HR', '📚');
+    names[bell] ??= reference['name'];
+    teachers[bell] ??= reference['teacher'];
+    locations[bell] ??= reference['location'];
   }
 }
