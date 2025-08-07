@@ -37,7 +37,7 @@ class Credits extends StatelessWidget {
     }
 
     // Makes the title plural if list >1
-    if (list.length > 1) {
+    if (list.length > 1 && key != "Development Alumni") {
       key = '${key}s';
     }
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
@@ -144,7 +144,7 @@ class Credits extends StatelessWidget {
               )),
               // Copyright info text
               Text(
-                "© 2024 St. Xavier HS\nAvailable under MIT license.",
+                "© 2024 St. Xavier HS, Cincinnati OH\nAvailable under MIT license.",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     height: 0.975,
