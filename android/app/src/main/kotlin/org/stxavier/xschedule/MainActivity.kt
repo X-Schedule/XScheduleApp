@@ -1,4 +1,4 @@
-package com.example.xschedule
+package org.stxavier.xschedule
 
 import io.flutter.embedding.android.FlutterActivity
 
