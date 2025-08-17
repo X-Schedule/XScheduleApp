@@ -93,9 +93,9 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
     // Verify that >= .25 seconds have been waited for any page animation to finish
     await Future.delayed(const Duration(milliseconds: 250));
     if (!ScheduleDisplay.tutorialSystem.finished) {
-      // Temporary counting int for determining tutorialDate
-      int index = 0;
       if (ScheduleDisplay.tutorialDate == null) {
+        // Temporary counting int for determining tutorialDate
+        int index = 0;
         while (index <= 25 && ScheduleDisplay.tutorialDate == null) {
           // Checks dates of both positive and negative count index from starting date for schedule
           if (ScheduleDirectory.readSchedule(
@@ -112,28 +112,27 @@ class _ScheduleDisplayState extends State<ScheduleDisplay> {
           // Increment index
           index++;
         }
-        // If index = 26, no schedule was found, so exit
-        if (index == 26) {
-          return;
+        // If index != 26, schedule was found
+        if (index != 26) {
+          setState(() {
+            ScheduleDisplay.tutorialDate =
+                ScheduleDisplay.initialDate.addDay(index);
+          });
         }
-        // ...else set tutorialDate to found schedule
-        setState(() {
-          ScheduleDisplay.tutorialDate =
-              ScheduleDisplay.initialDate.addDay(index);
-        });
-        return;
-      }
-      // if animation needs to occur, run it and end
-      if (index != ScheduleDisplay.pageIndex && index != 0) {
-        // Set pageIndex to determined index, then animate page
-        ScheduleDisplay.pageIndex = index;
-        _controller.animateToPage(initialPage + index,
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeInOut);
-      } else if (context.mounted) {
-        // ...else begin tutorial
-        ScheduleDisplay.tutorialSystem.showTutorials(context);
-        ScheduleDisplay.tutorialSystem.finish();
+      } else {
+        int index = ScheduleDisplay.tutorialDate!.day - ScheduleDisplay.initialDate.day;
+        // if animation needs to occur, run it and end
+        if (index != ScheduleDisplay.pageIndex) {
+          // Set pageIndex to determined index, then animate page
+          ScheduleDisplay.pageIndex = index;
+          _controller.animateToPage(initialPage + index,
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeInOut);
+        } else if (context.mounted) {
+          // ...else begin tutorial
+          ScheduleDisplay.tutorialSystem.showTutorials(context);
+          ScheduleDisplay.tutorialSystem.finish();
+        }
       }
     }
   }

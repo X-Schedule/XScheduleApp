@@ -94,6 +94,8 @@ class Credits extends StatelessWidget {
 
     // Returns credits popup
     return PopupMenu(
+        backgroundColor: colorScheme.secondaryContainer,
+        popButton: true,
         child: SizedBox(
           width: mediaQuery.size.width * 4 / 5,
           height: mediaQuery.size.height * 2 / 3,
@@ -106,7 +108,8 @@ class Credits extends StatelessWidget {
               Container(
                 height: 125,
                 margin: const EdgeInsets.all(8),
-                child: Image.asset("assets/images/xschedule.png").clip(borderRadius: BorderRadius.circular(20)),
+                child: Image.asset("assets/images/xschedule.png")
+                    .clip(borderRadius: BorderRadius.circular(20)),
               ),
               // X-Schedule title
               Text(
@@ -131,7 +134,8 @@ class Credits extends StatelessWidget {
               // ScrollView of Credits set to fill rest of popup
               Expanded(
                   child: Container(
-                margin: const EdgeInsets.symmetric(vertical: 16),
+                margin: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                color: colorScheme.surface,
                 child: SingleChildScrollView(
                   child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -144,7 +148,7 @@ class Credits extends StatelessWidget {
               )),
               // Copyright info text
               Text(
-                "© 2024 St. Xavier HS, Cincinnati OH\nAvailable under MIT license.",
+                "© 2025 St. Xavier HS, Cincinnati OH\nAvailable under MIT license.",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     height: 0.975,
