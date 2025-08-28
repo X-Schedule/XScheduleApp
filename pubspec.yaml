@@ -181,6 +181,7 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
 
+# run "dart run msix:create" to build windows
 msix_config:
   display_name: X-Schedule
   publisher_display_name: Saint Xavier HS
