@@ -48,10 +48,11 @@ dependencies:
   file_picker: ^9.0.0 # Adds file picker native to all platforms
   flutter_launcher_icons: ^0.14.3 # Manages the app's icon more effectively
   flip_card: ^0.7.0 # Adds Card with flipping animation used in popups.
-  qr_flutter: ^4.1.0
-  mobile_scanner: ^6.0.10
-  keyboard_avoider: ^0.2.0
-  change_app_package_name: ^1.5.0
+  qr_flutter: ^4.1.0 # Adds the ability to convert data (mainly Strings) into QR codes
+  mobile_scanner: ^6.0.10 # Adds widget which scans QR / barcodes via camera
+  keyboard_avoider: ^0.2.0 # Adds widget which shifts elements to avoid keyboard popup
+  change_app_package_name: ^1.5.0 # Plugin which makes changing package name easier
+  msix: ^3.16.12 # Plugin which makes exporting Windows build easier
 
 dev_dependencies:
   flutter_test:
@@ -179,3 +180,11 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+msix_config:
+  display_name: X-Schedule
+  publisher_display_name: Saint Xavier HS
+  identity_name: org.stxavier.xschedule
+  msix_version: 1.0.0.0
+  logo_path: windows\runner\resources\app_icon.ico
+  capabilities: internetClient
